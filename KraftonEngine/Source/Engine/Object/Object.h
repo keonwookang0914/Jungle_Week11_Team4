@@ -60,7 +60,8 @@ class FArchive;
 #define KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags)  \
     {                                                                       \
         FProperty* P = new FProperty();                                     \
-        P->Name = (DisplayName);											\
+        P->Name = #MemberName;												\
+		P->DisplayName = DisplayName;										\
         P->Type = (InType);                                                 \
         P->Category = (InCategory);                                         \
         P->PropertyFlag = (InFlags);                                        \
@@ -72,7 +73,8 @@ class FArchive;
 #define PROPERTY_FLOAT(MemberName, InCategory, InMin, InMax, InSpeed, InFlags) \
     {                                                                       \
         FProperty* P = new FProperty();                                     \
-        P->Name = FName::NameToDisplayString(#MemberName, false);           \
+		P->Name = #MemberName;												\
+        P->DisplayName = FName::NameToDisplayString(#MemberName, false);    \
         P->Type = EPropertyType::Float;                                     \
         P->Category = (InCategory);                                         \
         P->Min = (InMin); P->Max = (InMax); P->Speed = (InSpeed);           \
