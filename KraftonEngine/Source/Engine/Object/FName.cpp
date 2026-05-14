@@ -91,3 +91,13 @@ bool FName::IsValid() const
 {
 	return DisplayIndex != 0 || ComparisonIndex != 0;
 }
+
+FString FName::NameToDisplayString(const FString& InName, bool bIsBool)
+{
+	FString OutName;
+	// Add space between camelcases
+
+	// If the variable is a bool, drop 'b' in the beginning of the name, and append '?'
+
+	return OutName;
+}
