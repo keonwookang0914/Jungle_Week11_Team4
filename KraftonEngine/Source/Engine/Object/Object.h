@@ -17,7 +17,8 @@ class FArchive;
     static UClass StaticClassInstance;                                      \
     static FClassRegistrar s_Registrar;                                    \
     static UClass* StaticClass() { return &StaticClassInstance; }           \
-    UClass* GetClass() const override { return StaticClass(); }
+    UClass* GetClass() const override { return StaticClass(); }				\
+	friend struct ClassName##_PropertyRegistrar;
 
 #define DEFINE_CLASS_WITH_FLAGS(ClassName, ParentClass, FlagsValue)         \
     UClass ClassName::StaticClassInstance(                                  \
@@ -43,7 +44,6 @@ class FArchive;
 // ---------------------------------------------------------------------------
 
 #define BEGIN_CLASS_PROPERTIES(ClassName)                                   \
-    namespace {                                                             \
         struct ClassName##_PropertyRegistrar {                              \
             ClassName##_PropertyRegistrar() {                               \
                 using ThisClass = ClassName;                                \
@@ -53,8 +53,7 @@ class FArchive;
 #define END_CLASS_PROPERTIES(ClassName)                                     \
             }                                                               \
         };                                                                  \
-        static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;   \
-    }
+        static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;   
 
 // 모든 PROPERTY_* 매크로 공통
 #define KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags)  \
