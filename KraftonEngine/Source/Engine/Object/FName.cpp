@@ -94,10 +94,25 @@ bool FName::IsValid() const
 
 FString FName::NameToDisplayString(const FString& InName, bool bIsBool)
 {
-	FString OutName;
-	// Add space between camelcases
+	FString Name = InName;
+	// If the variable is a bool, drop the leading 'b'
+	if (bIsBool && Name.length() >= 2)
+	{
+		const char First = Name[0];
+		const char Second = Name[1];
 
-	// If the variable is a bool, drop 'b' in the beginning of the name, and append '?'
+		if (First == 'b' && std::isupper(static_cast<unsigned char>(Second)))
+		{
+			Name.erase(0, 1);
+		}
+	}
+	FString OutName;
+
+	// Add space between camelcases. 
+	OutName.reserve(Name.length());
+
+	// If the variable is a bool, drop 'b' in the beginning of the name
+
 
 	return OutName;
 }
