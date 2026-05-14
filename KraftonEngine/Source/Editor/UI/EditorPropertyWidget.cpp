@@ -44,6 +44,13 @@
 
 namespace
 {
+	// Editor 표시용 라벨. DisplayName 이 비어 있으면 raw Name (예: bIsVisible) 으로 fallback.
+	// Name 은 JSON key / PostEditProperty dispatch 키로 그대로 유지.
+	inline const char* PropLabel(const FProperty& Prop)
+	{
+		return Prop.DisplayName.empty() ? Prop.Name.c_str() : Prop.DisplayName.c_str();
+	}
+
 	bool IsFbxFilePath(const FString& Path)
 	{
 		std::filesystem::path FilePath(FPaths::ToWide(Path));
@@ -444,7 +451,7 @@ void FEditorPropertyWidget::RenderActorProperties(AActor* PrimaryActor, const TA
 				ImGui::SetWindowFontScale(0.92f);
 
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(Props[i].Name.c_str());
+				ImGui::TextUnformatted(PropLabel(Props[i]));
 
 				ImGui::SetWindowFontScale(1.0f);
 
@@ -848,7 +855,7 @@ void FEditorPropertyWidget::RenderComponentProperties(AActor* Actor, const TArra
 				ImGui::SetWindowFontScale(0.92f);
 
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(Props[i].Name.c_str());
+				ImGui::TextUnformatted(PropLabel(Props[i]));
 
 				ImGui::SetWindowFontScale(1.0f);
 
@@ -1434,7 +1441,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 
 		if (!Names.empty())
 		{
-			if (ImGui::BeginCombo(Prop.Name.c_str(), Current.c_str()))
+			if (ImGui::BeginCombo(PropLabel(Prop), Current.c_str()))
 			{
 				for (const auto& Name : Names)
 				{
@@ -1454,7 +1461,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		{
 			char Buf[256];
 			strncpy_s(Buf, sizeof(Buf), Current.c_str(), _TRUNCATE);
-			if (ImGui::InputText(Prop.Name.c_str(), Buf, sizeof(Buf)))
+			if (ImGui::InputText(PropLabel(Prop), Buf, sizeof(Buf)))
 			{
 				*Val = FName(Buf);
 				bChanged = true;
@@ -1468,7 +1475,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		int32 Val = 0;
 		memcpy(&Val, Prop.ValuePtr, Prop.EnumSize);
 		const char* Preview = ((uint32)Val < Prop.EnumCount) ? Prop.EnumNames[Val] : "Unknown";
-		if (ImGui::BeginCombo(Prop.Name.c_str(), Preview))
+		if (ImGui::BeginCombo(PropLabel(Prop), Preview))
 		{
 			for (uint32 i = 0; i < Prop.EnumCount; ++i)
 			{
@@ -1489,7 +1496,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 	{
 		TArray<FVector>* Arr = static_cast<TArray<FVector>*>(Prop.ValuePtr);
 
-		ImGui::TextUnformatted(Prop.Name.c_str());
+		ImGui::TextUnformatted(PropLabel(Prop));
 
 		int32 RemoveIdx = -1;
 		for (int32 i = 0; i < (int32)Arr->size(); ++i)
@@ -1551,7 +1558,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 					const char* Preview = ((uint32)Val < ChildProp.EnumCount) ? ChildProp.EnumNames[Val] : "Unknown";
 
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(ChildProp.Name.c_str());
+					ImGui::TextUnformatted(PropLabel(ChildProp));
 
 					ImGui::SameLine(120.0f);
 					ImGui::SetNextItemWidth(-1);
@@ -1587,7 +1594,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		FString* Val = static_cast<FString*>(Prop.ValuePtr);
 		char Buf[256];
 		strncpy_s(Buf, sizeof(Buf), Val->c_str(), _TRUNCATE);
-		if (ImGui::InputText(Prop.Name.c_str(), Buf, sizeof(Buf)))
+		if (ImGui::InputText(PropLabel(Prop), Buf, sizeof(Buf)))
 		{
 			*Val = Buf;
 			bChanged = true;

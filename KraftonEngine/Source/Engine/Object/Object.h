@@ -109,7 +109,71 @@ class FArchive;
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), InType, InCategory, InFlags)	\
 	}
 
+// Enum 멤버 등록. EnumNamesArr/EnumCountVal/EnumSizeVal 은 호출자가 제공.
+//   예: PROPERTY_ENUM(CollisionEnabled, "Collision",
+//                     GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT,
+//                     sizeof(ECollisionEnabled), CPF_Edit)
+#define PROPERTY_ENUM(MemberName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
+	{                                                                                           \
+		FProperty* P = new FProperty();                                                         \
+		P->Name = #MemberName;                                                                  \
+		P->DisplayName = FName::NameToDisplayString(#MemberName, false);                        \
+		P->Type = EPropertyType::Enum;                                                          \
+		P->Category = (InCategory);                                                             \
+		P->PropertyFlag = (InFlags);                                                            \
+		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
+		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
+		P->EnumNames = (EnumNamesArr);                                                          \
+		P->EnumCount = (EnumCountVal);                                                          \
+		P->EnumSize  = (EnumSizeVal);                                                           \
+		Cls->AddProperty(P);                                                                    \
+	}
+
+// Struct 멤버 등록. StructFuncPtr 는 자식 프로퍼티 디스크립터를 만드는 콜백.
+//   예: PROPERTY_STRUCT(ResponseContainer, "Collision",
+//                       &FCollisionResponseContainer::DescribeProperties, CPF_Edit)
+#define PROPERTY_STRUCT(MemberName, InCategory, StructFuncPtr, InFlags)                         \
+	{                                                                                           \
+		FProperty* P = new FProperty();                                                         \
+		P->Name = #MemberName;                                                                  \
+		P->DisplayName = FName::NameToDisplayString(#MemberName, false);                        \
+		P->Type = EPropertyType::Struct;                                                        \
+		P->Category = (InCategory);                                                             \
+		P->PropertyFlag = (InFlags);                                                            \
+		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
+		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
+		P->StructFunc = (StructFuncPtr);                                                        \
+		Cls->AddProperty(P);                                                                    \
+	}
+
 // ---------------------------------------------------------------------------
+
+// 점진적 마이그레이션용 헬퍼. 지정한 UClass 의 OWN 프로퍼티(상속 체인 X)만
+// OutProps 에 복사하고 ValuePtr 를 Instance+Offset 으로 패치한다.
+//
+// 사용 패턴 (예: UPrimitiveComponent::GetEditableProperties):
+//     Super::GetEditableProperties(OutProps);            // base 의 매뉴얼 props
+//     AppendReflectedProperties(this, StaticClass(), OutProps);  // OWN reflected
+//
+// 모든 ancestor 가 reflected 로 마이그레이션되면 helper 호출 대신
+// UObject::GetEditableProperties 의 base impl 을 GetAllProperties walk 로 복원해
+// 한 번에 처리할 수 있다.
+class UClass;
+class UObject;
+inline void AppendReflectedProperties(UObject* Instance, UClass* Cls, TArray<FProperty>& OutProps)
+{
+	if (!Instance || !Cls) return;
+	const size_t Start = OutProps.size();
+	for (const FProperty* P : Cls->GetProperties())
+	{
+		if (P) OutProps.push_back(*P);
+	}
+	uint8_t* Base = reinterpret_cast<uint8_t*>(Instance);
+	for (size_t i = Start; i < OutProps.size(); ++i)
+	{
+		OutProps[i].ValuePtr = Base + OutProps[i].Offset_Internal;
+	}
+}
 
 // Forward — IsValid 의 실제 정의는 GUObjectSet 선언 뒤. UObject::GetTypedOuter 가
 // non-dependent name lookup 으로 IsValid 를 찾을 수 있게 미리 알려둠.

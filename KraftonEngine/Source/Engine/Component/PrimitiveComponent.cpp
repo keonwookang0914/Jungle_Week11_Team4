@@ -37,6 +37,26 @@ namespace
 IMPLEMENT_CLASS(UPrimitiveComponent, USceneComponent)
 HIDE_FROM_COMPONENT_LIST(UPrimitiveComponent)
 
+BEGIN_CLASS_PROPERTIES(UPrimitiveComponent)
+	PROPERTY_BOOL  (bIsVisible,             "Rendering", CPF_Edit)
+	PROPERTY_BOOL  (bCastShadow,            "Rendering", CPF_Edit)
+	PROPERTY_BOOL  (bCastShadowAsTwoSided,  "Rendering", CPF_Edit)
+
+	PROPERTY_BOOL  (bSimulatePhysics,       "Collision", CPF_Edit)
+	PROPERTY_BOOL  (bGenerateOverlapEvents, "Collision", CPF_Edit)
+	PROPERTY_ENUM  (CollisionEnabled,       "Collision",
+	                GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT,
+	                sizeof(ECollisionEnabled), CPF_Edit)
+	PROPERTY_ENUM  (ObjectType,             "Collision",
+	                GCollisionChannelNames, (uint32)ECollisionChannel::ActiveCount,
+	                sizeof(ECollisionChannel), CPF_Edit)
+	PROPERTY_STRUCT(ResponseContainer,      "Collision",
+	                &FCollisionResponseContainer::DescribeProperties, CPF_Edit)
+
+	PROPERTY_FLOAT (Mass,                   "Physics", 0.0f, 0.0f, 0.1f, CPF_Edit)
+	PROPERTY_VEC3  (CenterOfMassOffset,     "Physics", CPF_Edit)
+END_CLASS_PROPERTIES(UPrimitiveComponent)
+
 UPrimitiveComponent::~UPrimitiveComponent()
 {
 	if (Owner)
@@ -192,52 +212,11 @@ void UPrimitiveComponent::MarkRenderVisibilityDirty()
 
 void UPrimitiveComponent::GetEditableProperties(TArray<FProperty>& OutProps)
 {
+	// Base 의 매뉴얼 props (Component / Transform 카테고리) 먼저.
 	USceneComponent::GetEditableProperties(OutProps);
-
-	OutProps.push_back({ "Visible", EPropertyType::Bool, "Rendering", &bIsVisible });
-	OutProps.push_back({ "Cast Shadow", EPropertyType::Bool, "Rendering", &bCastShadow });
-	OutProps.push_back({ "Two Sided Shadow", EPropertyType::Bool, "Rendering", &bCastShadowAsTwoSided });
-
-	OutProps.push_back({ "Simulate Physics", EPropertyType::Bool, "Collision", &bSimulatePhysics });
-	OutProps.push_back({ "Generate Overlap Events", EPropertyType::Bool, "Collision", &bGenerateOverlapEvents });
-
-	{
-		FProperty Desc;
-		Desc.Name = "Collision Enabled";
-		Desc.Type = EPropertyType::Enum;
-		Desc.Category = "Collision";
-		Desc.ValuePtr = &CollisionEnabled;
-		Desc.EnumNames = GCollisionEnabledNames;
-		Desc.EnumCount = static_cast<uint32>(ECollisionEnabled::COUNT);
-		Desc.EnumSize = sizeof(ECollisionEnabled);
-		OutProps.push_back(Desc);
-	}
-
-	{
-		FProperty Desc;
-		Desc.Name = "Object Type";
-		Desc.Type = EPropertyType::Enum;
-		Desc.Category = "Collision";
-		Desc.ValuePtr = &ObjectType;
-		Desc.EnumNames = GCollisionChannelNames;
-		Desc.EnumCount = static_cast<uint32>(ECollisionChannel::ActiveCount);
-		Desc.EnumSize = sizeof(ECollisionChannel);
-		OutProps.push_back(Desc);
-	}
-
-	{
-		FProperty Desc;
-		Desc.Name = "Collision Responses";
-		Desc.Type = EPropertyType::Struct;
-		Desc.Category = "Collision";
-		Desc.ValuePtr = &ResponseContainer;
-		Desc.StructFunc = &FCollisionResponseContainer::DescribeProperties;
-		OutProps.push_back(Desc);
-	}
-
-	// 물리 파라미터 — RootComponent에 한해 백엔드에 적용된다 (compound shape).
-	OutProps.push_back({ "Mass (kg)", EPropertyType::Float, "Physics", &Mass });
-	OutProps.push_back({ "Center Of Mass Offset", EPropertyType::Vec3, "Physics", &CenterOfMassOffset });
+	// UPrimitiveComponent 자신의 reflected props (Rendering / Collision / Physics).
+	// 동적 props 가 없으므로 이 두 줄로 충분. 자세한 등록은 BEGIN_CLASS_PROPERTIES 참조.
+	AppendReflectedProperties(this, StaticClass(), OutProps);
 }
 
 void UPrimitiveComponent::PostEditProperty(const char* PropertyName)
@@ -245,20 +224,20 @@ void UPrimitiveComponent::PostEditProperty(const char* PropertyName)
 	// 베이스 클래스의 transform 등 공통 프로퍼티 처리 보장
 	USceneComponent::PostEditProperty(PropertyName);
 
-	if (strcmp(PropertyName, "Visible") == 0)
+	if (strcmp(PropertyName, "bIsVisible") == 0)
 	{
 		// Property Editor가 bIsVisible을 직접 수정한 경우 dirty 시퀀스만 전파한다.
 		MarkRenderVisibilityDirty();
 	}
-	else if (strcmp(PropertyName, "Cast Shadow") == 0)
+	else if (strcmp(PropertyName, "bCastShadow") == 0)
 	{
 		MarkRenderVisibilityDirty();
 	}
-	else if (strcmp(PropertyName, "Two Sided Shadow") == 0)
+	else if (strcmp(PropertyName, "bCastShadowAsTwoSided") == 0)
 	{
 		MarkRenderVisibilityDirty();
 	}
-	else if (strcmp(PropertyName, "Collision Enabled") == 0)
+	else if (strcmp(PropertyName, "CollisionEnabled") == 0)
 	{
 		// 에디터 property panel 이 enum 값을 직접 바꾼 경우 — 이미 CollisionEnabled 필드는
 		// 갱신된 상태고 setter 를 안 거쳤으니 여기서 Register/Unregister 처리.
@@ -288,12 +267,12 @@ void UPrimitiveComponent::PostEditProperty(const char* PropertyName)
 			}
 		}
 	}
-	else if (strcmp(PropertyName, "Mass (kg)") == 0)
+	else if (strcmp(PropertyName, "Mass") == 0)
 	{
 		// 에디터 슬라이더로 값을 바꾼 경우 백엔드에 즉시 반영.
 		SetMass(Mass);
 	}
-	else if (strcmp(PropertyName, "Center Of Mass Offset") == 0)
+	else if (strcmp(PropertyName, "CenterOfMassOffset") == 0)
 	{
 		SetCenterOfMass(CenterOfMassOffset);
 	}
