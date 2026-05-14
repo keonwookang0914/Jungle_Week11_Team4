@@ -32,6 +32,73 @@ class FArchive;
     DEFINE_CLASS_WITH_FLAGS(ClassName, ParentClass, CF_None)
 
 // ---------------------------------------------------------------------------
+// Property registration — UPROPERTY-style 매크로.
+// 
+//     BEGIN_CLASS_PROPERTIES(UCarMovementComponent)
+//         PROPERTY_FLOAT(MaxSpeed, "Movement", 0.0f, 200.0f, 0.5f)
+//         PROPERTY_BOOL(bUseRaycastSuspension, "Suspension")
+//     END_CLASS_PROPERTIES(UCarMovementComponent)
+//
+// 인스턴스 바인딩(ValuePtr = this+Offset)은 UObject::GetEditableProperties 가 수행.
+// ---------------------------------------------------------------------------
+
+#define BEGIN_CLASS_PROPERTIES(ClassName)                                   \
+    namespace {                                                             \
+        struct ClassName##_PropertyRegistrar {                              \
+            ClassName##_PropertyRegistrar() {                               \
+                using ThisClass = ClassName;                                \
+                UClass* Cls = ClassName::StaticClass();                     \
+                (void)Cls;
+
+#define END_CLASS_PROPERTIES(ClassName)                                     \
+            }                                                               \
+        };                                                                  \
+        static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;   \
+    }
+
+// 모든 PROPERTY_* 매크로 공통
+#define KE_REGISTER_PROPERTY_IMPL(MemberName, InType, InCategory, InFlags)  \
+    {                                                                       \
+        FProperty* P = new FProperty();                                     \
+        P->Name = #MemberName;                                              \
+        P->Type = (InType);                                                 \
+        P->Category = (InCategory);                                         \
+        P->PropertyFlag = (InFlags);                                        \
+        P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName)); \
+        P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName)); \
+        Cls->AddProperty(P);                                                \
+    }
+
+#define PROPERTY_FLOAT(MemberName, InCategory, InMin, InMax, InSpeed)       \
+    {                                                                       \
+        FProperty* P = new FProperty();                                     \
+        P->Name = #MemberName;                                              \
+        P->Type = EPropertyType::Float;                                     \
+        P->Category = (InCategory);                                         \
+        P->Min = (InMin); P->Max = (InMax); P->Speed = (InSpeed);           \
+        P->PropertyFlag = CPF_Edit;                                         \
+        P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName)); \
+        P->ElementSize = static_cast<uint32>(sizeof(float));                \
+        Cls->AddProperty(P);                                                \
+    }
+
+#define PROPERTY_BOOL(MemberName, InCategory)                              \
+    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Bool, InCategory, CPF_Edit)
+
+#define PROPERTY_INT(MemberName, InCategory)                               \
+    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Int, InCategory, CPF_Edit)
+
+#define PROPERTY_VEC3(MemberName, InCategory)                              \
+    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Vec3, InCategory, CPF_Edit)
+
+#define PROPERTY_STRING(MemberName, InCategory)                            \
+    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::String, InCategory, CPF_Edit)
+
+// 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
+#define REGISTER_PROPERTY(MemberName, InType, InCategory)                  \
+    KE_REGISTER_PROPERTY_IMPL(MemberName, InType, InCategory, CPF_Edit)
+
+// ---------------------------------------------------------------------------
 
 // Forward — IsValid 의 실제 정의는 GUObjectSet 선언 뒤. UObject::GetTypedOuter 가
 // non-dependent name lookup 으로 IsValid 를 찾을 수 있게 미리 알려둠.

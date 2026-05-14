@@ -60,9 +60,22 @@ void UObject::Serialize(FArchive& Ar)
 	Ar << ObjectName;
 }
 
-void UObject::GetEditableProperties(TArray<FProperty>& /*OutProps*/)
+void UObject::GetEditableProperties(TArray<FProperty>& OutProps)
 {
-	// 기본 UObject는 에디터에 노출할 프로퍼티 없음.
+	// UClass 에 등록된 reflected property 들을 자동 노출.
+	// 동적 프로퍼티(예: StaticMesh 의 MaterialSlots)는 파생 클래스가
+	// 여전히 Super::GetEditableProperties 호출 후 추가로 push_back 할 수 있다.
+	UClass* Cls = GetClass();
+	if (!Cls) return;
+
+	const size_t Start = OutProps.size();
+	Cls->GetAllProperties(OutProps);
+
+	uint8_t* Base = reinterpret_cast<uint8_t*>(this);
+	for (size_t i = Start; i < OutProps.size(); ++i)
+	{
+		OutProps[i].ValuePtr = Base + OutProps[i].Offset_Internal;
+	}
 }
 
 void UObject::PostEditProperty(const char* /*PropertyName*/)

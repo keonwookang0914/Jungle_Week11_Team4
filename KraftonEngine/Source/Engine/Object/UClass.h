@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Core/CoreTypes.h"
+#include "Core/PropertyTypes.h"
 
 #include <cstring>
 
@@ -27,9 +28,32 @@ public:
 	size_t       GetSize()       const { return Size; }
 	uint32       GetClassFlags() const { return ClassFlags; }
 	void         AddClassFlags(uint32 Flags) { ClassFlags |= Flags; }
-	TArray<FProperty*> GetProperties() const { return Properties; }
+	const TArray<FProperty*>& GetProperties() const { return Properties; }
 	FProperty*   GetProperty(uint32 Index) const { return Index < Properties.size() ? Properties[Index] : nullptr; }
 	void		 AddProperty(FProperty* InProperty) { if (InProperty) Properties.push_back(InProperty); }
+
+	// 베이스 → 파생 순서로 모든 프로퍼티 템플릿을 OutProps 에 복사.
+	// 기존 GetEditableProperties 구현이 Super 를 먼저 호출하던 순서와 동일하다.
+	// 복사본을 돌려주므로 호출자가 ValuePtr 을 인스턴스 주소로 패치해도 템플릿은 안전.
+	void GetAllProperties(TArray<FProperty>& OutProps) const
+	{
+		if (SuperClass) SuperClass->GetAllProperties(OutProps);
+		for (const FProperty* P : Properties)
+		{
+			if (P) OutProps.push_back(*P);
+		}
+	}
+
+	// 이름으로 프로퍼티 룩업. 자기 클래스 → 베이스 순서로 검색.
+	const FProperty* FindPropertyByName(const char* InName) const
+	{
+		if (!InName) return nullptr;
+		for (const FProperty* P : Properties)
+		{
+			if (P && std::strcmp(P->Name.c_str(), InName) == 0) return P;
+		}
+		return SuperClass ? SuperClass->FindPropertyByName(InName) : nullptr;
+	}
 
 	bool IsA(const UClass* Other) const
 	{
