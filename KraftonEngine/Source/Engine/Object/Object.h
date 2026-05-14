@@ -69,43 +69,43 @@ class FArchive;
         Cls->AddProperty(P);                                                \
     }
 
-#define PROPERTY_FLOAT(MemberName, InCategory, InMin, InMax, InSpeed)       \
+#define PROPERTY_FLOAT(MemberName, InCategory, InMin, InMax, InSpeed, InFlags) \
     {                                                                       \
         FProperty* P = new FProperty();                                     \
         P->Name = FName::NameToDisplayString(#MemberName, false);           \
         P->Type = EPropertyType::Float;                                     \
         P->Category = (InCategory);                                         \
         P->Min = (InMin); P->Max = (InMax); P->Speed = (InSpeed);           \
-        P->PropertyFlag = CPF_Edit;                                         \
+        P->PropertyFlag = (InFlags);                                        \
         P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName)); \
         P->ElementSize = static_cast<uint32>(sizeof(float));                \
         Cls->AddProperty(P);                                                \
     }
 
-#define PROPERTY_BOOL(MemberName, InCategory)																							 \
-	{																																	 \
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, true), EPropertyType::Bool, InCategory, CPF_Edit)  \
+#define PROPERTY_BOOL(MemberName, InCategory, InFlags)																				   	\
+	{																																	\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, true), EPropertyType::Bool, InCategory, InFlags)  \
 	}																		   
 
-#define PROPERTY_INT(MemberName, InCategory)																							\
+#define PROPERTY_INT(MemberName, InCategory, InFlags)																					\
 	{																																	\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Int, InCategory, CPF_Edit) \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Int, InCategory, InFlags)	\
 	}
 
-#define PROPERTY_VEC3(MemberName, InCategory)																							 \
-	{																																	 \
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Vec3, InCategory, CPF_Edit) \
+#define PROPERTY_VEC3(MemberName, InCategory, InFlags)																					\
+	{																																	\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Vec3, InCategory, InFlags) \
 	}
 
-#define PROPERTY_STRING(MemberName, InCategory)																								\
+#define PROPERTY_STRING(MemberName, InCategory, InFlags)																					\
 	{																																		\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::String, InCategory, CPF_Edit)	\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::String, InCategory, InFlags)	\
 	}
 
 // 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
-#define REGISTER_PROPERTY(MemberName, InType, InCategory)																	\
+#define REGISTER_PROPERTY(MemberName, InType, InCategory, InFlags)															\
 	{																														\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), InType, InCategory, CPF_Edit)	\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), InType, InCategory, InFlags)	\
 	}
 
 // ---------------------------------------------------------------------------
