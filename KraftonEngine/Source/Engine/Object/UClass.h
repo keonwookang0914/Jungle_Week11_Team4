@@ -26,7 +26,10 @@ public:
 	UClass*      GetSuperClass() const { return SuperClass; }
 	size_t       GetSize()       const { return Size; }
 	uint32       GetClassFlags() const { return ClassFlags; }
-	void        AddClassFlags(uint32 Flags) { ClassFlags |= Flags; }
+	void         AddClassFlags(uint32 Flags) { ClassFlags |= Flags; }
+	TArray<FProperty*> GetProperties() const { return Properties; }
+	FProperty*   GetProperty(uint32 Index) const { return Index < Properties.size() ? Properties[Index] : nullptr; }
+	void		 AddProperty(FProperty* InProperty) { if (InProperty) Properties.push_back(InProperty); }
 
 	bool IsA(const UClass* Other) const
 	{
