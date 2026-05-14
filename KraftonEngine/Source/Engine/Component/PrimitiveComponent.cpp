@@ -210,15 +210,6 @@ void UPrimitiveComponent::MarkRenderVisibilityDirty()
 	World->MarkWorldPrimitivePickingBVHDirty();
 }
 
-void UPrimitiveComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	// Base 의 매뉴얼 props (Component / Transform 카테고리) 먼저.
-	USceneComponent::GetEditableProperties(OutProps);
-	// UPrimitiveComponent 자신의 reflected props (Rendering / Collision / Physics).
-	// 동적 props 가 없으므로 이 두 줄로 충분. 자세한 등록은 BEGIN_CLASS_PROPERTIES 참조.
-	AppendReflectedProperties(this, StaticClass(), OutProps);
-}
-
 void UPrimitiveComponent::PostEditProperty(const char* PropertyName)
 {
 	// 베이스 클래스의 transform 등 공통 프로퍼티 처리 보장

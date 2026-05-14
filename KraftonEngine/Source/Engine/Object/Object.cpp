@@ -60,16 +60,20 @@ void UObject::Serialize(FArchive& Ar)
 	Ar << ObjectName;
 }
 
-void UObject::GetEditableProperties(TArray<FProperty>& /*OutProps*/)
+void UObject::GetEditableProperties(TArray<FProperty>& OutProps)
 {
-	// 점진적 마이그레이션 동안 base 는 no-op. 각 reflected-class 는 자신의 override 에서
-	//   Super::GetEditableProperties(OutProps);
-	//   AppendReflectedProperties(this, StaticClass(), OutProps);
-	// 패턴으로 OWN-class 프로퍼티만 인스턴스 바인딩해 추가한다.
-	// 체인 전체를 한 번에 walk 하지 않는 이유: 아직 마이그레이션이 끝나지 않은 base 가
-	// 자신의 매뉴얼 GetEditableProperties 에서 UObject base 를 호출하면, 그 자리에서
-	// most-derived 클래스의 reflected 가 추가되어 후속 override 의 helper 호출과 중복돼버린다.
-	// 모든 클래스가 마이그레이션되면 이 base 를 다시 GetAllProperties walk 로 바꿔도 안전.
+
+	UClass* Cls = GetClass();
+	if (!Cls) return;
+
+	const size_t Start = OutProps.size();
+	Cls->GetAllProperties(OutProps);
+
+	uint8_t* Base = reinterpret_cast<uint8_t*>(this);
+	for (size_t i = Start; i < OutProps.size(); ++i)
+	{
+		OutProps[i].ValuePtr = Base + OutProps[i].Offset_Internal;
+	}
 }
 
 void UObject::PostEditProperty(const char* /*PropertyName*/)
