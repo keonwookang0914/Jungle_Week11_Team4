@@ -86,28 +86,48 @@ class FArchive;
 #define PROPERTY_BOOL(MemberName, InCategory, InFlags)																				   	\
 	{																																	\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, true), EPropertyType::Bool, InCategory, InFlags)  \
-	}																		   
+	}	
+#define PROPERTY_BOOL_NAMED(MemberName, DisplayName, InCategory, InFlags)							 \
+	{																								 \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::Bool, InCategory, InFlags) \
+	}	
 
 #define PROPERTY_INT(MemberName, InCategory, InFlags)																					\
 	{																																	\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Int, InCategory, InFlags)	\
 	}
+#define PROPERTY_INT_NAMED(MemberName, DisplayName, InCategory, InFlags)								\
+	{																								\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::INT, InCategory, InFlags) \
+	}	
 
 #define PROPERTY_VEC3(MemberName, InCategory, InFlags)																					\
 	{																																	\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Vec3, InCategory, InFlags) \
 	}
+#define PROPERTY_VEC3_NAMED(MemberName, DisplayName, InCategory, InFlags)							 \
+	{																								 \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::Vec3, InCategory, InFlags) \
+	}	
 
 #define PROPERTY_STRING(MemberName, InCategory, InFlags)																					\
 	{																																		\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::String, InCategory, InFlags)	\
 	}
+#define PROPERTY_STRING_NAMED(MemberName, DisplayName, InCategory, InFlags)							   \
+	{																								   \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::String, InCategory, InFlags) \
+	}	
 
 // 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
 #define REGISTER_PROPERTY(MemberName, InType, InCategory, InFlags)															\
 	{																														\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), InType, InCategory, InFlags)	\
 	}
+#define REGISTER_PROPERTY_NAMED(MemberName, DisplayName, InCategory, InFlags)			\
+	{																					\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags) \
+	}	
 
 // Enum 멤버 등록. EnumNamesArr/EnumCountVal/EnumSizeVal 은 호출자가 제공.
 //   예: PROPERTY_ENUM(CollisionEnabled, "Collision",
@@ -128,6 +148,21 @@ class FArchive;
 		P->EnumSize  = (EnumSizeVal);                                                           \
 		Cls->AddProperty(P);                                                                    \
 	}
+#define PROPERTY_ENUM_NAMED(MemberName, InDisplayName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
+	{                                                                                           \
+		FProperty* P = new FProperty();                                                         \
+		P->Name = #MemberName;                                                                  \
+		P->DisplayName = (InDisplayName)															\
+		P->Type = EPropertyType::Enum;                                                          \
+		P->Category = (InCategory);                                                             \
+		P->PropertyFlag = (InFlags);                                                            \
+		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
+		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
+		P->EnumNames = (EnumNamesArr);                                                          \
+		P->EnumCount = (EnumCountVal);                                                          \
+		P->EnumSize  = (EnumSizeVal);                                                           \
+		Cls->AddProperty(P);                                                                    \
+	}
 
 // Struct 멤버 등록. StructFuncPtr 는 자식 프로퍼티 디스크립터를 만드는 콜백.
 //   예: PROPERTY_STRUCT(ResponseContainer, "Collision",
@@ -137,6 +172,19 @@ class FArchive;
 		FProperty* P = new FProperty();                                                         \
 		P->Name = #MemberName;                                                                  \
 		P->DisplayName = FName::NameToDisplayString(#MemberName, false);                        \
+		P->Type = EPropertyType::Struct;                                                        \
+		P->Category = (InCategory);                                                             \
+		P->PropertyFlag = (InFlags);                                                            \
+		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
+		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
+		P->StructFunc = (StructFuncPtr);                                                        \
+		Cls->AddProperty(P);                                                                    \
+	}
+#define PROPERTY_STRUCT_NAMED(MemberName, InDisplayName, InCategory, StructFuncPtr, InFlags)      \
+	{                                                                                           \
+		FProperty* P = new FProperty();                                                         \
+		P->Name = #MemberName;                                                                  \
+		P->DisplayName = InDisplayName;									                        \
 		P->Type = EPropertyType::Struct;                                                        \
 		P->Category = (InCategory);                                                             \
 		P->PropertyFlag = (InFlags);                                                            \
