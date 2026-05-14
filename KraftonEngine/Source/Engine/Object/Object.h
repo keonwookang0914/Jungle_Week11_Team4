@@ -56,11 +56,11 @@ class FArchive;
         static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;   
 
 // 모든 PROPERTY_* 매크로 공통
-#define KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags)  \
+#define KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, InType, InCategory, InFlags)  \
     {                                                                       \
         FProperty* P = new FProperty();                                     \
         P->Name = #MemberName;												\
-		P->DisplayName = DisplayName;										\
+		P->DisplayName = InDisplayName;										\
         P->Type = (InType);                                                 \
         P->Category = (InCategory);                                         \
         P->PropertyFlag = (InFlags);                                        \

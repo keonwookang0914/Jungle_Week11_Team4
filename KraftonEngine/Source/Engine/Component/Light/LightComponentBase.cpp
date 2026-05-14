@@ -8,14 +8,21 @@
 IMPLEMENT_CLASS(ULightComponentBase, USceneComponent)
 HIDE_FROM_COMPONENT_LIST(ULightComponentBase)
 
-void ULightComponentBase::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	USceneComponent::GetEditableProperties(OutProps);
-	OutProps.push_back({ "Intensity",EPropertyType::Float,"Lighting",&Intensity,0.0f,50.f,0.05f });
-	OutProps.push_back({ "Color",EPropertyType::Color4,"Lighting",&LightColor });
-	OutProps.push_back({ "Visible",EPropertyType::Bool,"Lighting",&bVisible });
-	OutProps.push_back({ "Cast Shadows",EPropertyType::Bool,"Lighting",&bCastShadows });
-}
+BEGIN_CLASS_PROPERTIES(ULightComponentBase)
+PROPERTY_FLOAT(Intensity,    "Lighting", 0.f, 50.f, 0.05f,	   EPropertyFlags::CPF_Edit)
+PROPERTY_FLOAT(LightColor,	 "Lighting", -0.2f, 0.2f, 0.0001f, EPropertyFlags::CPF_Edit)
+PROPERTY_BOOL(bVisible,		 "Lighting", EPropertyFlags::CPF_Edit)
+PROPERTY_BOOL(bCastShadows,  "Lighting", EPropertyFlags::CPF_Edit)
+END_CLASS_PROPERTIES(ULightComponentBase)
+
+//void ULightComponentBase::GetEditableProperties(TArray<FProperty>& OutProps)
+//{
+//	USceneComponent::GetEditableProperties(OutProps);
+//	OutProps.push_back({ "Intensity",EPropertyType::Float,"Lighting",&Intensity,0.0f,50.f,0.05f });
+//	OutProps.push_back({ "Color",EPropertyType::Color4,"Lighting",&LightColor });
+//	OutProps.push_back({ "Visible",EPropertyType::Bool,"Lighting",&bVisible });
+//	OutProps.push_back({ "Cast Shadows",EPropertyType::Bool,"Lighting",&bCastShadows });
+//}
 
 void ULightComponentBase::Serialize(FArchive& Ar)
 {
