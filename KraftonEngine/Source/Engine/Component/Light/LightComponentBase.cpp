@@ -10,7 +10,7 @@ HIDE_FROM_COMPONENT_LIST(ULightComponentBase)
 
 BEGIN_CLASS_PROPERTIES(ULightComponentBase)
 PROPERTY_FLOAT(Intensity,    "Lighting", 0.f, 50.f, 0.05f,	   EPropertyFlags::CPF_Edit)
-PROPERTY_FLOAT(LightColor,	 "Lighting", -0.2f, 0.2f, 0.0001f, EPropertyFlags::CPF_Edit)
+REGISTER_PROPERTY(LightColor, EPropertyType::Color4, "Lighting", EPropertyFlags::CPF_Edit)
 PROPERTY_BOOL(bVisible,		 "Lighting", EPropertyFlags::CPF_Edit)
 PROPERTY_BOOL(bCastShadows,  "Lighting", EPropertyFlags::CPF_Edit)
 END_CLASS_PROPERTIES(ULightComponentBase)
