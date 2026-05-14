@@ -82,21 +82,31 @@ class FArchive;
         Cls->AddProperty(P);                                                \
     }
 
-#define PROPERTY_BOOL(MemberName, InCategory)                              \
-    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Bool, InCategory, CPF_Edit)
+#define PROPERTY_BOOL(MemberName, InCategory)											  \
+	{																					  \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Bool, InCategory, CPF_Edit)  \
+	}																		   
 
-#define PROPERTY_INT(MemberName, InCategory)                               \
-    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Int, InCategory, CPF_Edit)
+#define PROPERTY_INT(MemberName, InCategory)											\
+	{																					\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Int, InCategory, CPF_Edit) \
+	}
 
-#define PROPERTY_VEC3(MemberName, InCategory)                              \
-    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Vec3, InCategory, CPF_Edit)
+#define PROPERTY_VEC3(MemberName, InCategory)											 \
+	{																					 \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Vec3, InCategory, CPF_Edit) \
+	}
 
-#define PROPERTY_STRING(MemberName, InCategory)                            \
-    KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::String, InCategory, CPF_Edit)
+#define PROPERTY_STRING(MemberName, InCategory)												\
+	{																						\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::String, InCategory, CPF_Edit)	\
+	}
 
 // 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
-#define REGISTER_PROPERTY(MemberName, InType, InCategory)                  \
-    KE_REGISTER_PROPERTY_IMPL(MemberName, InType, InCategory, CPF_Edit)
+#define REGISTER_PROPERTY(MemberName, InType, InCategory)						\
+	{																			\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, InType, InCategory, CPF_Edit)		\
+	}
 
 // ---------------------------------------------------------------------------
 
