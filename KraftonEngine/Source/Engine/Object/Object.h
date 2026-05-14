@@ -57,10 +57,10 @@ class FArchive;
     }
 
 // 모든 PROPERTY_* 매크로 공통
-#define KE_REGISTER_PROPERTY_IMPL(MemberName, InType, InCategory, InFlags)  \
+#define KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags)  \
     {                                                                       \
         FProperty* P = new FProperty();                                     \
-        P->Name = #MemberName;                                              \
+        P->Name = (DisplayName);												\
         P->Type = (InType);                                                 \
         P->Category = (InCategory);                                         \
         P->PropertyFlag = (InFlags);                                        \
@@ -72,7 +72,7 @@ class FArchive;
 #define PROPERTY_FLOAT(MemberName, InCategory, InMin, InMax, InSpeed)       \
     {                                                                       \
         FProperty* P = new FProperty();                                     \
-        P->Name = #MemberName;                                              \
+        P->Name = FName::NameToDisplayString(#MemberName, false);           \
         P->Type = EPropertyType::Float;                                     \
         P->Category = (InCategory);                                         \
         P->Min = (InMin); P->Max = (InMax); P->Speed = (InSpeed);           \
@@ -82,30 +82,30 @@ class FArchive;
         Cls->AddProperty(P);                                                \
     }
 
-#define PROPERTY_BOOL(MemberName, InCategory)											  \
-	{																					  \
-		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Bool, InCategory, CPF_Edit)  \
+#define PROPERTY_BOOL(MemberName, InCategory)																							 \
+	{																																	 \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, true), EPropertyType::Bool, InCategory, CPF_Edit)  \
 	}																		   
 
-#define PROPERTY_INT(MemberName, InCategory)											\
-	{																					\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Int, InCategory, CPF_Edit) \
+#define PROPERTY_INT(MemberName, InCategory)																							\
+	{																																	\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Int, InCategory, CPF_Edit) \
 	}
 
-#define PROPERTY_VEC3(MemberName, InCategory)											 \
-	{																					 \
-		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::Vec3, InCategory, CPF_Edit) \
+#define PROPERTY_VEC3(MemberName, InCategory)																							 \
+	{																																	 \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Vec3, InCategory, CPF_Edit) \
 	}
 
-#define PROPERTY_STRING(MemberName, InCategory)												\
-	{																						\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, EPropertyType::String, InCategory, CPF_Edit)	\
+#define PROPERTY_STRING(MemberName, InCategory)																								\
+	{																																		\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::String, InCategory, CPF_Edit)	\
 	}
 
 // 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
-#define REGISTER_PROPERTY(MemberName, InType, InCategory)						\
-	{																			\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, InType, InCategory, CPF_Edit)		\
+#define REGISTER_PROPERTY(MemberName, InType, InCategory)																	\
+	{																														\
+		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), InType, InCategory, CPF_Edit)	\
 	}
 
 // ---------------------------------------------------------------------------
