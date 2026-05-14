@@ -53,7 +53,6 @@ class FProperty
 { 
 public:
 	FString		  Name;
-	FString		  DisplayName;
 	EPropertyType Type			= EPropertyType::Bool;
 	FString		  Category;      // 에디터 카테고리 (같은 문자열끼리 그룹화)
 	void*         ValuePtr		= nullptr;
@@ -74,6 +73,7 @@ public:
 	uint32		  PropertyFlag = EPropertyFlags::CPF_None;
 	uint32		  ElementSize = 0;
 	uint32		  Offset_Internal = 0;
+	FString		  DisplayName;
 
 	// JSON 직렬화 — FSceneSaveManager 등 외부 직렬자가 호출.
 	// 헤더에 SimpleJSON 의존을 들이지 않기 위해 본문은 PropertyTypes.cpp 에 둔다.
