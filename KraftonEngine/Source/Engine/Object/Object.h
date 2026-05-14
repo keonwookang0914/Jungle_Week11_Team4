@@ -96,9 +96,9 @@ class FArchive;
 	{																																	\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Int, InCategory, InFlags)	\
 	}
-#define PROPERTY_INT_NAMED(MemberName, DisplayName, InCategory, InFlags)								\
+#define PROPERTY_INT_NAMED(MemberName, DisplayName, InCategory, InFlags)							\
 	{																								\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::INT, InCategory, InFlags) \
+		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::Int, InCategory, InFlags) \
 	}	
 
 #define PROPERTY_VEC3(MemberName, InCategory, InFlags)																					\
@@ -124,7 +124,7 @@ class FArchive;
 	{																														\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), InType, InCategory, InFlags)	\
 	}
-#define REGISTER_PROPERTY_NAMED(MemberName, DisplayName, InCategory, InFlags)			\
+#define REGISTER_PROPERTY_NAMED(MemberName, DisplayName, InType, InCategory, InFlags)	\
 	{																					\
 		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags) \
 	}	
@@ -152,7 +152,7 @@ class FArchive;
 	{                                                                                           \
 		FProperty* P = new FProperty();                                                         \
 		P->Name = #MemberName;                                                                  \
-		P->DisplayName = (InDisplayName)															\
+		P->DisplayName = (InDisplayName);														\
 		P->Type = EPropertyType::Enum;                                                          \
 		P->Category = (InCategory);                                                             \
 		P->PropertyFlag = (InFlags);                                                            \
