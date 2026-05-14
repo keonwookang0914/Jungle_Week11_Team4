@@ -29,7 +29,7 @@ public:
 	// None 이름
 	static const FName None;
 
-	// String normalization logic, e.g. "bCastShadows" -> "Cast Shadows?"
+	// String normalization logic, e.g. "bCastShadows" -> "Cast Shadows"
 	static FString NameToDisplayString(const FString& InName, bool bIsBool);
 
 private:
