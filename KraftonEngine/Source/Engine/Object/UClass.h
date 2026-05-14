@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Core/CoreTypes.h"
 
@@ -68,6 +68,8 @@ private:
 	UClass*     SuperClass  = nullptr;
 	size_t      Size        = 0;
 	uint32      ClassFlags  = CF_None;
+
+	TArray<FProperty*> Properties;
 };
 
 // static initializer 에서 UClass를 전역 레지스트리에 등록
