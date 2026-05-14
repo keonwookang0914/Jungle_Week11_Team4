@@ -60,7 +60,7 @@ class FArchive;
 #define KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags)  \
     {                                                                       \
         FProperty* P = new FProperty();                                     \
-        P->Name = (DisplayName);												\
+        P->Name = (DisplayName);											\
         P->Type = (InType);                                                 \
         P->Category = (InCategory);                                         \
         P->PropertyFlag = (InFlags);                                        \
