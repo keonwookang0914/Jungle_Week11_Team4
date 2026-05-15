@@ -55,6 +55,16 @@ class FArchive;
 	};                                                                      \
 	static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;
 
+#define HIDE_PROPERTY(ClassName, PropertyName)								\
+	struct ClassName##_PropertyName##_PropertyVeil {						\
+		ClassName##_PropertyName##_PropertyVeil() {							\
+			UClass* Cls = ClassName::StaticClass();							\
+			(void)Cls;														\
+			Cls->HideInheritedProperty(PropertyName);						\
+		}																	\
+	};																		\
+	static ClassName##_PropertyName##_PropertyVeil ClassName##_PropertyName##_PropertyVeiled; 
+
 // 모든 PROPERTY_* 매크로의 공통 구현.
 // ExtraSetup 은 type-specific 필드를 채우는 쉼표 표현식(예: (P->Min = X, P->Max = Y)).
 // 추가 필드가 없으면 (void)0 전달.
