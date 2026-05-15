@@ -7,6 +7,28 @@
 
 namespace json { class JSON; }
 
+struct FArrayAccessor
+{
+	uint32(*Num)(const void* ArrayPtr);
+	void* (*GetAt)(void* ArrayPtr, uint32 Index);
+	void	(*AddDefault)(void* ArrayPtr);
+	void	(*RemoveAt)(void* ArrayPtr, uint32 Index);
+	void	(*Clear)(void* ArrayPtr);
+};
+
+template <typename T>
+inline FArrayAccessor* GetTArrayAccessor()
+{
+	static FArrayAccessor s = {
+		+[](const void* A) -> uint32 { return (uint32)static_cast<const TArray<T>*>(A)->size(); },
+		+[](void* A, uint32 i) -> void* { return &(*static_cast<TArray<T>*>(A))[i]; },
+		+[](void* A) { static_cast<TArray<T>*>(A)->emplace_back(); },
+		+[](void* A, uint32 i) { auto& V = *static_cast<TArray<T>*>(A); V.erase(V.begin() + i); },
+		+[](void* A) { static_cast<TArray<T>*>(A)->clear(); },
+	};
+	return &s;
+}
+
 // 에디터에서 자동 위젯 매핑에 사용되는 프로퍼티 타입
 enum class EPropertyType : uint8_t
 {
@@ -28,6 +50,7 @@ enum class EPropertyType : uint8_t
 	Vec3Array,
 	Struct,				// 자기기술 구조체 — StructFunc로 Children 생성
 	Script,
+	TArray,
 };
 
 enum EPropertyFlags : uint32 {
@@ -73,6 +96,9 @@ public:
 	uint32		  PropertyFlag = EPropertyFlags::CPF_None;
 	uint32		  ElementSize = 0;
 	uint32		  Offset_Internal = 0;
+
+	FProperty*		Inner	 = nullptr; // element descriptor; heap-owned by parent
+	FArrayAccessor* Accessor = nullptr; // Static - not owned
 
 	// JSON 직렬화 — FSceneSaveManager 등 외부 직렬자가 호출.
 	// 헤더에 SimpleJSON 의존을 들이지 않기 위해 본문은 PropertyTypes.cpp 에 둔다.
