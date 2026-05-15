@@ -82,11 +82,6 @@ void UProjectileMovementComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	UpdatedSceneComponent->SetWorldLocation(UpdatedSceneComponent->GetWorldLocation() + MoveDelta);
 }
 
-void UProjectileMovementComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UMovementComponent::GetEditableProperties(OutProps);
-}
-
 void UProjectileMovementComponent::Serialize(FArchive& Ar)
 {
 	UMovementComponent::Serialize(Ar);

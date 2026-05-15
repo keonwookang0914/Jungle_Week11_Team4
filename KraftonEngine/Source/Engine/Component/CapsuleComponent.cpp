@@ -126,11 +126,6 @@ void UCapsuleComponent::UpdateWorldAABB() const
 	bHasValidWorldAABB = true;
 }
 
-void UCapsuleComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UShapeComponent::GetEditableProperties(OutProps);
-}
-
 void UCapsuleComponent::PostEditProperty(const char* PropertyName)
 {
 	UShapeComponent::PostEditProperty(PropertyName);

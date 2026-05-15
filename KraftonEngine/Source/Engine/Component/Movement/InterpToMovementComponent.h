@@ -80,7 +80,6 @@ private:
 	float				TotalDistance = 0;
 	float				NextDistRatio = 0;
 	bool				bisLerping = false;
-	bool				bAutoActivate = true;
 	bool				bPing = true;
 	bool				bFaceTargetDir = true;
 

@@ -90,7 +90,3 @@ void UCameraComponent::GetCameraView(float /*DeltaTime*/, FMinimalViewInfo& OutP
 	OutPOV.bIsOrtho    = CameraState.bIsOrthogonal;
 }
 
-void UCameraComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	USceneComponent::GetEditableProperties(OutProps);
-}

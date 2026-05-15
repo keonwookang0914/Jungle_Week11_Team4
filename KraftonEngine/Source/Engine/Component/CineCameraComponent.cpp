@@ -21,7 +21,3 @@ void UCineCameraComponent::Serialize(FArchive& Ar)
 	Ar << Letterbox.Color;
 }
 
-void UCineCameraComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UCameraComponent::GetEditableProperties(OutProps);
-}

@@ -721,11 +721,6 @@ void USkinnedMeshComponent::PostDuplicate()
 	}
 }
 
-void USkinnedMeshComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UMeshComponent::GetEditableProperties(OutProps);
-}
-
 void USkinnedMeshComponent::PostEditProperty(const char* PropertyName)
 {
 	UMeshComponent::PostEditProperty(PropertyName);

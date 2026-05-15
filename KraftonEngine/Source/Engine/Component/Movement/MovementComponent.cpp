@@ -49,11 +49,6 @@ void UMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	UActorComponent::TickComponent(DeltaTime,TickType, ThisTickFunction);
 }
 
-void UMovementComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UActorComponent::GetEditableProperties(OutProps);
-}
-
 void UMovementComponent::Serialize(FArchive& Ar)
 {
 	UActorComponent::Serialize(Ar);

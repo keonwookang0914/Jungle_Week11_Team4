@@ -73,11 +73,6 @@ void UBoxComponent::ContributeSelectedVisuals(FScene& Scene) const
 	Scene.AddDebugLine(Corners[3], Corners[7], Color);
 }
 
-void UBoxComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UShapeComponent::GetEditableProperties(OutProps);
-}
-
 void UBoxComponent::PostEditProperty(const char* PropertyName)
 {
 	UShapeComponent::PostEditProperty(PropertyName);

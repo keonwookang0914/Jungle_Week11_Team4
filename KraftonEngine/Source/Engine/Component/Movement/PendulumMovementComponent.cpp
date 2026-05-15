@@ -60,11 +60,6 @@ void UPendulumMovementComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	Target->SetRelativeRotation(FinalQuat);
 }
 
-void UPendulumMovementComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UMovementComponent::GetEditableProperties(OutProps);
-}
-
 void UPendulumMovementComponent::Serialize(FArchive& Ar)
 {
 	UMovementComponent::Serialize(Ar);

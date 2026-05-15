@@ -24,11 +24,6 @@ FPrimitiveSceneProxy* UShapeComponent::CreateSceneProxy()
 	return new FShapeSceneProxy(this);
 }
 
-void UShapeComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UPrimitiveComponent::GetEditableProperties(OutProps);
-}
-
 void UShapeComponent::PostEditProperty(const char* PropertyName)
 {
 	UPrimitiveComponent::PostEditProperty(PropertyName);

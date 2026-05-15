@@ -266,11 +266,6 @@ void UStaticMeshComponent::PostDuplicate()
 	MarkWorldBoundsDirty();
 }
 
-void UStaticMeshComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UPrimitiveComponent::GetEditableProperties(OutProps);
-}
-
 void UStaticMeshComponent::PostEditProperty(const char* PropertyName)
 {
 	UPrimitiveComponent::PostEditProperty(PropertyName);

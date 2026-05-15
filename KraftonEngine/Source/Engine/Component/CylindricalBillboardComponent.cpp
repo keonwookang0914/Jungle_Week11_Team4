@@ -24,11 +24,6 @@ void UCylindricalBillboardComponent::Serialize(FArchive& Ar)
 	Ar << BillboardAxis;
 }
 
-void UCylindricalBillboardComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UBillboardComponent::GetEditableProperties(OutProps);
-}
-
 void UCylindricalBillboardComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction& ThisTickFunction)
 {
 	if (!GetOwner() || !GetOwner()->GetWorld()) return;

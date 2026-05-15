@@ -96,11 +96,6 @@ void UFloatingPawnMovementComponent::TickComponent(float DeltaTime, ELevelTick T
 	LookInputY = 0.0f;
 }
 
-void UFloatingPawnMovementComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UMovementComponent::GetEditableProperties(OutProps);
-}
-
 void UFloatingPawnMovementComponent::Serialize(FArchive& Ar)
 {
 	UMovementComponent::Serialize(Ar);

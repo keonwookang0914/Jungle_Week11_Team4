@@ -40,11 +40,6 @@ FPrimitiveSceneProxy* UDecalComponent::CreateSceneProxy()
 	return new FDecalSceneProxy(this);
 }
 
-void UDecalComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UPrimitiveComponent::GetEditableProperties(OutProps);
-}
-
 void UDecalComponent::PostEditProperty(const char* PropertyName)
 {
 	UPrimitiveComponent::PostEditProperty(PropertyName);

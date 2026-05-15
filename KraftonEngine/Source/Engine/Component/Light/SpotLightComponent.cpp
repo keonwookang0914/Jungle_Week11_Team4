@@ -115,7 +115,3 @@ bool USpotLightComponent::GetLightViewProj(FLightViewProjResult& OutResult, cons
 	return true;
 }
 
-void USpotLightComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UPointLightComponent::GetEditableProperties(OutProps);
-}

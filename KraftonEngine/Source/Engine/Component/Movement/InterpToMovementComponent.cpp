@@ -25,7 +25,6 @@ namespace {
 }
 
 BEGIN_CLASS_PROPERTIES(UInterpToMovementComponent)
-	PROPERTY_BOOL(bAutoActivate, "Auto Activate", "Movement", CPF_Edit)
 	PROPERTY_BOOL(bFaceTargetDir, "Orient To Movement", "Movement", CPF_Edit)
 	PROPERTY_FLOAT(Duration, "Interp Duration", "Movement", 0.1f, 2048.0f, 0.1f, CPF_Edit)
 	PROPERTY_ENUM(InterpBehaviour, "Interp Mode", "Movement", GInterpBehaviourNames, 4, sizeof(EInterpBehaviour), CPF_Edit)
@@ -56,10 +55,6 @@ void UInterpToMovementComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// FaceTargetDir must run before UpdateLerp — UpdateLerp can advance PointIDs via DestinationReached
 	FaceTargetDir(DeltaTime);
 	UpdateLerp(DeltaTime);
-}
-
-void UInterpToMovementComponent::GetEditableProperties(TArray<FProperty>& OutProps) {
-	UMovementComponent::GetEditableProperties(OutProps);
 }
 
 void UInterpToMovementComponent::Serialize(FArchive& Ar)

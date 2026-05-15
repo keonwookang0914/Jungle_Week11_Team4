@@ -76,11 +76,6 @@ void USphereComponent::UpdateWorldAABB() const
 	bHasValidWorldAABB = true;
 }
 
-void USphereComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UShapeComponent::GetEditableProperties(OutProps);
-}
-
 void USphereComponent::PostEditProperty(const char* PropertyName)
 {
 	UShapeComponent::PostEditProperty(PropertyName);

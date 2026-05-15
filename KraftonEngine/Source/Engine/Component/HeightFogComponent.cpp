@@ -61,11 +61,6 @@ void UHeightFogComponent::PushToScene()
 	World->GetScene().GetEnvironment().AddFog(this, Params);
 }
 
-void UHeightFogComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	USceneComponent::GetEditableProperties(OutProps);
-}
-
 void UHeightFogComponent::PostEditProperty(const char* PropertyName)
 {
 	USceneComponent::PostEditProperty(PropertyName);
