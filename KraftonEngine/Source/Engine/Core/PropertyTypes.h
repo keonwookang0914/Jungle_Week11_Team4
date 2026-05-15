@@ -76,7 +76,7 @@ class FProperty
 {
 public:
 	// 의도적으로 사용자 정의 dtor 없음. FProperty 는 값으로 자유롭게 복사된다
-	// (UClass::GetAllProperties → editor TArray<FProperty>). Inner 는 UClass 가
+	// (UClass::GetAllProperties -> editor TArray<FProperty>). Inner 는 UClass 가
 	// 소유한 원본 1개만 살아있고, 모든 복사본이 같은 포인터를 공유한다. dtor 에서
 	// delete Inner 하면 사본 destructor 한 번에 원본이 dangling 되어 다음 프레임
 	// 에 crash. 소유권은 UClass::~UClass 가 일괄 처리한다 (process 종료 시점).
