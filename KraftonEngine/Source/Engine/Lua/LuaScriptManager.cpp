@@ -1,5 +1,6 @@
 ﻿#include "LuaScriptManager.h"
 
+#include "Object/LuaClassRegistry.h"
 #include "Core/Log.h"
 #include "Core/Notification.h"
 #include "Audio/AudioManager.h"
@@ -353,6 +354,11 @@ void FLuaScriptManager::RegisterBindings(sol::state& Lua)
 	RegisterMathBindings(Lua);
 	RegisterActorBindings(Lua);
 	RegisterUIBindings(Lua);
+
+	for (auto Fn : FLuaClassRegistrar::GetAll())
+	{
+		Fn(Lua);
+	}
 }
 
 FInputSystemSnapshot FLuaScriptManager::GetLuaInputSnapshot()
