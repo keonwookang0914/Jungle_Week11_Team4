@@ -136,28 +136,6 @@ class FArchive;
 	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, EPropertyType::Struct, InCategory, InOffset, InSize, InFlags, \
 		P->StructFunc = (StructFuncPtr))
 
-#define PROPERTY_FLOAT_NESTED(StructMember, StructType, FieldMember, InName, InCategory, InMin, InMax, InSpeed, InFlags) \
-	PROPERTY_FLOAT_OFFSET(InName, InCategory, \
-		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InMin, InMax, InSpeed, InFlags)
-
-#define PROPERTY_BOOL_NESTED(StructMember, StructType, FieldMember, InName, InCategory, InFlags) \
-	PROPERTY_BOOL_OFFSET(InName, InCategory, \
-		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InFlags)
-
-#define REGISTER_PROPERTY_NESTED(StructMember, StructType, FieldMember, InName, InType, InCategory, InFlags) \
-	REGISTER_PROPERTY_OFFSET(InName, InType, InCategory, \
-		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), InFlags)
-
-#define PROPERTY_ENUM_NESTED(StructMember, StructType, FieldMember, InName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
-	PROPERTY_ENUM_OFFSET(InName, InCategory, \
-		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), \
-		EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags)
-
-#define PROPERTY_STRUCT_NESTED(StructMember, StructType, FieldMember, InName, InCategory, StructFuncPtr, InFlags) \
-	PROPERTY_STRUCT_OFFSET(InName, InCategory, \
-		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), \
-		StructFuncPtr, InFlags)
-
 // ---------------------------------------------------------------------------
 
 // Forward — IsValid 의 실제 정의는 GUObjectSet 선언 뒤. UObject::GetTypedOuter 가
