@@ -2,49 +2,44 @@
 
 void UClass::HideInheritedProperty(FString InName)
 {
-	for (uint32 i = 0; i < Properties.size(); i++)
-	{
-		if (!Properties[i]) continue;
-		FProperty* Property = Properties[i];
-		if (Property->Name != InName) continue;
-		Property->PropertyFlag &= ~EPropertyFlags::CPF_Edit;
-		break;
-	}
+	HiddenProperties.insert(InName);
 }
 
 bool UClass::IsPropertyHidden(FString InName) const
 {
-	for (uint32 i = 0; i < Properties.size(); i++)
-	{
-		if (!Properties[i]) continue;
-		FProperty* Property = Properties[i];
-		if (Property->Name != InName) continue;
-		return (Property->PropertyFlag & EPropertyFlags::CPF_Edit) == 0;
-	}
-
-	return false;
+	return HiddenProperties.contains(InName);
 }
 
 void UClass::GetEditableProperties(TArray<FProperty>& OutProps) const
 {
-	if (SuperClass) SuperClass->GetEditableProperties(OutProps);
-
-	for (uint32 i = 0; i < Properties.size(); i++)
-	{
-		if (!Properties[i]) continue;
-		FProperty* Property = Properties[i];
-		if (Property->PropertyFlag & EPropertyFlags::CPF_Edit) OutProps.push_back(*Property);
-	}
+	GetEditablePropertiesFor(OutProps, this);
 }
 
 void UClass::GetNonTransientProperties(TArray<FProperty>& OutProps) const
 {
-	if (SuperClass) SuperClass->GetNonTransientProperties(OutProps);
+	GetNonTransientPropertiesFor(OutProps, this);
+}
+
+void UClass::GetEditablePropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const
+{
+	if (SuperClass) SuperClass->GetEditablePropertiesFor(OutProps, TargetClass);
 
 	for (uint32 i = 0; i < Properties.size(); i++)
 	{
-		if (!Properties[i]) continue;
 		FProperty* Property = Properties[i];
+		if (!Property || TargetClass->IsPropertyHidden(Property->Name)) continue;
+		if (Property->PropertyFlag & EPropertyFlags::CPF_Edit) OutProps.push_back(*Property);
+	}
+}
+
+void UClass::GetNonTransientPropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const
+{
+	if (SuperClass) SuperClass->GetNonTransientPropertiesFor(OutProps, TargetClass);
+
+	for (uint32 i = 0; i < Properties.size(); i++)
+	{
+		FProperty* Property = Properties[i];
+		if (!Property || TargetClass->IsPropertyHidden(Property->Name)) continue;
 		if ((Property->PropertyFlag & EPropertyFlags::CPF_Transient) == 0) OutProps.push_back(*Property);
 	}
 }
