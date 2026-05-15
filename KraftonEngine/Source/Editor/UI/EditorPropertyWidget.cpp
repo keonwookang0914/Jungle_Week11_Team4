@@ -29,6 +29,7 @@
 #include "Mesh/StaticMesh.h"
 #include "Mesh/SkeletalMesh.h"
 #include "Platform/Paths.h"
+#include "SimpleJSON/json.hpp"
 
 #include <Windows.h>
 #include <commdlg.h>
@@ -942,7 +943,28 @@ void FEditorPropertyWidget::PropagatePropertyChange(const FString& PropName, con
 				case EPropertyType::Enum:           Size = SrcProp->EnumSize; break;
 				case EPropertyType::Array:
 					if (SrcProp->Accessor && SrcProp->Accessor == DstProp.Accessor)
-						SrcProp->Accessor->Assign(DstProp.ValuePtr, SrcProp->ValuePtr);
+					{
+						const bool bFixedSize = ((SrcProp->PropertyFlag | DstProp.PropertyFlag) & CPF_FixedSize) != 0;
+						if (!bFixedSize)
+						{
+							SrcProp->Accessor->Assign(DstProp.ValuePtr, SrcProp->ValuePtr);
+						}
+						else if (SrcProp->Inner && DstProp.Inner)
+						{
+							const uint32 Count = std::min(
+								SrcProp->Accessor->Num(SrcProp->ValuePtr),
+								DstProp.Accessor->Num(DstProp.ValuePtr));
+							for (uint32 ai = 0; ai < Count; ++ai)
+							{
+								FProperty SrcChild = *SrcProp->Inner;
+								FProperty DstChild = *DstProp.Inner;
+								SrcChild.ValuePtr = SrcProp->Accessor->GetAt(SrcProp->ValuePtr, ai);
+								DstChild.ValuePtr = DstProp.Accessor->GetAt(DstProp.ValuePtr, ai);
+								json::JSON ChildValue = SrcChild.Serialize();
+								DstChild.Deserialize(ChildValue);
+							}
+						}
+					}
 					break;
 				case EPropertyType::Struct:
 				{
@@ -1504,15 +1526,19 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		// 라벨은 외곽 테이블의 column 0 에서 이미 그렸음. 여기는 value 칸 전부.
 		ImGui::BeginGroup();
 		const uint32 N = Acc->Num(ArrPtr);
+		const bool bFixedSize = (Prop.PropertyFlag & CPF_FixedSize) != 0;
 		char HeaderBuf[32];
 		snprintf(HeaderBuf, sizeof(HeaderBuf), "%u element%s", N, (N == 1 ? "" : "s"));
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(HeaderBuf);
-		ImGui::SameLine();
-		if (ImGui::SmallButton("+"))
+		if (!bFixedSize)
 		{
-			Acc->AddDefault(ArrPtr);
-			bChanged = true;
+			ImGui::SameLine();
+			if (ImGui::SmallButton("+"))
+			{
+				Acc->AddDefault(ArrPtr);
+				bChanged = true;
+			}
 		}
 
 		// 각 라이브 요소: [라벨] [재귀 위젯] [x].
@@ -1545,10 +1571,13 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 				bChanged = true;
 			}
 
-			ImGui::SameLine();
-			if (ImGui::SmallButton("x"))
+			if (!bFixedSize)
 			{
-				RemoveIdx = (int32)i;
+				ImGui::SameLine();
+				if (ImGui::SmallButton("x"))
+				{
+					RemoveIdx = (int32)i;
+				}
 			}
 
 			ImGui::PopID();

@@ -178,12 +178,27 @@ void FProperty::Deserialize(json::JSON& Value)
 	case EPropertyType::Array:
 	{
 		if (!Accessor || !Inner || !ValuePtr) break;
-		Accessor->Clear(ValuePtr);
+		const bool bFixedSize = (PropertyFlag & CPF_FixedSize) != 0;
+		if (!bFixedSize)
+		{
+			Accessor->Clear(ValuePtr);
+		}
+
+		uint32 Index = 0;
 		for (auto& Elem : Value.ArrayRange()) {
-			Accessor->AddDefault(ValuePtr);
+			if (!bFixedSize)
+			{
+				Accessor->AddDefault(ValuePtr);
+			}
+			else if (Index >= Accessor->Num(ValuePtr))
+			{
+				break;
+			}
+
 			FProperty Child = *Inner;
-			Child.ValuePtr = Accessor->GetAt(ValuePtr, Accessor->Num(ValuePtr) - 1);
+			Child.ValuePtr = Accessor->GetAt(ValuePtr, bFixedSize ? Index : Accessor->Num(ValuePtr) - 1);
 			Child.Deserialize(Elem);
+			++Index;
 		}
 		break;
 	}

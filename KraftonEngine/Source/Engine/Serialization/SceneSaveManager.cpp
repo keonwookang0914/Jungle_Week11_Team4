@@ -12,6 +12,8 @@
 #include "Render/Types/MinimalViewInfo.h"
 #include "Component/DecalComponent.h"
 #include "Component/HeightFogComponent.h"
+#include "Component/StaticMeshComponent.h"
+#include "Component/SkinnedMeshComponent.h"
 #include "Component/Light/LightComponentBase.h"
 #include "Object/Object.h"
 #include "Object/ObjectFactory.h"
@@ -41,6 +43,38 @@ static FVector ReadVec3(json::JSON& Arr)
 		++i;
 	}
 	return out;
+}
+
+// Legacy scene compatibility: material slots used to be saved as "Element N"
+// sibling properties. New saves use the reflected "Materials" array. Keep this
+// helper narrow so removing old-format support later is a small deletion.
+static void UpgradeLegacyMeshMaterialProperties(UObject* Obj, json::JSON& PropsJSON)
+{
+	if (!Obj || PropsJSON.hasKey("Materials"))
+	{
+		return;
+	}
+
+	if (!Obj->IsA<UStaticMeshComponent>() && !Obj->IsA<USkinnedMeshComponent>())
+	{
+		return;
+	}
+
+	json::JSON LegacyMaterials = json::Array();
+	for (uint32 Index = 0;; ++Index)
+	{
+		const FString LegacyKey = "Element " + std::to_string(Index);
+		if (!PropsJSON.hasKey(LegacyKey.c_str()))
+		{
+			break;
+		}
+		LegacyMaterials.append(PropsJSON[LegacyKey.c_str()]);
+	}
+
+	if (LegacyMaterials.size() > 0)
+	{
+		PropsJSON["Materials"] = LegacyMaterials;
+	}
 }
 
 
@@ -455,6 +489,8 @@ USceneComponent* FSceneSaveManager::DeserializeSceneComponentTree(json::JSON& No
 void FSceneSaveManager::DeserializeProperties(UObject* Obj, json::JSON& PropsJSON)
 {
 	if (!Obj) return;
+
+	UpgradeLegacyMeshMaterialProperties(Obj, PropsJSON);
 
 	TArray<FProperty> Descriptors;
 	Obj->GetEditableProperties(Descriptors);
