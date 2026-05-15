@@ -210,6 +210,7 @@ public:
 	virtual void GetEditableProperties(TArray<FProperty>& OutProps);
 	virtual void PostEditProperty(const char* PropertyName);
 	virtual void GetNonTransientProperties(TArray<FProperty>& OutProps);
+	virtual void GetNonDuplicateTransientProperties(TArray<FProperty>& OutProps);
 
 	static void* operator new(size_t Size)
 	{

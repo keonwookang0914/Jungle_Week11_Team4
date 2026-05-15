@@ -21,6 +21,11 @@ void UClass::GetNonTransientProperties(TArray<FProperty>& OutProps) const
 	GetNonTransientPropertiesFor(OutProps, this);
 }
 
+void UClass::GetNonDuplicateTransientProperties(TArray<FProperty>& OutProps) const
+{
+	GetNonDuplicateTransientPropertiesFor(OutProps, this);
+}
+
 void UClass::GetEditablePropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const
 {
 	if (SuperClass) SuperClass->GetEditablePropertiesFor(OutProps, TargetClass);
@@ -42,5 +47,17 @@ void UClass::GetNonTransientPropertiesFor(TArray<FProperty>& OutProps, const UCl
 		FProperty* Property = Properties[i];
 		if (!Property || TargetClass->IsPropertyHidden(Property->Name)) continue;
 		if ((Property->PropertyFlag & EPropertyFlags::CPF_Transient) == 0) OutProps.push_back(*Property);
+	}
+}
+
+void UClass::GetNonDuplicateTransientPropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const
+{
+	if (SuperClass) SuperClass->GetNonTransientPropertiesFor(OutProps, TargetClass);
+
+	for (uint32 i = 0; i < Properties.size(); i++)
+	{
+		FProperty* Property = Properties[i];
+		if (!Property || TargetClass->IsPropertyHidden(Property->Name)) continue;
+		if ((Property->PropertyFlag & EPropertyFlags::CPF_DuplicateTransient) == 0) OutProps.push_back(*Property);
 	}
 }

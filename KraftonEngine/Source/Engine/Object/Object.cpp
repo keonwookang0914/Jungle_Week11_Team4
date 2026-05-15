@@ -115,4 +115,19 @@ void UObject::GetNonTransientProperties(TArray<FProperty>& OutProps)
 	}
 }
 
+void UObject::GetNonDuplicateTransientProperties(TArray<FProperty>& OutProps)
+{
+	UClass* Cls = GetClass();
+	if (!Cls) return;
+
+	const size_t Start = OutProps.size();
+	Cls->GetNonDuplicateTransientProperties(OutProps);
+
+	uint8_t* Base = reinterpret_cast<uint8_t*>(this);
+	for (size_t i = Start; i < OutProps.size(); ++i)
+	{
+		OutProps[i].ValuePtr = Base + OutProps[i].Offset_Internal;
+	}
+}
+
 UClass UObject::StaticClassInstance("UObject", nullptr, sizeof(UObject), CF_None);

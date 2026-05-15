@@ -55,11 +55,12 @@ enum class EPropertyType : uint8_t
 };
 
 enum EPropertyFlags : uint32 {
-	CPF_None			= 0,
-	CPF_Edit			= 1 << 1,			// The property can be edited in the Details Panel.
-	CPF_FixedSize		= 1 << 2,			// Property slots cannot be added or removed.
-	CPF_Transient		= 1 << 3,			// The property is not saved to disk (ignored during serialization).
-	CPF_Config			= 1 << 4,			// TODO: The property can be loaded from and saved to .ini configuration files.
+	CPF_None				= 0,
+	CPF_Edit				= 1 << 1,			// The property can be edited in the Details Panel.
+	CPF_FixedSize			= 1 << 2,			// Property slots cannot be added or removed.
+	CPF_Transient			= 1 << 3,			// The property is not saved to disk (ignored during serialization).
+	CPF_DuplicateTransient	= 1 << 4,
+	CPF_Config				= 1 << 5,			// TODO: The property can be loaded from and saved to .ini configuration files.
 };
 
 // 머티리얼 슬롯: 경로를 하나의 단위로 관리

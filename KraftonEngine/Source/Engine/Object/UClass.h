@@ -72,6 +72,7 @@ public:
 
 	void GetEditableProperties(TArray<FProperty>& OutProps) const;
 	void GetNonTransientProperties(TArray<FProperty>& OutProps) const;
+	void GetNonDuplicateTransientProperties(TArray<FProperty>& OutProps) const;
 
 	// 이름으로 프로퍼티 룩업. 자기 클래스 → 베이스 순서로 검색.
 	const FProperty* FindPropertyByName(const char* InName) const
@@ -122,6 +123,7 @@ public:
 private:
 	void GetEditablePropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const;
 	void GetNonTransientPropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const;
+	void GetNonDuplicateTransientPropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const;
 
 private:
 	const char* Name        = nullptr;
