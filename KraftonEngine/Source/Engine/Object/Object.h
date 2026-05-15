@@ -112,6 +112,29 @@ class FArchive;
 	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::Struct, InCategory, InFlags, \
 		P->StructFunc = (StructFuncPtr))
 
+// TArray 멤버 등록
+#define PROPERTY_ARRAY(MemberName, InName, InCategory, InFlags, ElementType, InnerType, InnerSetup) \
+    {                                                                                               \
+        FProperty* P = new FProperty();                                                             \
+        P->Name            = (InName);                                                              \
+        P->Type            = EPropertyType::Array;                                                  \
+        P->Category        = (InCategory);                                                          \
+        P->PropertyFlag    = (InFlags);                                                             \
+        P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));                  \
+        P->ElementSize     = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
+        P->Accessor        = GetTArrayAccessor<ElementType>();                                      \
+        FProperty* Inner   = new FProperty();                                                       \
+        Inner->Name        = "Element";                                                             \
+        Inner->Type        = (InnerType);                                                           \
+        Inner->Category    = (InCategory);                                                          \
+        Inner->ElementSize = static_cast<uint32>(sizeof(ElementType));                              \
+        /* Inner->Offset_Internal intentionally unused since accessor resolves element address */   \
+        InnerSetup;                                                                                 \
+        P->Inner = Inner;                                                                           \
+        Cls->AddProperty(P);                                                                        \
+    }
+
+
 // 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
 #define REGISTER_PROPERTY(MemberName, InName, InType, InCategory, InFlags) \
 	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, InType, InCategory, InFlags, (void)0)

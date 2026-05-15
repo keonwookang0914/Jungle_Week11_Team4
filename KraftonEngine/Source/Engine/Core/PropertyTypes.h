@@ -50,7 +50,7 @@ enum class EPropertyType : uint8_t
 	Vec3Array,
 	Struct,				// 자기기술 구조체 — StructFunc로 Children 생성
 	Script,
-	TArray,
+	Array,
 };
 
 enum EPropertyFlags : uint32 {
