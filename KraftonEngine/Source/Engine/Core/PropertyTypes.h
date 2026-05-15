@@ -9,8 +9,8 @@ namespace json { class JSON; }
 
 struct FArrayAccessor
 {
-	uint32(*Num)(const void* ArrayPtr);
-	void* (*GetAt)(void* ArrayPtr, uint32 Index);
+	uint32	(*Num)(const void* ArrayPtr);
+	void*	(*GetAt)(void* ArrayPtr, uint32 Index);
 	void	(*AddDefault)(void* ArrayPtr);
 	void	(*RemoveAt)(void* ArrayPtr, uint32 Index);
 	void	(*Clear)(void* ArrayPtr);
