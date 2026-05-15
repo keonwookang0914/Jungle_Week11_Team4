@@ -206,8 +206,10 @@ public:
 	virtual void Serialize(FArchive& Ar);
 	virtual void PostDuplicate() {}
 
+	virtual void GetAllProperties(TArray<FProperty>& OutProps);
 	virtual void GetEditableProperties(TArray<FProperty>& OutProps);
 	virtual void PostEditProperty(const char* PropertyName);
+	virtual void GetNonTransientProperties(TArray<FProperty>& OutProps);
 
 	static void* operator new(size_t Size)
 	{
