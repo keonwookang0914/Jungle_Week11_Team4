@@ -940,7 +940,10 @@ void FEditorPropertyWidget::PropagatePropertyChange(const FString& PropName, con
 				case EPropertyType::Name:           *static_cast<FName*>(DstProp.ValuePtr) = *static_cast<FName*>(SrcProp->ValuePtr); break;
 				case EPropertyType::MaterialSlot:   *static_cast<FMaterialSlot*>(DstProp.ValuePtr) = *static_cast<FMaterialSlot*>(SrcProp->ValuePtr); break;
 				case EPropertyType::Enum:           Size = SrcProp->EnumSize; break;
-				case EPropertyType::Vec3Array:      *static_cast<TArray<FVector>*>(DstProp.ValuePtr) = *static_cast<TArray<FVector>*>(SrcProp->ValuePtr); break;
+				case EPropertyType::Array:
+					if (SrcProp->Accessor && SrcProp->Accessor == DstProp.Accessor)
+						SrcProp->Accessor->Assign(DstProp.ValuePtr, SrcProp->ValuePtr);
+					break;
 				case EPropertyType::Struct:
 				{
 					// Struct 자식 프로퍼티를 개별적으로 복사

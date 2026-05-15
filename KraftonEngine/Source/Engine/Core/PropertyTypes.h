@@ -14,6 +14,7 @@ struct FArrayAccessor
 	void	(*AddDefault)(void* ArrayPtr);
 	void	(*RemoveAt)(void* ArrayPtr, uint32 Index);
 	void	(*Clear)(void* ArrayPtr);
+	void	(*Assign)(void* DstArr, const void* SrcArr);
 };
 
 template <typename T>
@@ -25,6 +26,7 @@ inline FArrayAccessor* GetTArrayAccessor()
 		+[](void* A) { static_cast<TArray<T>*>(A)->emplace_back(); },
 		+[](void* A, uint32 i) { auto& V = *static_cast<TArray<T>*>(A); V.erase(V.begin() + i); },
 		+[](void* A) { static_cast<TArray<T>*>(A)->clear(); },
+		+[](void* D, const void* S) { *static_cast<TArray<T>*>(D) = *static_cast<const TArray<T>*>(S); },
 	};
 	return &s;
 }
@@ -47,7 +49,6 @@ enum class EPropertyType : uint8_t
 	SkeletalMeshRef,	// USkeletalMesh* 에셋 레퍼런스 (드롭다운 선택)
 	MaterialSlot,		// FMaterialSlot — 머티리얼 경로
 	Enum,
-	Vec3Array,
 	Struct,				// 자기기술 구조체 — StructFunc로 Children 생성
 	Script,
 	Array,
