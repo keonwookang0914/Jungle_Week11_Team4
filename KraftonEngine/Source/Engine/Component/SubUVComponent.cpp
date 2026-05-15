@@ -44,7 +44,7 @@ void USubUVComponent::PostDuplicate()
 
 USubUVComponent::USubUVComponent()
 {
-	SetVisibility(false);
+	//SetVisibility(false);
 }
 
 USubUVComponent::~USubUVComponent()
