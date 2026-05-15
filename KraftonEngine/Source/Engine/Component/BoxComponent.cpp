@@ -10,6 +10,10 @@
 
 IMPLEMENT_CLASS(UBoxComponent, UShapeComponent)
 
+BEGIN_CLASS_PROPERTIES(UBoxComponent)
+	PROPERTY_VEC3(BoxExtent, "Box Extent", "Shape", CPF_Edit)
+END_CLASS_PROPERTIES(UBoxComponent)
+
 void UBoxComponent::SetBoxExtent(const FVector& InExtent)
 {
 	BoxExtent = InExtent;
@@ -72,7 +76,6 @@ void UBoxComponent::ContributeSelectedVisuals(FScene& Scene) const
 void UBoxComponent::GetEditableProperties(TArray<FProperty>& OutProps)
 {
 	UShapeComponent::GetEditableProperties(OutProps);
-	OutProps.push_back({ "Box Extent", EPropertyType::Vec3, "Shape", &BoxExtent, 0.01f, 0.0f, 0.1f });
 }
 
 void UBoxComponent::PostEditProperty(const char* PropertyName)

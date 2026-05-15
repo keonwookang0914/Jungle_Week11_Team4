@@ -13,6 +13,11 @@
 IMPLEMENT_CLASS(UMovementComponent, UActorComponent)
 HIDE_FROM_COMPONENT_LIST(UMovementComponent)
 
+BEGIN_CLASS_PROPERTIES(UMovementComponent)
+	PROPERTY_BOOL(bAutoRegisterUpdatedComponent, "Auto Register Updated", "Movement", CPF_Edit)
+	REGISTER_PROPERTY(UpdatedComponentPath, "Updated Component", EPropertyType::SceneComponentRef, "Movement", CPF_Edit)
+END_CLASS_PROPERTIES(UMovementComponent)
+
 namespace
 {
 	constexpr const char* RootComponentPathToken = "Root";
@@ -47,8 +52,6 @@ void UMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 void UMovementComponent::GetEditableProperties(TArray<FProperty>& OutProps)
 {
 	UActorComponent::GetEditableProperties(OutProps);
-	OutProps.push_back({ "Auto Register Updated", EPropertyType::Bool, "Movement", &bAutoRegisterUpdatedComponent });
-	OutProps.push_back({ "Updated Component", EPropertyType::SceneComponentRef, "Movement", &UpdatedComponentPath });
 }
 
 void UMovementComponent::Serialize(FArchive& Ar)

@@ -11,6 +11,11 @@
 
 IMPLEMENT_CLASS(UCapsuleComponent, UShapeComponent)
 
+BEGIN_CLASS_PROPERTIES(UCapsuleComponent)
+	PROPERTY_FLOAT(CapsuleRadius, "Capsule Radius", "Shape", 0.01f, 10000.0f, 1.0f, CPF_Edit)
+	PROPERTY_FLOAT(CapsuleHalfHeight, "Capsule Half Height", "Shape", 0.01f, 10000.0f, 1.0f, CPF_Edit)
+END_CLASS_PROPERTIES(UCapsuleComponent)
+
 void UCapsuleComponent::SetCapsuleSize(float InRadius, float InHalfHeight)
 {
 	CapsuleRadius = InRadius;
@@ -124,8 +129,6 @@ void UCapsuleComponent::UpdateWorldAABB() const
 void UCapsuleComponent::GetEditableProperties(TArray<FProperty>& OutProps)
 {
 	UShapeComponent::GetEditableProperties(OutProps);
-	OutProps.push_back({ "Capsule Radius", EPropertyType::Float, "Shape", &CapsuleRadius, 0.01f, 10000.0f, 1.0f });
-	OutProps.push_back({ "Capsule Half Height", EPropertyType::Float, "Shape", &CapsuleHalfHeight, 0.01f, 10000.0f, 1.0f });
 }
 
 void UCapsuleComponent::PostEditProperty(const char* PropertyName)
