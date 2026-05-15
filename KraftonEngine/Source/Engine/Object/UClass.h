@@ -51,6 +51,8 @@ public:
 	const TArray<FProperty*>& GetProperties() const { return Properties; }
 	FProperty*   GetProperty(uint32 Index) const { return Index < Properties.size() ? Properties[Index] : nullptr; }
 	void		 AddProperty(FProperty* InProperty) { if (InProperty) Properties.push_back(InProperty); }
+	void		 HideInheritedProperty(FString InName);
+	bool		 IsPropertyHidden(FString InName) const;
 
 	// 베이스 → 파생 순서로 모든 프로퍼티 템플릿을 OutProps 에 복사.
 	// 기존 GetEditableProperties 구현이 Super 를 먼저 호출하던 순서와 동일하다.
