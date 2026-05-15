@@ -7,8 +7,8 @@ IMPLEMENT_CLASS(UActorComponent, UObject)
 HIDE_FROM_COMPONENT_LIST(UActorComponent)
 
 BEGIN_CLASS_PROPERTIES(UActorComponent)
-PROPERTY_BOOL(bTickEnable, "Component", EPropertyFlags::CPF_Edit)
-PROPERTY_BOOL(bEditorOnly, "Component", EPropertyFlags::CPF_Edit)
+	PROPERTY_BOOL(bTickEnable, "bTickEnable", "Component", EPropertyFlags::CPF_Edit)
+	PROPERTY_BOOL(bEditorOnly, "bEditorOnly", "Component", EPropertyFlags::CPF_Edit)
 END_CLASS_PROPERTIES(UActorComponent)
 
 void UActorComponent::BeginPlay()

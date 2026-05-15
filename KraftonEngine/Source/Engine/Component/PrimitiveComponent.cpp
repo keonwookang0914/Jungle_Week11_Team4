@@ -38,23 +38,23 @@ IMPLEMENT_CLASS(UPrimitiveComponent, USceneComponent)
 HIDE_FROM_COMPONENT_LIST(UPrimitiveComponent)
 
 BEGIN_CLASS_PROPERTIES(UPrimitiveComponent)
-	PROPERTY_BOOL  (bIsVisible,             "Rendering", CPF_Edit)
-	PROPERTY_BOOL  (bCastShadow,            "Rendering", CPF_Edit)
-	PROPERTY_BOOL  (bCastShadowAsTwoSided,  "Rendering", CPF_Edit)
+	PROPERTY_BOOL  (bIsVisible,             "Visible",                 "Rendering", CPF_Edit)
+	PROPERTY_BOOL  (bCastShadow,            "Cast Shadow",             "Rendering", CPF_Edit)
+	PROPERTY_BOOL  (bCastShadowAsTwoSided,  "Two Sided Shadow",        "Rendering", CPF_Edit)
 
-	PROPERTY_BOOL  (bSimulatePhysics,       "Collision", CPF_Edit)
-	PROPERTY_BOOL  (bGenerateOverlapEvents, "Collision", CPF_Edit)
-	PROPERTY_ENUM  (CollisionEnabled,       "Collision",
+	PROPERTY_BOOL  (bSimulatePhysics,       "Simulate Physics",        "Collision", CPF_Edit)
+	PROPERTY_BOOL  (bGenerateOverlapEvents, "Generate Overlap Events", "Collision", CPF_Edit)
+	PROPERTY_ENUM  (CollisionEnabled,       "Collision Enabled",       "Collision",
 	                GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT,
 	                sizeof(ECollisionEnabled), CPF_Edit)
-	PROPERTY_ENUM  (ObjectType,             "Collision",
+	PROPERTY_ENUM  (ObjectType,             "Object Type",             "Collision",
 	                GCollisionChannelNames, (uint32)ECollisionChannel::ActiveCount,
 	                sizeof(ECollisionChannel), CPF_Edit)
-	PROPERTY_STRUCT(ResponseContainer,      "Collision",
+	PROPERTY_STRUCT(ResponseContainer,      "Collision Responses",     "Collision",
 	                &FCollisionResponseContainer::DescribeProperties, CPF_Edit)
 
-	PROPERTY_FLOAT (Mass,                   "Physics", 0.0f, 0.0f, 0.1f, CPF_Edit)
-	PROPERTY_VEC3  (CenterOfMassOffset,     "Physics", CPF_Edit)
+	PROPERTY_FLOAT (Mass,                   "Mass (kg)",               "Physics", 0.0f, 0.0f, 0.1f, CPF_Edit)
+	PROPERTY_VEC3  (CenterOfMassOffset,     "Center Of Mass Offset",   "Physics", CPF_Edit)
 END_CLASS_PROPERTIES(UPrimitiveComponent)
 
 UPrimitiveComponent::~UPrimitiveComponent()

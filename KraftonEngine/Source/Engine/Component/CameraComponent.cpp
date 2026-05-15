@@ -10,11 +10,11 @@
 IMPLEMENT_CLASS(UCameraComponent, USceneComponent)
 
 BEGIN_CLASS_PROPERTIES(UCameraComponent)
-	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, FOV, "FOV", "FOV", "Camera", 0.1f, 3.14f, 0.01f, CPF_Edit)
-	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, NearZ, "Near Z", "Near Z", "Camera", 0.01f, 100.0f, 0.01f, CPF_Edit)
-	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, FarZ, "Far Z", "Far Z", "Camera", 1.0f, 100000.0f, 10.0f, CPF_Edit)
-	PROPERTY_BOOL_NESTED_NAMED(CameraState, FCameraState, bIsOrthogonal, "Orthographic", "Orthographic", "Camera", CPF_Edit)
-	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, OrthoWidth, "Ortho Width", "Ortho Width", "Camera", 0.1f, 1000.0f, 0.5f, CPF_Edit)
+	PROPERTY_FLOAT_NESTED(CameraState, FCameraState, FOV, "FOV", "Camera", 0.1f, 3.14f, 0.01f, CPF_Edit)
+	PROPERTY_FLOAT_NESTED(CameraState, FCameraState, NearZ, "Near Z", "Camera", 0.01f, 100.0f, 0.01f, CPF_Edit)
+	PROPERTY_FLOAT_NESTED(CameraState, FCameraState, FarZ, "Far Z", "Camera", 1.0f, 100000.0f, 10.0f, CPF_Edit)
+	PROPERTY_BOOL_NESTED(CameraState, FCameraState, bIsOrthogonal, "Orthographic", "Camera", CPF_Edit)
+	PROPERTY_FLOAT_NESTED(CameraState, FCameraState, OrthoWidth, "Ortho Width", "Camera", 0.1f, 1000.0f, 0.5f, CPF_Edit)
 END_CLASS_PROPERTIES(UCameraComponent)
 
 void UCameraComponent::BeginPlay()

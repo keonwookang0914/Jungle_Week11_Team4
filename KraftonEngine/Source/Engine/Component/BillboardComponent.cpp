@@ -13,7 +13,7 @@
 IMPLEMENT_CLASS(UBillboardComponent, UPrimitiveComponent)
 
 BEGIN_CLASS_PROPERTIES(UBillboardComponent)
-	REGISTER_PROPERTY(MaterialSlot, EPropertyType::MaterialSlot, "Rendering", EPropertyFlags::CPF_Edit)
+	REGISTER_PROPERTY(MaterialSlot, "Material", EPropertyType::MaterialSlot, "Rendering", EPropertyFlags::CPF_Edit)
 END_CLASS_PROPERTIES(UBillboardComponent)
 
 FPrimitiveSceneProxy* UBillboardComponent::CreateSceneProxy()
