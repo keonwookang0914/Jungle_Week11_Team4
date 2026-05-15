@@ -5,6 +5,13 @@
 
 IMPLEMENT_CLASS(UCineCameraComponent, UCameraComponent)
 
+BEGIN_CLASS_PROPERTIES(UCineCameraComponent)
+	PROPERTY_BOOL_NESTED_NAMED(Letterbox, FCineLetterboxSettings, bEnabled, "Enable Letterbox", "Enable Letterbox", "Cinematic", CPF_Edit)
+	PROPERTY_FLOAT_NESTED_NAMED(Letterbox, FCineLetterboxSettings, Amount, "Letterbox Amount", "Letterbox Amount", "Cinematic", 0.0f, 1.0f, 0.01f, CPF_Edit)
+	PROPERTY_FLOAT_NESTED_NAMED(Letterbox, FCineLetterboxSettings, Thickness, "Letterbox Thickness", "Letterbox Thickness", "Cinematic", 0.0f, 0.5f, 0.01f, CPF_Edit)
+	REGISTER_PROPERTY_NESTED_NAMED(Letterbox, FCineLetterboxSettings, Color, "Letterbox Color", "Letterbox Color", EPropertyType::Color4, "Cinematic", CPF_Edit)
+END_CLASS_PROPERTIES(UCineCameraComponent)
+
 void UCineCameraComponent::Serialize(FArchive& Ar)
 {
 	UCameraComponent::Serialize(Ar);
@@ -17,8 +24,4 @@ void UCineCameraComponent::Serialize(FArchive& Ar)
 void UCineCameraComponent::GetEditableProperties(TArray<FProperty>& OutProps)
 {
 	UCameraComponent::GetEditableProperties(OutProps);
-	OutProps.push_back({ "Enable Letterbox", EPropertyType::Bool, "Cinematic", &Letterbox.bEnabled });
-	OutProps.push_back({ "Letterbox Amount", EPropertyType::Float, "Cinematic", &Letterbox.Amount, 0.0f, 1.0f, 0.01f });
-	OutProps.push_back({ "Letterbox Thickness", EPropertyType::Float, "Cinematic", &Letterbox.Thickness, 0.0f, 0.5f, 0.01f });
-	OutProps.push_back({ "Letterbox Color", EPropertyType::Color4, "Cinematic", &Letterbox.Color });
 }

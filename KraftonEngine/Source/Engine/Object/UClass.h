@@ -23,6 +23,19 @@ public:
 		: Name(InName), SuperClass(InSuperClass), Size(InSize), ClassFlags(InFlags)
 	{}
 
+	~UClass()
+	{
+		for (uint32 i = 0; i < Properties.size(); i++)
+		{
+			if (Properties[i])
+			{
+				delete Properties[i];
+				Properties[i] = nullptr;
+			}
+		}
+		Properties.clear();
+	}
+
 	const char*  GetName()       const { return Name; }
 	UClass*      GetSuperClass() const { return SuperClass; }
 	size_t       GetSize()       const { return Size; }

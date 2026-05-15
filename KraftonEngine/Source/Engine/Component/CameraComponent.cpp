@@ -9,6 +9,14 @@
 
 IMPLEMENT_CLASS(UCameraComponent, USceneComponent)
 
+BEGIN_CLASS_PROPERTIES(UCameraComponent)
+	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, FOV, "FOV", "FOV", "Camera", 0.1f, 3.14f, 0.01f, CPF_Edit)
+	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, NearZ, "Near Z", "Near Z", "Camera", 0.01f, 100.0f, 0.01f, CPF_Edit)
+	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, FarZ, "Far Z", "Far Z", "Camera", 1.0f, 100000.0f, 10.0f, CPF_Edit)
+	PROPERTY_BOOL_NESTED_NAMED(CameraState, FCameraState, bIsOrthogonal, "Orthographic", "Orthographic", "Camera", CPF_Edit)
+	PROPERTY_FLOAT_NESTED_NAMED(CameraState, FCameraState, OrthoWidth, "Ortho Width", "Ortho Width", "Camera", 0.1f, 1000.0f, 0.5f, CPF_Edit)
+END_CLASS_PROPERTIES(UCameraComponent)
+
 void UCameraComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -85,9 +93,4 @@ void UCameraComponent::GetCameraView(float /*DeltaTime*/, FMinimalViewInfo& OutP
 void UCameraComponent::GetEditableProperties(TArray<FProperty>& OutProps)
 {
 	USceneComponent::GetEditableProperties(OutProps);
-	OutProps.push_back({ "FOV",         EPropertyType::Float, "Camera", &CameraState.FOV, 0.1f,   3.14f,    0.01f });
-	OutProps.push_back({ "Near Z",      EPropertyType::Float, "Camera", &CameraState.NearZ, 0.01f,  100.0f,   0.01f });
-	OutProps.push_back({ "Far Z",       EPropertyType::Float, "Camera", &CameraState.FarZ, 1.0f,   100000.0f, 10.0f });
-	OutProps.push_back({ "Orthographic",EPropertyType::Bool,  "Camera", &CameraState.bIsOrthogonal});
-	OutProps.push_back({ "Ortho Width", EPropertyType::Float, "Camera", &CameraState.OrthoWidth, 0.1f,   1000.0f,  0.5f });
 }

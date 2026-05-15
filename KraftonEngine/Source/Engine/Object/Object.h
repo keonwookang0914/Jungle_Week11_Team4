@@ -44,155 +44,141 @@ class FArchive;
 // ---------------------------------------------------------------------------
 
 #define BEGIN_CLASS_PROPERTIES(ClassName)                                   \
-        struct ClassName##_PropertyRegistrar {                              \
-            ClassName##_PropertyRegistrar() {                               \
-                using ThisClass = ClassName;                                \
-                UClass* Cls = ClassName::StaticClass();                     \
-                (void)Cls;
+	struct ClassName##_PropertyRegistrar {                                  \
+		ClassName##_PropertyRegistrar() {                                   \
+			using ThisClass = ClassName;                                    \
+			UClass* Cls = ClassName::StaticClass();                         \
+			(void)Cls;
 
 #define END_CLASS_PROPERTIES(ClassName)                                     \
-            }                                                               \
-        };                                                                  \
-        static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;   
+		}                                                                   \
+	};                                                                      \
+	static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;
 
-// 모든 PROPERTY_* 매크로 공통
-#define KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, InType, InCategory, InFlags)  \
-    {                                                                       \
-        FProperty* P = new FProperty();                                     \
-        P->Name = #MemberName;												\
-		P->DisplayName = InDisplayName;										\
-        P->Type = (InType);                                                 \
-        P->Category = (InCategory);                                         \
-        P->PropertyFlag = (InFlags);                                        \
-        P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName)); \
-        P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName)); \
-        Cls->AddProperty(P);                                                \
-    }
+// 모든 PROPERTY_* 매크로의 공통 구현.
+// ExtraSetup 은 type-specific 필드를 채우는 쉼표 표현식(예: (P->Min = X, P->Max = Y)).
+// 추가 필드가 없으면 (void)0 전달.
+#define KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, InType, InCategory, InFlags, ExtraSetup) \
+	{                                                                                                 \
+		FProperty* P = new FProperty();                                                               \
+		P->Name            = #MemberName;                                                             \
+		P->DisplayName     = (InDisplayName);                                                         \
+		P->Type            = (InType);                                                                \
+		P->Category        = (InCategory);                                                            \
+		P->PropertyFlag    = (InFlags);                                                               \
+		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));                    \
+		P->ElementSize     = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));                \
+		ExtraSetup;                                                                                   \
+		Cls->AddProperty(P);                                                                          \
+	}
+
+#define KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InDisplayName, InType, InCategory, InOffset, InSize, InFlags, ExtraSetup) \
+	{                                                                                                 \
+		FProperty* P = new FProperty();                                                               \
+		P->Name            = (InName);                                                                \
+		P->DisplayName     = (InDisplayName);                                                         \
+		P->Type            = (InType);                                                                \
+		P->Category        = (InCategory);                                                            \
+		P->PropertyFlag    = (InFlags);                                                               \
+		P->Offset_Internal = static_cast<uint32>(InOffset);                                           \
+		P->ElementSize     = static_cast<uint32>(InSize);                                             \
+		ExtraSetup;                                                                                   \
+		Cls->AddProperty(P);                                                                          \
+	}
+
+// #MemberName 으로부터 표시 이름 자동 생성. Bool 은 'b' prefix 를 떼기 위해 별도.
+#define KE_AUTO_NAME(MemberName)      FName::NameToDisplayString(#MemberName, false)
+#define KE_AUTO_BOOL_NAME(MemberName) FName::NameToDisplayString(#MemberName, true)
+
+// 자동 표시 이름 버전.
+#define PROPERTY_BOOL(MemberName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_BOOL_NAME(MemberName), EPropertyType::Bool,   InCategory, InFlags, (void)0)
+#define PROPERTY_INT(MemberName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_NAME(MemberName),      EPropertyType::Int,    InCategory, InFlags, (void)0)
+#define PROPERTY_VEC3(MemberName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_NAME(MemberName),      EPropertyType::Vec3,   InCategory, InFlags, (void)0)
+#define PROPERTY_STRING(MemberName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_NAME(MemberName),      EPropertyType::String, InCategory, InFlags, (void)0)
 
 #define PROPERTY_FLOAT(MemberName, InCategory, InMin, InMax, InSpeed, InFlags) \
-    {                                                                       \
-        FProperty* P = new FProperty();                                     \
-		P->Name = #MemberName;												\
-        P->DisplayName = FName::NameToDisplayString(#MemberName, false);    \
-        P->Type = EPropertyType::Float;                                     \
-        P->Category = (InCategory);                                         \
-        P->Min = (InMin); P->Max = (InMax); P->Speed = (InSpeed);           \
-        P->PropertyFlag = (InFlags);                                        \
-        P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName)); \
-        P->ElementSize = static_cast<uint32>(sizeof(float));                \
-        Cls->AddProperty(P);                                                \
-    }
-
-#define PROPERTY_BOOL(MemberName, InCategory, InFlags)																				   	\
-	{																																	\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, true), EPropertyType::Bool, InCategory, InFlags)  \
-	}	
-#define PROPERTY_BOOL_NAMED(MemberName, DisplayName, InCategory, InFlags)							 \
-	{																								 \
-		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::Bool, InCategory, InFlags) \
-	}	
-
-#define PROPERTY_INT(MemberName, InCategory, InFlags)																					\
-	{																																	\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Int, InCategory, InFlags)	\
-	}
-#define PROPERTY_INT_NAMED(MemberName, DisplayName, InCategory, InFlags)							\
-	{																								\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::Int, InCategory, InFlags) \
-	}	
-
-#define PROPERTY_VEC3(MemberName, InCategory, InFlags)																					\
-	{																																	\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::Vec3, InCategory, InFlags) \
-	}
-#define PROPERTY_VEC3_NAMED(MemberName, DisplayName, InCategory, InFlags)							 \
-	{																								 \
-		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::Vec3, InCategory, InFlags) \
-	}	
-
-#define PROPERTY_STRING(MemberName, InCategory, InFlags)																					\
-	{																																		\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), EPropertyType::String, InCategory, InFlags)	\
-	}
-#define PROPERTY_STRING_NAMED(MemberName, DisplayName, InCategory, InFlags)							   \
-	{																								   \
-		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, EPropertyType::String, InCategory, InFlags) \
-	}	
-
-// 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
-#define REGISTER_PROPERTY(MemberName, InType, InCategory, InFlags)															\
-	{																														\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, FName::NameToDisplayString(#MemberName, false), InType, InCategory, InFlags)	\
-	}
-#define REGISTER_PROPERTY_NAMED(MemberName, DisplayName, InType, InCategory, InFlags)	\
-	{																					\
-		KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags) \
-	}	
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_NAME(MemberName), EPropertyType::Float, InCategory, InFlags, \
+		(P->Min = (InMin), P->Max = (InMax), P->Speed = (InSpeed)))
 
 // Enum 멤버 등록. EnumNamesArr/EnumCountVal/EnumSizeVal 은 호출자가 제공.
 //   예: PROPERTY_ENUM(CollisionEnabled, "Collision",
 //                     GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT,
 //                     sizeof(ECollisionEnabled), CPF_Edit)
 #define PROPERTY_ENUM(MemberName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
-	{                                                                                           \
-		FProperty* P = new FProperty();                                                         \
-		P->Name = #MemberName;                                                                  \
-		P->DisplayName = FName::NameToDisplayString(#MemberName, false);                        \
-		P->Type = EPropertyType::Enum;                                                          \
-		P->Category = (InCategory);                                                             \
-		P->PropertyFlag = (InFlags);                                                            \
-		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
-		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
-		P->EnumNames = (EnumNamesArr);                                                          \
-		P->EnumCount = (EnumCountVal);                                                          \
-		P->EnumSize  = (EnumSizeVal);                                                           \
-		Cls->AddProperty(P);                                                                    \
-	}
-#define PROPERTY_ENUM_NAMED(MemberName, InDisplayName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
-	{                                                                                           \
-		FProperty* P = new FProperty();                                                         \
-		P->Name = #MemberName;                                                                  \
-		P->DisplayName = (InDisplayName);														\
-		P->Type = EPropertyType::Enum;                                                          \
-		P->Category = (InCategory);                                                             \
-		P->PropertyFlag = (InFlags);                                                            \
-		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
-		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
-		P->EnumNames = (EnumNamesArr);                                                          \
-		P->EnumCount = (EnumCountVal);                                                          \
-		P->EnumSize  = (EnumSizeVal);                                                           \
-		Cls->AddProperty(P);                                                                    \
-	}
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_NAME(MemberName), EPropertyType::Enum, InCategory, InFlags, \
+		(P->EnumNames = (EnumNamesArr), P->EnumCount = (EnumCountVal), P->EnumSize = (EnumSizeVal)))
 
 // Struct 멤버 등록. StructFuncPtr 는 자식 프로퍼티 디스크립터를 만드는 콜백.
 //   예: PROPERTY_STRUCT(ResponseContainer, "Collision",
 //                       &FCollisionResponseContainer::DescribeProperties, CPF_Edit)
-#define PROPERTY_STRUCT(MemberName, InCategory, StructFuncPtr, InFlags)                         \
-	{                                                                                           \
-		FProperty* P = new FProperty();                                                         \
-		P->Name = #MemberName;                                                                  \
-		P->DisplayName = FName::NameToDisplayString(#MemberName, false);                        \
-		P->Type = EPropertyType::Struct;                                                        \
-		P->Category = (InCategory);                                                             \
-		P->PropertyFlag = (InFlags);                                                            \
-		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
-		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
-		P->StructFunc = (StructFuncPtr);                                                        \
-		Cls->AddProperty(P);                                                                    \
-	}
-#define PROPERTY_STRUCT_NAMED(MemberName, InDisplayName, InCategory, StructFuncPtr, InFlags)      \
-	{                                                                                           \
-		FProperty* P = new FProperty();                                                         \
-		P->Name = #MemberName;                                                                  \
-		P->DisplayName = InDisplayName;									                        \
-		P->Type = EPropertyType::Struct;                                                        \
-		P->Category = (InCategory);                                                             \
-		P->PropertyFlag = (InFlags);                                                            \
-		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));              \
-		P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
-		P->StructFunc = (StructFuncPtr);                                                        \
-		Cls->AddProperty(P);                                                                    \
-	}
+#define PROPERTY_STRUCT(MemberName, InCategory, StructFuncPtr, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_NAME(MemberName), EPropertyType::Struct, InCategory, InFlags, \
+		P->StructFunc = (StructFuncPtr))
+
+// 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
+#define REGISTER_PROPERTY(MemberName, InType, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, KE_AUTO_NAME(MemberName), InType, InCategory, InFlags, (void)0)
+
+// 명시적 offset 버전. 중첩 멤버처럼 offsetof(ThisClass, MemberName) 으로 표현할 수 없는
+// 필드를 등록할 때 사용한다.
+#define REGISTER_PROPERTY_OFFSET(InName, InDisplayName, InType, InCategory, InOffset, InSize, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InDisplayName, InType, InCategory, InOffset, InSize, InFlags, (void)0)
+
+#define PROPERTY_FLOAT_OFFSET(InName, InDisplayName, InCategory, InOffset, InMin, InMax, InSpeed, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InDisplayName, EPropertyType::Float, InCategory, InOffset, sizeof(float), InFlags, \
+		(P->Min = (InMin), P->Max = (InMax), P->Speed = (InSpeed)))
+
+#define PROPERTY_BOOL_OFFSET(InName, InDisplayName, InCategory, InOffset, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InDisplayName, EPropertyType::Bool, InCategory, InOffset, sizeof(bool), InFlags, (void)0)
+
+#define PROPERTY_FLOAT_NESTED(StructMember, StructType, FieldMember, InCategory, InMin, InMax, InSpeed, InFlags) \
+	PROPERTY_FLOAT_OFFSET(#FieldMember, KE_AUTO_NAME(FieldMember), InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InMin, InMax, InSpeed, InFlags)
+
+#define PROPERTY_FLOAT_NESTED_NAMED(StructMember, StructType, FieldMember, InName, InDisplayName, InCategory, InMin, InMax, InSpeed, InFlags) \
+	PROPERTY_FLOAT_OFFSET(InName, InDisplayName, InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InMin, InMax, InSpeed, InFlags)
+
+#define PROPERTY_BOOL_NESTED(StructMember, StructType, FieldMember, InCategory, InFlags) \
+	PROPERTY_BOOL_OFFSET(#FieldMember, KE_AUTO_BOOL_NAME(FieldMember), InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InFlags)
+
+#define PROPERTY_BOOL_NESTED_NAMED(StructMember, StructType, FieldMember, InName, InDisplayName, InCategory, InFlags) \
+	PROPERTY_BOOL_OFFSET(InName, InDisplayName, InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InFlags)
+
+#define REGISTER_PROPERTY_NESTED(StructMember, StructType, FieldMember, InType, InCategory, InFlags) \
+	REGISTER_PROPERTY_OFFSET(#FieldMember, KE_AUTO_NAME(FieldMember), InType, InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), InFlags)
+
+#define REGISTER_PROPERTY_NESTED_NAMED(StructMember, StructType, FieldMember, InName, InDisplayName, InType, InCategory, InFlags) \
+	REGISTER_PROPERTY_OFFSET(InName, InDisplayName, InType, InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), InFlags)
+
+// _NAMED 변형: 자동 생성된 표시 이름 대신 명시적 DisplayName 사용.
+#define PROPERTY_BOOL_NAMED(MemberName, InDisplayName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, EPropertyType::Bool,   InCategory, InFlags, (void)0)
+#define PROPERTY_INT_NAMED(MemberName, InDisplayName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, EPropertyType::Int,    InCategory, InFlags, (void)0)
+#define PROPERTY_VEC3_NAMED(MemberName, InDisplayName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, EPropertyType::Vec3,   InCategory, InFlags, (void)0)
+#define PROPERTY_STRING_NAMED(MemberName, InDisplayName, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, EPropertyType::String, InCategory, InFlags, (void)0)
+
+#define PROPERTY_ENUM_NAMED(MemberName, InDisplayName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, EPropertyType::Enum, InCategory, InFlags, \
+		(P->EnumNames = (EnumNamesArr), P->EnumCount = (EnumCountVal), P->EnumSize = (EnumSizeVal)))
+
+#define PROPERTY_STRUCT_NAMED(MemberName, InDisplayName, InCategory, StructFuncPtr, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, EPropertyType::Struct, InCategory, InFlags, \
+		P->StructFunc = (StructFuncPtr))
+
+#define REGISTER_PROPERTY_NAMED(MemberName, InDisplayName, InType, InCategory, InFlags) \
+	KE_REGISTER_PROPERTY_IMPL(MemberName, InDisplayName, InType, InCategory, InFlags, (void)0)
 
 // ---------------------------------------------------------------------------
 
