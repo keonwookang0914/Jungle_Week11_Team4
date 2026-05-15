@@ -213,3 +213,12 @@ void FProperty::Deserialize(json::JSON& Value)
 		break;
 	}
 }
+
+FProperty::~FProperty()
+{
+	if (Inner)
+	{
+		delete Inner;
+		Inner = nullptr;
+	}
+}

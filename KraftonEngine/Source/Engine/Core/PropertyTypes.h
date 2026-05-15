@@ -75,6 +75,8 @@ using FStructPropertyFunc = void(*)(void* StructPtr, std::vector<FProperty>& Out
 class FProperty
 { 
 public:
+	~FProperty();
+
 	FString		  Name;
 	EPropertyType Type			= EPropertyType::Bool;
 	FString		  Category;      // 에디터 카테고리 (같은 문자열끼리 그룹화)
@@ -94,7 +96,7 @@ public:
 	FStructPropertyFunc StructFunc = nullptr;
 
 	uint32		  PropertyFlag = EPropertyFlags::CPF_None;
-	uint32		  ElementSize = 0;
+	uint32		  ElementSize = 0;		// Container size for Array type
 	uint32		  Offset_Internal = 0;
 
 	FProperty*		Inner	 = nullptr; // element descriptor; heap-owned by parent
