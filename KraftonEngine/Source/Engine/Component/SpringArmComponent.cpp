@@ -157,7 +157,3 @@ void USpringArmComponent::Serialize(FArchive& Ar)
 	}
 }
 
-void USpringArmComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	USceneComponent::GetEditableProperties(OutProps);
-}
