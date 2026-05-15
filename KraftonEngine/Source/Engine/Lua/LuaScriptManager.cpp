@@ -774,17 +774,6 @@ void FLuaScriptManager::RegisterMathBindings(sol::state& Lua)
 
 void FLuaScriptManager::RegisterActorBindings(sol::state& Lua)
 {
-	Lua.new_usertype<UActionComponent>("ActionComponent",
-		"HitStop", &UActionComponent::HitStop,
-		"HitSquash", &UActionComponent::HitSquash,
-		"Knockback", &UActionComponent::Knockback,
-		"Slomo", &UActionComponent::Slomo,
-		"StopHitStop", &UActionComponent::StopHitStop,
-		"StopHitSquash", &UActionComponent::StopHitSquash,
-		"StopKnockback", &UActionComponent::StopKnockback,
-		"StopSlomo", &UActionComponent::StopSlomo,
-		"StopAllActions", &UActionComponent::StopAllActions);
-
 	Lua.new_usertype<UFloatingPawnMovementComponent>("FloatingPawnMovementComponent",
 		"SetMoveInput", &UFloatingPawnMovementComponent::SetMoveInput,
 		"SetLookInput", &UFloatingPawnMovementComponent::SetLookInput);

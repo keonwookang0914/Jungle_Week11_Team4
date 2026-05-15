@@ -29,7 +29,7 @@
       <UniqueIdentifier>{879fdc11-4e44-c448-2bbf-5fd281dc244f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Editor\Import">
-      <UniqueIdentifier>{bfae4fc6-6c33-4a93-b4b4-4384d58d84ef}</UniqueIdentifier>
+      <UniqueIdentifier>{77025e87-9cf5-d898-f9dd-d234edcb1756}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Editor\PIE">
       <UniqueIdentifier>{1485fbd8-4084-14c8-cd14-33798c9651d4}</UniqueIdentifier>
@@ -935,6 +935,9 @@
     <ClCompile Include="Source\Engine\Object\Object.cpp">
       <Filter>Source\Engine\Object</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Object\UClass.cpp">
+      <Filter>Source\Engine\Object</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Object\UUIDGenerator.cpp">
       <Filter>Source\Engine\Object</Filter>
     </ClCompile>
@@ -1281,7 +1284,6 @@
       <Filter>ThirdParty\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Source\Engine\Object\UClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\EditorEngine.h">
@@ -1824,6 +1826,9 @@
     <ClInclude Include="Source\Engine\Object\FName.h">
       <Filter>Source\Engine\Object</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Object\LuaClassRegistry.h">
+      <Filter>Source\Engine\Object</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Object\Object.h">
       <Filter>Source\Engine\Object</Filter>
     </ClInclude>
@@ -1831,6 +1836,9 @@
       <Filter>Source\Engine\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Object\ObjectIterator.h">
+      <Filter>Source\Engine\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Object\ObjectMacros.h">
       <Filter>Source\Engine\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Object\UClass.h">
@@ -3893,12 +3901,6 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\sol2\include\sol\utility\to_string.hpp">
       <Filter>ThirdParty\sol2\include\sol\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Object\ObjectMacros.h">
-      <Filter>Source\Engine\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Object\LuaClassRegistry.h">
-      <Filter>Source\Engine\Lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
