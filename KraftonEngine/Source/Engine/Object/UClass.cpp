@@ -1,4 +1,15 @@
 ﻿#include "UClass.h"
+#include "Serialization/Archive.h"
+
+//void UClass::Serialize(FArchive& Ar)
+//{
+//	for (uint32 i = 0; i < Properties.size(); i++)
+//	{
+//		FProperty* Property = Properties[i];
+//		if (!Property || (Property->PropertyFlag & EPropertyFlags::CPF_Transient) != 0) continue;
+//		Ar << Property->ValuePtr;
+//	}
+//}
 
 void UClass::HideInheritedProperty(FString InName)
 {

@@ -7,6 +7,7 @@
 #include <unordered_set>
 
 class UObject;
+class FArchive;
 
 enum EClassFlags : uint32
 {
@@ -44,6 +45,7 @@ public:
 		Properties.clear();
 	}
 
+	//void		 Serialize(FArchive& Ar);
 	const char*  GetName()       const { return Name; }
 	UClass*      GetSuperClass() const { return SuperClass; }
 	size_t       GetSize()       const { return Size; }
