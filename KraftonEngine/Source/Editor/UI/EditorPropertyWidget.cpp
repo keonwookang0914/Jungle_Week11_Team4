@@ -44,11 +44,9 @@
 
 namespace
 {
-	// Editor 표시용 라벨. DisplayName 이 비어 있으면 raw Name (예: bIsVisible) 으로 fallback.
-	// Name 은 JSON key / PostEditProperty dispatch 키로 그대로 유지.
 	inline const char* PropLabel(const FProperty& Prop)
 	{
-		return Prop.DisplayName.empty() ? Prop.Name.c_str() : Prop.DisplayName.c_str();
+		return Prop.Name.c_str();
 	}
 
 	bool IsFbxFilePath(const FString& Path)

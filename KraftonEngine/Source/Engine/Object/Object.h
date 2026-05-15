@@ -58,10 +58,10 @@ class FArchive;
 // 모든 PROPERTY_* 매크로의 공통 구현.
 // ExtraSetup 은 type-specific 필드를 채우는 쉼표 표현식(예: (P->Min = X, P->Max = Y)).
 // 추가 필드가 없으면 (void)0 전달.
-#define KE_REGISTER_PROPERTY_IMPL(MemberName, DisplayName, InType, InCategory, InFlags, ExtraSetup) \
+#define KE_REGISTER_PROPERTY_IMPL(MemberName, InName, InType, InCategory, InFlags, ExtraSetup) \
 	{                                                                                                 \
 		FProperty* P = new FProperty();                                                               \
-		P->Name            = (DisplayName);                                                           \
+		P->Name            = (InName);                                                                \
 		P->Type            = (InType);                                                                \
 		P->Category        = (InCategory);                                                            \
 		P->PropertyFlag    = (InFlags);                                                               \
@@ -71,10 +71,10 @@ class FArchive;
 		Cls->AddProperty(P);                                                                          \
 	}
 
-#define KE_REGISTER_PROPERTY_OFFSET_IMPL(DisplayName, InType, InCategory, InOffset, InSize, InFlags, ExtraSetup) \
+#define KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InType, InCategory, InOffset, InSize, InFlags, ExtraSetup) \
 	{                                                                                                 \
 		FProperty* P = new FProperty();                                                               \
-		P->Name            = (DisplayName);                                                           \
+		P->Name            = (InName);                                                                \
 		P->Type            = (InType);                                                                \
 		P->Category        = (InCategory);                                                            \
 		P->PropertyFlag    = (InFlags);                                                               \
@@ -118,27 +118,45 @@ class FArchive;
 
 // 명시적 offset 버전. 중첩 멤버처럼 offsetof(ThisClass, MemberName) 으로 표현할 수 없는
 // 필드를 등록할 때 사용한다.
-#define REGISTER_PROPERTY_OFFSET(InName, InDisplayName, InType, InCategory, InOffset, InSize, InFlags) \
-	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InDisplayName, InType, InCategory, InOffset, InSize, InFlags, (void)0)
+#define REGISTER_PROPERTY_OFFSET(InName, InType, InCategory, InOffset, InSize, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InType, InCategory, InOffset, InSize, InFlags, (void)0)
 
-#define PROPERTY_FLOAT_OFFSET(InName, InDisplayName, InCategory, InOffset, InMin, InMax, InSpeed, InFlags) \
-	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InDisplayName, EPropertyType::Float, InCategory, InOffset, sizeof(float), InFlags, \
+#define PROPERTY_FLOAT_OFFSET(InName, InCategory, InOffset, InMin, InMax, InSpeed, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, EPropertyType::Float, InCategory, InOffset, sizeof(float), InFlags, \
 		(P->Min = (InMin), P->Max = (InMax), P->Speed = (InSpeed)))
 
-#define PROPERTY_BOOL_OFFSET(InName, InDisplayName, InCategory, InOffset, InFlags) \
-	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InDisplayName, EPropertyType::Bool, InCategory, InOffset, sizeof(bool), InFlags, (void)0)
+#define PROPERTY_BOOL_OFFSET(InName, InCategory, InOffset, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, EPropertyType::Bool, InCategory, InOffset, sizeof(bool), InFlags, (void)0)
+
+#define PROPERTY_ENUM_OFFSET(InName, InCategory, InOffset, InSize, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, EPropertyType::Enum, InCategory, InOffset, InSize, InFlags, \
+		(P->EnumNames = (EnumNamesArr), P->EnumCount = (EnumCountVal), P->EnumSize = (EnumSizeVal)))
+
+#define PROPERTY_STRUCT_OFFSET(InName, InCategory, InOffset, InSize, StructFuncPtr, InFlags) \
+	KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, EPropertyType::Struct, InCategory, InOffset, InSize, InFlags, \
+		P->StructFunc = (StructFuncPtr))
 
 #define PROPERTY_FLOAT_NESTED(StructMember, StructType, FieldMember, InName, InCategory, InMin, InMax, InSpeed, InFlags) \
-	PROPERTY_FLOAT_OFFSET(InName, InName, InCategory, \
+	PROPERTY_FLOAT_OFFSET(InName, InCategory, \
 		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InMin, InMax, InSpeed, InFlags)
 
 #define PROPERTY_BOOL_NESTED(StructMember, StructType, FieldMember, InName, InCategory, InFlags) \
-	PROPERTY_BOOL_OFFSET(InName, InName, InCategory, \
+	PROPERTY_BOOL_OFFSET(InName, InCategory, \
 		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), InFlags)
 
 #define REGISTER_PROPERTY_NESTED(StructMember, StructType, FieldMember, InName, InType, InCategory, InFlags) \
-	REGISTER_PROPERTY_OFFSET(InName, InName, InType, InCategory, \
+	REGISTER_PROPERTY_OFFSET(InName, InType, InCategory, \
 		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), InFlags)
+
+#define PROPERTY_ENUM_NESTED(StructMember, StructType, FieldMember, InName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
+	PROPERTY_ENUM_OFFSET(InName, InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), \
+		EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags)
+
+#define PROPERTY_STRUCT_NESTED(StructMember, StructType, FieldMember, InName, InCategory, StructFuncPtr, InFlags) \
+	PROPERTY_STRUCT_OFFSET(InName, InCategory, \
+		offsetof(ThisClass, StructMember) + offsetof(StructType, FieldMember), sizeof(((StructType*)0)->FieldMember), \
+		StructFuncPtr, InFlags)
 
 // ---------------------------------------------------------------------------
 
