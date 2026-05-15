@@ -18,6 +18,7 @@ BEGIN_CLASS_PROPERTIES(USubUVComponent)
 	REGISTER_PROPERTY(ParticleName, "Particle", EPropertyType::Name, "Particle", CPF_Edit)
 	PROPERTY_FLOAT(PlayRate, "Play Rate", "Particle", 1.0f, 120.0f, 1.0f, CPF_Edit)
 	PROPERTY_BOOL(bLoop, "bLoop", "Particle", CPF_Edit)
+	HIDE_PROPERTY("Material")
 END_CLASS_PROPERTIES(USubUVComponent)
 
 FPrimitiveSceneProxy* USubUVComponent::CreateSceneProxy()
@@ -81,21 +82,7 @@ void USubUVComponent::RebuildSubUVMaterial()
 
 void USubUVComponent::GetEditableProperties(TArray<FProperty>& OutProps)
 {
-	// SubUV 는 Particle 텍스처에서 자체 머티리얼을 합성하므로 Billboard 의 "Material"
-	// slot 은 의미가 없다. 부모 chain 을 정상 호출해 transform / collision / SubUV 매크로
-	// 까지 다 받은 뒤, "Material" 항목만 사후에 골라 제거한다.
 	UBillboardComponent::GetEditableProperties(OutProps);
-	for (auto It = OutProps.begin(); It != OutProps.end(); )
-	{
-		if (It->Name == "Material")
-		{
-			It = OutProps.erase(It);
-		}
-		else
-		{
-			++It;
-		}
-	}
 }
 
 void USubUVComponent::PostEditProperty(const char* PropertyName)
