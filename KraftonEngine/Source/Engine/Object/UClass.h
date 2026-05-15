@@ -29,6 +29,13 @@ public:
 		{
 			if (Properties[i])
 			{
+				// Inner 는 PROPERTY_ARRAY 매크로가 heap 에 할당해 부모에만 1개 보관.
+				// FProperty 자체에는 dtor 가 없으므로 (값 복사 안전성 때문) 여기서 명시 해제.
+				if (Properties[i]->Inner)
+				{
+					delete Properties[i]->Inner;
+					Properties[i]->Inner = nullptr;
+				}
 				delete Properties[i];
 				Properties[i] = nullptr;
 			}

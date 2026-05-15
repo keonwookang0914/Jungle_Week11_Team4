@@ -1490,38 +1490,77 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		}
 		break;
 	}
-	case EPropertyType::Vec3Array:
+
+	case EPropertyType::Array:
 	{
-		TArray<FVector>* Arr = static_cast<TArray<FVector>*>(Prop.ValuePtr);
+		if (!Prop.Accessor || !Prop.Inner || !Prop.ValuePtr) break;
 
-		ImGui::TextUnformatted(PropLabel(Prop));
+		FArrayAccessor* Acc = Prop.Accessor;
+		void* ArrPtr = Prop.ValuePtr;
 
-		int32 RemoveIdx = -1;
-		for (int32 i = 0; i < (int32)Arr->size(); ++i)
+		// 라벨은 외곽 테이블의 column 0 에서 이미 그렸음. 여기는 value 칸 전부.
+		ImGui::BeginGroup();
+		const uint32 N = Acc->Num(ArrPtr);
+		char HeaderBuf[32];
+		snprintf(HeaderBuf, sizeof(HeaderBuf), "%u element%s", N, (N == 1 ? "" : "s"));
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(HeaderBuf);
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+"))
 		{
-			ImGui::PushID(i);
-			char Label[16];
-			snprintf(Label, sizeof(Label), "[%d]", i);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 30.0f);
-			if (ImGui::DragFloat3(Label, &(*Arr)[i].X, 1.0f))
+			Acc->AddDefault(ArrPtr);
+			bChanged = true;
+		}
+
+		// 각 라이브 요소: [라벨] [재귀 위젯] [x].
+		// 자식 이름을 "Element i" 로 두는 이유: MaterialSlot 위젯이 슬롯 이름을
+		// 표시할 때 strncmp("Element ", 8) 로 인덱스를 뽑고, StaticMeshComponent::
+		// PostEditProperty 도 같은 prefix 를 본다.
+		int32 RemoveIdx = -1;
+		for (uint32 i = 0; i < N; ++i)
+		{
+			ImGui::PushID((int)i);
+
+			TArray<FProperty> Tmp;
+			Tmp.push_back(*Prop.Inner);   // Inner 포인터는 공유 — dtor 가 없으니 안전.
+			FProperty& Elem = Tmp.back();
+			Elem.Name = "Element " + std::to_string(i);
+			Elem.ValuePtr = Acc->GetAt(ArrPtr, i);
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(Elem.Name.c_str());
+			ImGui::SameLine(80.0f);
+
+			const float Avail = ImGui::GetContentRegionAvail().x;
+			ImGui::SetNextItemWidth(Avail - 24.0f);
+
+			int32 ElemIdx = 0;
+			if (RenderPropertyWidget(Tmp, ElemIdx))
+			{
+				// 내부 RenderPropertyWidget tail 이 이미
+				// SelectedComponent->PostEditProperty("Element i") 를 호출한다.
 				bChanged = true;
+			}
+
 			ImGui::SameLine();
 			if (ImGui::SmallButton("x"))
-				RemoveIdx = i;
+			{
+				RemoveIdx = (int32)i;
+			}
+
 			ImGui::PopID();
 		}
+
 		if (RemoveIdx >= 0)
 		{
-			Arr->erase(Arr->begin() + RemoveIdx);
+			Acc->RemoveAt(ArrPtr, (uint32)RemoveIdx);
 			bChanged = true;
 		}
-		if (ImGui::Button("+ Add Point"))
-		{
-			Arr->push_back(FVector(0.0f, 0.0f, 0.0f));
-			bChanged = true;
-		}
+
+		ImGui::EndGroup();
 		break;
 	}
+
 	case EPropertyType::Struct:
 	{
 		if (!Prop.StructFunc || !Prop.ValuePtr) break;

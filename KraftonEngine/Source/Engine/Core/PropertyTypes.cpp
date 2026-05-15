@@ -242,11 +242,3 @@ void FProperty::Deserialize(json::JSON& Value)
 	}
 }
 
-FProperty::~FProperty()
-{
-	if (Inner)
-	{
-		delete Inner;
-		Inner = nullptr;
-	}
-}
