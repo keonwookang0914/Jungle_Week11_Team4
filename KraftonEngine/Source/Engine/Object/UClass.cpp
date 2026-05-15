@@ -24,3 +24,23 @@ bool UClass::IsPropertyHidden(FString InName) const
 
 	return false;
 }
+
+void UClass::GetEditableProperties(TArray<FProperty>& OutProps) const
+{
+	for (uint32 i = 0; i < Properties.size(); i++)
+	{
+		if (!Properties[i]) continue;
+		FProperty* Property = Properties[i];
+		if (Property->PropertyFlag & EPropertyFlags::CPF_Edit) OutProps.push_back(*Property);
+	}
+}
+
+void UClass::GetNonTransientProperties(TArray<FProperty>& OutProps) const
+{
+	for (uint32 i = 0; i < Properties.size(); i++)
+	{
+		if (!Properties[i]) continue;
+		FProperty* Property = Properties[i];
+		if ((Property->PropertyFlag & EPropertyFlags::CPF_Transient) == 0) OutProps.push_back(*Property);
+	}
+}
