@@ -52,6 +52,8 @@ public:
 	const TArray<FProperty*>& GetProperties() const { return Properties; }
 	FProperty*   GetProperty(uint32 Index) const { return Index < Properties.size() ? Properties[Index] : nullptr; }
 	void		 AddProperty(FProperty* InProperty) { if (InProperty) Properties.push_back(InProperty); }
+
+	// Hide the property from both the editor AND the serializing process
 	void		 HideInheritedProperty(FString InName);
 	bool		 IsPropertyHidden(FString InName) const;
 

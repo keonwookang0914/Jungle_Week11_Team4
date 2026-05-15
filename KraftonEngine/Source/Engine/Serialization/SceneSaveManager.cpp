@@ -275,7 +275,7 @@ json::JSON FSceneSaveManager::SerializeProperties(UObject* Obj)
 	if (!Obj) return props;
 
 	TArray<FProperty> Descriptors;
-	Obj->GetEditableProperties(Descriptors);
+	Obj->GetNonTransientProperties(Descriptors);
 
 	for (const auto& Prop : Descriptors) {
 		props[Prop.Name] = Prop.Serialize();
@@ -493,7 +493,7 @@ void FSceneSaveManager::DeserializeProperties(UObject* Obj, json::JSON& PropsJSO
 	UpgradeLegacyMeshMaterialProperties(Obj, PropsJSON);
 
 	TArray<FProperty> Descriptors;
-	Obj->GetEditableProperties(Descriptors);
+	Obj->GetNonTransientProperties(Descriptors);
 
 	for (auto& Prop : Descriptors) {
 		if (!PropsJSON.hasKey(Prop.Name.c_str())) continue;
@@ -505,7 +505,7 @@ void FSceneSaveManager::DeserializeProperties(UObject* Obj, json::JSON& PropsJSO
 	// 2nd pass: PostEditProperty가 새 프로퍼티를 추가할 수 있음
 	// (예: SetStaticMesh → MaterialSlots 생성 → "Element N" 디스크립터 추가)
 	TArray<FProperty> Descriptors2;
-	Obj->GetEditableProperties(Descriptors2);
+	Obj->GetNonTransientProperties(Descriptors2);
 
 	for (size_t i = Descriptors.size(); i < Descriptors2.size(); ++i) {
 		auto& Prop = Descriptors2[i];
