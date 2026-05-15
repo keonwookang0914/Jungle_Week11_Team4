@@ -60,7 +60,7 @@ void UObject::Serialize(FArchive& Ar)
 	Ar << ObjectName;
 
 	TArray<FProperty> Props;
-	GetNonTransientProperties(Props);
+	GetNonDuplicateTransientProperties(Props);
 	for (auto& P : Props) P.SerializeBinary(Ar);
 }
 
