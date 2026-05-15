@@ -43,6 +43,7 @@ static FVector ReadVec3(json::JSON& Arr)
 	return out;
 }
 
+
 // ---------------------------------------------------------------------------
 
 namespace SceneKeys
