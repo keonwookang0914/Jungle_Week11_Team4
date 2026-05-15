@@ -80,11 +80,6 @@ void USubUVComponent::RebuildSubUVMaterial()
 		SubUVMaterial->SetCachedSRV(EMaterialTextureSlot::Diffuse, nullptr);
 }
 
-void USubUVComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	UBillboardComponent::GetEditableProperties(OutProps);
-}
-
 void USubUVComponent::PostEditProperty(const char* PropertyName)
 {
 	// SubUV는 GetEditableProperties에서 Billboard의 Texture를 의도적으로 스킵하므로
