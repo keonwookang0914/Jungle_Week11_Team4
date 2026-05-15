@@ -112,4 +112,7 @@ public:
 	// 헤더에 SimpleJSON 의존을 들이지 않기 위해 본문은 PropertyTypes.cpp 에 둔다.
 	json::JSON Serialize() const;
 	void	   Deserialize(json::JSON& Value);
+
+	// For duplication
+	void SerializeBinary(FArchive& Ar) const;
 };

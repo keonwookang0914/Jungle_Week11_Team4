@@ -5,6 +5,7 @@
 #include "Core/CoreTypes.h"
 #include "Math/Vector.h"
 #include "Object/FName.h"
+#include "Serialization/Archive.h"
 
 json::JSON FProperty::Serialize() const
 {
@@ -222,3 +223,65 @@ void FProperty::Deserialize(json::JSON& Value)
 	}
 }
 
+void FProperty::SerializeBinary(FArchive& Ar) const
+{
+	switch (Type)
+	{
+	case EPropertyType::Bool:
+	case EPropertyType::ByteBool:
+	case EPropertyType::Int:
+	case EPropertyType::Float:
+	case EPropertyType::Vec3:
+	case EPropertyType::Vec4:
+	case EPropertyType::Rotator:
+	case EPropertyType::Color4:
+	case EPropertyType::Enum:
+		// All trivially-copyable
+		Ar.Serialize(ValuePtr, ElementSize);
+		break;
+
+	case EPropertyType::String:
+	case EPropertyType::Script:
+	case EPropertyType::SceneComponentRef:
+	case EPropertyType::StaticMeshRef:
+	case EPropertyType::SkeletalMeshRef:
+		Ar << *static_cast<FString*>(ValuePtr);
+		break;
+
+	case EPropertyType::Name:
+		Ar << *static_cast<FName*>(ValuePtr);
+		break;
+
+	case EPropertyType::MaterialSlot:
+		Ar << static_cast<FMaterialSlot*>(ValuePtr)->Path;
+		break;
+
+	case EPropertyType::Struct:
+	{
+		if (!StructFunc || !ValuePtr) break;
+		TArray<FProperty> Children;
+		StructFunc(ValuePtr, Children);
+		for (auto& Child : Children) Child.SerializeBinary(Ar);
+		break;
+	}
+
+	case EPropertyType::Array:
+	{
+		if (!Accessor || !Inner || !ValuePtr) break;
+		uint32 N = Ar.IsSaving() ? Accessor->Num(ValuePtr) : 0;
+		Ar << N;
+		if (Ar.IsLoading())
+		{
+			const bool bFixed = (PropertyFlag & CPF_FixedSize) != 0;
+			if (!bFixed) { Accessor->Clear(ValuePtr); for (uint32 i = 0; i < N; ++i) Accessor->AddDefault(ValuePtr); }
+		}
+		for (uint32 i = 0; i < N; ++i)
+		{
+			FProperty Child = *Inner;
+			Child.ValuePtr = Accessor->GetAt(ValuePtr, i);
+			Child.SerializeBinary(Ar);
+		}
+		break;
+	}
+	}
+}

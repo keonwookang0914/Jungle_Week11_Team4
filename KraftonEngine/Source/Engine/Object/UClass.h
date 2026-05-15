@@ -45,7 +45,6 @@ public:
 		Properties.clear();
 	}
 
-	//void		 Serialize(FArchive& Ar);
 	const char*  GetName()       const { return Name; }
 	UClass*      GetSuperClass() const { return SuperClass; }
 	size_t       GetSize()       const { return Size; }
