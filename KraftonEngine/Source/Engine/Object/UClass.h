@@ -40,7 +40,7 @@ public:
 				}
 				delete Properties[i];
 				Properties[i] = nullptr;
-			}
+			}              
 		}
 		Properties.clear();
 	}

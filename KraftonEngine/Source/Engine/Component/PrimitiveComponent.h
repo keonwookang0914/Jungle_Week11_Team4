@@ -56,7 +56,7 @@ DECLARE_MULTICAST_DELEGATE_ThreeParams(
 
 #include "PrimitiveComponent.generated.h"
 
-UCLASS()
+UCLASS(HiddenInComponentList)
 class UPrimitiveComponent : public USceneComponent
 {
 public:
@@ -222,35 +222,53 @@ protected:
 	//  멤버만 변경 → BeginPlay에서 한 번 정확한 값으로 등록됨.)
 	bool bComponentHasBegunPlay = false;
 
-	UPROPERTY(Edit, Category="Rendering", DisplayName="Is Visible")
+	UPROPERTY(Edit, Category="Rendering", DisplayName=FName::NameToDisplayString(bIsVisible, true))
 	bool bIsVisible = true;
 
-	UPROPERTY(Edit, Category="Rendering", DisplayName="Cast Shadow")
+	UPROPERTY(Edit, Category="Rendering", DisplayName=FName::NameToDisplayString(bCastShadow, true))
 	bool bCastShadow = true;
 
-	UPROPERTY(Edit, Category="Rendering", DisplayName="Cast Shadow as Two-Sided")
+	UPROPERTY(Edit, Category="Rendering", DisplayName=FName::NameToDisplayString(bCastShadowAsTwoSided, true))
 	bool bCastShadowAsTwoSided = false;
 
-	UPROPERTY(Edit, Category="Collision", DisplayName="Simulate Physics")
+	UPROPERTY(Edit, Category="Collision", DisplayName=FName::NameToDisplayString(bSimulatePhysics, true))
 	bool bSimulatePhysics = false;
 
-	UPROPERTY(Edit, Category="Collision", DisplayName="Generate Overlap Events")
+	UPROPERTY(Edit, Category="Collision", DisplayName=FName::NameToDisplayString(bGenerateOverlapEvents, true))
 	bool bGenerateOverlapEvents = false;
 
 	// 물리 파라미터 — RootComponent의 값만 백엔드에 적용 (compound shape 정책).
-	UPROPERTY(Edit, Category="Physics", DisplayName="Mass (Kg)", Min = 0.0, Max = 1000.0, Speed = 0.1)
+	UPROPERTY(Edit, Category="Physics", DisplayName=FName::NameToDisplayString(Mass, false), Min = 0.0, Max = 1000.0, Speed = 0.1)
 	float Mass = 1.0f;                          // kg
 
-	UPROPERTY(Edit, Category="Physics", DisplayName="Center of Mass")
+	UPROPERTY(Edit, Category="Physics", DisplayName=FName::NameToDisplayString(Center of Mass, false))
 	FVector CenterOfMassOffset = { 0, 0, 0 };   // RootComponent local 좌표계 offset
 
-	UPROPERTY(Edit, Category="Collision", DisplayName="Collision Enabled")
+	// ECollisionEnabled is intentionally not UENUM-marked — has a `COUNT` sentinel
+	// excluded from GCollisionEnabledNames. Explicit attrs route through the
+	// fallback path so the hand-written names table stays authoritative.
+	UPROPERTY(Edit, Category="Collision", DisplayName=FName::NameToDisplayString(CollisionEnabled, false),
+	          Type=Enum,
+	          EnumNames=GCollisionEnabledNames,
+	          EnumCount=(uint32)ECollisionEnabled::COUNT,
+	          EnumSize=sizeof(ECollisionEnabled))
 	ECollisionEnabled CollisionEnabled = ECollisionEnabled::NoCollision;
 
-	UPROPERTY(Edit, Category-"Collision", DisplayName="Object Type")
+	// ECollisionChannel has ActiveCount/MAX sentinels — names array is 16 entries
+	// but dropdown only exposes the first ActiveCount(=5).
+	UPROPERTY(Edit, Category="Collision", DisplayName=FName::NameToDisplayString(Object Type, false),
+	          Type=Enum,
+	          EnumNames=GCollisionChannelNames,
+	          EnumCount=(uint32)ECollisionChannel::ActiveCount,
+	          EnumSize=sizeof(ECollisionChannel))
 	ECollisionChannel ObjectType = ECollisionChannel::WorldStatic;
 
-	UPROPERTY(Edit, Category="Collision", DisplayName="Response Container")
+	// FCollisionResponseContainer::DescribeProperties is hand-written and loops
+	// over ActiveCount channels at runtime; codegen can't reproduce it, so the
+	// container is not USTRUCT-marked and uses the explicit StructFunc= path.
+	UPROPERTY(Edit, Category="Collision", DisplayName=FName::NameToDisplayString(Response Container, false),
+	          Type=Struct,
+	          StructFunc=&FCollisionResponseContainer::DescribeProperties)
 	FCollisionResponseContainer ResponseContainer; // 기본: 전 채널 Block
 	FPrimitiveSceneProxy* SceneProxy = nullptr;
 

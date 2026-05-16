@@ -133,10 +133,15 @@ class StructInfo:
 # ──────────────────────────────────────────────
 # Regex Patterns
 # ──────────────────────────────────────────────
-# Annotation argument lists may contain quoted strings with ')' characters,
-# e.g. DisplayName="Amplitude (deg)". Keep the regex parser small, but do not
-# terminate an annotation while still inside a quoted string.
-ANNOTATION_ARGS_RE = r'((?:[^)"\n]|"[^"]*")*)'
+# Annotation argument lists may contain:
+#   - quoted strings with ')' chars: DisplayName="Amplitude (deg)"
+#   - C++ casts and sizeof: EnumCount=(uint32)EFoo::COUNT, EnumSize=sizeof(EFoo)
+#   - multi-line layouts with newlines for readability
+# Three alternatives in the inner group: non-special char, atomic quoted
+# string, atomic single-level paren group. The paren-group branch handles
+# casts/sizeof without confusing the outer ) that closes the annotation
+# itself. Nested parens (e.g. sizeof(decltype(...))) are NOT supported in v1.
+ANNOTATION_ARGS_RE = r'((?:[^)"(]|"[^"]*"|\([^)]*\))*)'
 
 # UCLASS(...) followed by class declaration. Captures: flags, class name, parent.
 CLASS_RE = re.compile(

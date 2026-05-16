@@ -8,8 +8,10 @@ class UPrimitiveComponent;
 
 // ============================================================
 // ECollisionChannel — 충돌 채널 (오브젝트 분류용)
+// Intentionally NOT UENUM-marked: ActiveCount/MAX sentinels and 16-slot
+// placeholder names array can't be expressed via codegen. UPROPERTY sites
+// reference GCollisionChannelNames directly via Type=Enum, EnumNames=, ...
 // ============================================================
-UENUM()
 enum class ECollisionChannel : uint8
 {
 	WorldStatic = 0,
@@ -38,8 +40,8 @@ inline const char* GCollisionChannelNames[] =
 
 // ============================================================
 // ECollisionResponse — 채널 간 응답 방식
+// Trailing COUNT sentinel excluded from GCollisionResponseNames — not UENUM.
 // ============================================================
-UENUM()
 enum class ECollisionResponse : uint8
 {
 	Ignore = 0,
@@ -58,8 +60,8 @@ inline const char* GCollisionResponseNames[] =
 
 // ============================================================
 // ECollisionEnabled — 충돌 활성화 모드
+// Trailing COUNT sentinel excluded from GCollisionEnabledNames — not UENUM.
 // ============================================================
-UENUM()
 enum class ECollisionEnabled : uint8
 {
 	NoCollision = 0,
@@ -80,13 +82,14 @@ inline const char* GCollisionEnabledNames[] =
 
 // ============================================================
 // FCollisionResponseContainer — 채널별 응답 테이블
+// Not USTRUCT-marked: DescribeProperties below loops over ActiveCount at
+// runtime using per-channel display names from GCollisionChannelNames — a
+// pattern the static codegen can't reproduce. UPrimitiveComponent's
+// UPROPERTY uses Type=Struct, StructFunc=&FCollisionResponseContainer::
+// DescribeProperties to wire this hand-written function in directly.
 // ============================================================
-USTRUCT()
 struct FCollisionResponseContainer
 {
-	GENERATED_BODY(FCollisionResponseContainer)
-
-	UPROPERTY(Edit, Category="Collision", DisplayName="Collision Response")
 	ECollisionResponse Responses[static_cast<int32>(ECollisionChannel::MAX)];
 
 	FCollisionResponseContainer()
