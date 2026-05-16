@@ -77,14 +77,12 @@ using FStructPropertyFunc = void(*)(void* StructPtr, std::vector<FProperty>& Out
 class FProperty
 {
 public:
-	// 의도적으로 사용자 정의 dtor 없음. FProperty 는 값으로 자유롭게 복사된다
-	// (UClass::GetAllProperties -> editor TArray<FProperty>). Inner 는 UClass 가
-	// 소유한 원본 1개만 살아있고, 모든 복사본이 같은 포인터를 공유한다. dtor 에서
-	// delete Inner 하면 사본 destructor 한 번에 원본이 dangling 되어 다음 프레임
-	// 에 crash. 소유권은 UClass::~UClass 가 일괄 처리한다 (process 종료 시점).
+	// "FProperty is pure schema; never copied. Access via ContainerPtrToValuePtr(Container)."
+	virtual ~FProperty() = default;
+	FProperty(const FProperty& Other) = delete;
+	FProperty& operator=(const FProperty& Other) = delete;
 
 	FString		  Name;
-	EPropertyType Type			= EPropertyType::Bool;
 	FString		  Category;      // 에디터 카테고리 (같은 문자열끼리 그룹화)
 	void*         ValuePtr		= nullptr;
 
@@ -108,8 +106,14 @@ public:
 	FProperty*		Inner	 = nullptr; // element descriptor; heap-owned by parent
 	FArrayAccessor* Accessor = nullptr; // Static - not owned
 
+	virtual EPropertyType GetType() const = 0;
+
 	// JSON 직렬화 — FSceneSaveManager 등 외부 직렬자가 호출.
-	// 헤더에 SimpleJSON 의존을 들이지 않기 위해 본문은 PropertyTypes.cpp 에 둔다.
-	json::JSON Serialize() const;
-	void	   Deserialize(json::JSON& Value);
+	virtual json::JSON Serialize() const = 0;
+	virtual void	   Deserialize(json::JSON& Value) = 0;
+
+	void* ContainerPtrToValuePtr(void* Container) const {
+		return static_cast<char*>(Container) + Offset_Internal;
+	}
+	const void* ContainerPtrToValuePtr(const void* Container) const;
 };
