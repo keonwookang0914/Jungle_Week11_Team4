@@ -89,7 +89,7 @@
           "Color" : [1.000000, 1.000000, 1.000000, 1.000000],
           "Intensity" : 1.000000,
           "RelativeTransform" : {
-            "Location" : [0.000000, 0.000000, 0.000000],
+            "Location" : [8.050000, -8.050001, 11.384422],
             "Scale" : [1.000000, 1.000000, 1.000000]
           },
           "Rotation" : [45.000000, -45.000000, 0.000000],
@@ -206,10 +206,15 @@
           "Color" : [1.000000, 1.000000, 1.000000, 1.000000],
           "Intensity" : 0.100000,
           "RelativeTransform" : {
-            "Location" : [0.000000, 0.000000, 0.000000],
+            "Location" : [-4.000000, 0.000000, 9.300000],
             "Scale" : [1.000000, 1.000000, 1.000000]
           },
           "Rotation" : [0.000000, 0.000000, 0.000000],
+          "Shadow Bias" : -0.000100,
+          "Shadow Normal Bias" : -0.002000,
+          "Shadow Resolution Scale" : 1.000000,
+          "Shadow Sharpen" : 0.670000,
+          "Shadow Slope Bias" : 0.000100,
           "Visible" : true,
           "bEditorOnly" : false,
           "bTickEnable" : true
@@ -266,7 +271,7 @@
           "Intensity" : 2.400000,
           "LightFalloffExponent" : 0.840000,
           "RelativeTransform" : {
-            "Location" : [0.000000, 0.000000, 0.000000],
+            "Location" : [0.000000, 0.000000, 15.000000],
             "Scale" : [1.000000, 1.000000, 1.000000]
           },
           "Rotation" : [0.000000, 0.000000, 0.000000],
@@ -608,6 +613,11 @@
             "Scale" : [1.000000, 1.000000, 1.000000]
           },
           "Rotation" : [0.000000, 0.000000, 0.000000],
+          "Shadow Bias" : -0.000100,
+          "Shadow Normal Bias" : -0.002000,
+          "Shadow Resolution Scale" : 1.000000,
+          "Shadow Sharpen" : 0.670000,
+          "Shadow Slope Bias" : 0.000100,
           "Visible" : true,
           "bEditorOnly" : false,
           "bTickEnable" : true
@@ -664,7 +674,7 @@
           "Inscattering Color" : [0.450000, 0.550000, 0.650000, 1.000000],
           "Max Opacity" : 1.000000,
           "RelativeTransform" : {
-            "Location" : [0.000000, 0.000000, 0.000000],
+            "Location" : [0.000000, 0.000000, 11.200000],
             "Scale" : [1.000000, 1.000000, 1.000000]
           },
           "Rotation" : [0.000000, 0.000000, 0.000000],
@@ -864,9 +874,9 @@
   "PerspectiveCamera" : {
     "FOV" : 1.047198,
     "FarClip" : 1000.000000,
-    "Location" : [-35.071098, -43.541157, 19.029263],
+    "Location" : [-9.666823, -8.427535, 11.355047],
     "NearClip" : 0.100000,
-    "Rotation" : [0.000000, 28.872055, 35.251797]
+    "Rotation" : [0.000000, 10.572091, 44.401875]
   },
   "Version" : 2,
   "WorldSettings" : {
