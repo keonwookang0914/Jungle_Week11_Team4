@@ -3,9 +3,6 @@
 #include <GameFramework/World.h>
 #include "Serialization/Archive.h"
 
-IMPLEMENT_CLASS(USceneComponent, UActorComponent)
-HIDE_FROM_COMPONENT_LIST(USceneComponent)
-
 BEGIN_CLASS_PROPERTIES(USceneComponent)
 	REGISTER_PROPERTY_OFFSET("Location", EPropertyType::Vec3, "Transform",
 		offsetof(ThisClass, RelativeTransform) + offsetof(FTransform, Location),

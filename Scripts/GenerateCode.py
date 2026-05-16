@@ -697,6 +697,14 @@ def emit_property_registrar(
     known_enums: dict[str, EnumInfo],
     known_structs: dict[str, StructInfo],
 ) -> str:
+    # When a class has zero UPROPERTY annotations, skip the registrar entirely
+    # so a hand-written BEGIN_CLASS_PROPERTIES block in the .cpp (hybrid
+    # migration: header on codegen, properties still legacy — e.g. classes
+    # using REGISTER_PROPERTY_OFFSET for nested-struct fields) can provide
+    # the same-named struct without colliding.
+    if not c.properties:
+        return ""
+
     lines = [
         f"struct {c.name}_PropertyRegistrar {{",
         f"    {c.name}_PropertyRegistrar() {{",

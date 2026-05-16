@@ -10,14 +10,6 @@ UClass UActionComponent::StaticClassInstance(
 FClassRegistrar UActionComponent::s_Registrar(&UActionComponent::StaticClassInstance);
 REGISTER_FACTORY(UActionComponent)
 
-struct UActionComponent_PropertyRegistrar {
-    UActionComponent_PropertyRegistrar() {
-        using ThisClass = UActionComponent;
-        UClass* Cls = UActionComponent::StaticClass();
-        (void)Cls;
-    }
-};
-static UActionComponent_PropertyRegistrar s_UActionComponent_PropertyReg;
 
 static void UActionComponent_RegisterLua(sol::state& Lua) {
     Lua.new_usertype<UActionComponent>("ActionComponent",
