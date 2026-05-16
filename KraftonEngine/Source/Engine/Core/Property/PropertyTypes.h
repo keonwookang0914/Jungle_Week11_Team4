@@ -117,57 +117,6 @@ protected:
 
 // FProperty is pure schema. Instance addresses are derived from the owning container.
 
-class FByteBoolProperty final : public FProperty
-{
-public:
-	FByteBoolProperty(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
-		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
-	{}
-
-	EPropertyType GetType() const override { return EPropertyType::ByteBool; }
-	json::JSON Serialize(const void* Instance) const override;
-	void Deserialize(void* Instance, const json::JSON& Value) const override;
-};
-
-class FIntProperty final : public FProperty
-{
-public:
-	FIntProperty(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
-		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
-	{}
-
-	EPropertyType GetType() const override { return EPropertyType::Int; }
-	json::JSON Serialize(const void* Instance) const override;
-	void Deserialize(void* Instance, const json::JSON& Value) const override;
-};
-
-class FFloatProperty final : public FProperty
-{
-public:
-	FFloatProperty(
-		const FString& InName,
-		const FString& InCategory,
-		uint32 InPropertyFlag,
-		uint32 InOffset,
-		uint32 InElementSize,
-		float InMin = 0.0f,
-		float InMax = 0.0f,
-		float InSpeed = 0.1f)
-		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
-		, Min(InMin)
-		, Max(InMax)
-		, Speed(InSpeed)
-	{}
-
-	float Min = 0.0f;
-	float Max = 0.0f;
-	float Speed = 0.1f;
-
-	EPropertyType GetType() const override { return EPropertyType::Float; }
-	json::JSON Serialize(const void* Instance) const override;
-	void Deserialize(void* Instance, const json::JSON& Value) const override;
-};
-
 class FNameProperty final : public FProperty
 {
 public:
@@ -180,29 +129,6 @@ public:
 	void Deserialize(void* Instance, const json::JSON& Value) const override;
 };
 
-class FVec3Property final : public FProperty
-{
-public:
-	FVec3Property(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
-		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
-	{}
-
-	EPropertyType GetType() const override { return EPropertyType::Vec3; }
-	json::JSON Serialize(const void* Instance) const override;
-	void Deserialize(void* Instance, const json::JSON& Value) const override;
-};
-
-class FVec4Property final : public FProperty
-{
-public:
-	FVec4Property(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
-		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
-	{}
-
-	EPropertyType GetType() const override { return EPropertyType::Vec4; }
-	json::JSON Serialize(const void* Instance) const override;
-	void Deserialize(void* Instance, const json::JSON& Value) const override;
-};
 
 class FScriptProperty final : public FProperty
 {
