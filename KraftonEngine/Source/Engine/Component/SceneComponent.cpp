@@ -13,8 +13,7 @@ BEGIN_CLASS_PROPERTIES(USceneComponent)
 	// Rotation 은 RelativeTransform.Rotation (Quat) 이 아닌 CachedEditRotator (Euler) 에
 	// 바인딩한다. Quat->Euler 손실로 인한 미세한 회전 변동을 피하기 위해 에디터
 	// 편집 세션 동안 Euler 값을 직접 캐시. PostEditProperty("Rotation") 가 ApplyCachedEditRotator()
-	// 로 RelativeTransform.Rotation 에 다시 반영한다. GetEditableProperties override 가
-	// 매번 ValuePtr 바인딩 전에 CachedEditRotator 를 최신으로 동기화하는 역할.
+	// 로 RelativeTransform.Rotation 에 다시 반영한다.
 	REGISTER_PROPERTY(CachedEditRotator, "Rotation", EPropertyType::Rotator, "Transform", CPF_Edit)
 	REGISTER_PROPERTY_OFFSET("Scale", EPropertyType::Vec3, "Transform",
 		offsetof(ThisClass, RelativeTransform) + offsetof(FTransform, Scale),
