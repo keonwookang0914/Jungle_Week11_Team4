@@ -87,6 +87,7 @@ class PropertyInfo:
     enum_names: str | None = None
     enum_count: str | None = None
     enum_size: str | None = None
+    enum_type: str | None = None
     struct_func: str | None = None
     array_inner_type: str | None = None  # for TArray<T>
 
@@ -235,7 +236,10 @@ POINTER_TYPE_MAP = {
 }
 
 
-def classify_type(cpp_type: str) -> tuple[str, str | None, str | None]:
+def classify_type(
+    cpp_type: str,
+    known_enums: dict[str, EnumInfo],
+) -> tuple[str, str | None, str | None]:
     """Returns (EPropertyType, helper_macro_or_None, array_inner_type_or_None)."""
     t = cpp_type.strip()
 
@@ -255,6 +259,9 @@ def classify_type(cpp_type: str) -> tuple[str, str | None, str | None]:
     if t in TYPE_MAP:
         et, helper = TYPE_MAP[t]
         return et, helper, None
+    
+    if t in known_enums:
+        return "EPropertyType::Enum", None, None
 
     raise CodegenError(
         f"unknown type '{t}' — add to TYPE_MAP, mark as UENUM/USTRUCT, or use UPROPERTY(Type=...)"
@@ -265,7 +272,7 @@ def classify_type(cpp_type: str) -> tuple[str, str | None, str | None]:
 # Header Parser
 # ──────────────────────────────────────────────
 def find_braced_body(src: str, start_idx: int) -> str:
-    """Given an offset just after the class declaration, return text between
+    """Given an offset just after a declaration, return text between
     the matching {...}. Handles nested braces (inner struct/method bodies)."""
     i = src.find("{", start_idx)
     if i == -1:
@@ -285,7 +292,53 @@ def find_braced_body(src: str, start_idx: int) -> str:
     return src[body_start:]   # unterminated — return what we have
 
 
-def parse_property(attr_text: str, decl_text: str) -> PropertyInfo:
+def parse_enum_entries(body: str) -> list[str]:
+    entries: list[str] = []
+    for raw_entry in body.split(","):
+        entry = raw_entry.split("=", 1)[0].strip()
+        if not entry:
+            continue
+        if not re.fullmatch(r"\w+", entry):
+            raise CodegenError(f"cannot parse enum entry: {raw_entry.strip()!r}")
+        entries.append(entry)
+    return entries
+
+
+def parse_enums(path: Path) -> list[EnumInfo]:
+    text = strip_comments(path.read_text(encoding="utf-8-sig"))
+    enums: list[EnumInfo] = []
+
+    for m in ENUM_RE.finditer(text):
+        _, name, underlying_type = m.group(1), m.group(2), m.group(3)
+        body = find_braced_body(text, m.end())
+        if not body:
+            raise CodegenError(f"{path}: could not locate enum body for {name}")
+        entries = parse_enum_entries(body)
+        if not entries:
+            raise CodegenError(f"{path}: enum {name} has no entries")
+        enums.append(EnumInfo(name=name, entries=entries, underlying_type=underlying_type))
+    return enums
+
+
+def build_enum_registry(headers: list[Path]) -> dict[str, EnumInfo]:
+    registry: dict[str, EnumInfo] = {}
+    owners: dict[str, Path] = {}
+    for path in headers:
+        for enum in parse_enums(path):
+            if enum.name in registry:
+                raise CodegenError(
+                    f"duplicate UENUM {enum.name}: {path} and {owners[enum.name]}"
+                )
+            registry[enum.name] = enum
+            owners[enum.name] = path
+    return registry
+
+
+def parse_property(
+    attr_text: str,
+    decl_text: str,
+    known_enums: dict[str, EnumInfo],
+) -> PropertyInfo:
     flags_raw, kvs = parse_attributes(attr_text)
 
     # Strip default initializer ("= 50.f")
@@ -298,13 +351,16 @@ def parse_property(attr_text: str, decl_text: str) -> PropertyInfo:
     if not m:
         raise CodegenError(f"cannot parse property declaration: {decl_text!r}")
     cpp_type, name = m.group(1).strip(), m.group(2)
+    enum_type = None
 
     # Explicit Type= override bypasses classify_type.
     if "Type" in kvs:
         prop_type = f"EPropertyType::{kvs['Type']}"
         array_inner = None
     else:
-        prop_type, _, array_inner = classify_type(cpp_type)
+        prop_type, _, array_inner = classify_type(cpp_type, known_enums)
+        if cpp_type in known_enums:
+            enum_type = cpp_type
 
     flags = [PROPERTY_FLAG_MAP.get(f, f"CPF_{f}") for f in flags_raw] or ["CPF_None"]
 
@@ -321,6 +377,7 @@ def parse_property(attr_text: str, decl_text: str) -> PropertyInfo:
         enum_names=kvs.get("EnumNames"),
         enum_count=kvs.get("EnumCount"),
         enum_size=kvs.get("EnumSize"),
+        enum_type=enum_type,
         struct_func=kvs.get("StructFunc"),
         array_inner_type=array_inner,
     )
@@ -331,7 +388,7 @@ def parse_function(attr_text: str, name: str) -> FunctionInfo:
     return FunctionInfo(name=name, flags=flags_raw, lua_name=kvs.get("LuaName"))
 
 
-def parse_header(path: Path) -> list[ClassInfo]:
+def parse_header(path: Path, known_enums: dict[str, EnumInfo]) -> list[ClassInfo]:
     text = strip_comments(path.read_text(encoding="utf-8-sig"))
     classes: list[ClassInfo] = []
 
@@ -351,7 +408,7 @@ def parse_header(path: Path) -> list[ClassInfo]:
             raise CodegenError(f"{path}: could not locate class body for {name}")
 
         properties = [
-            parse_property(pm.group(1), pm.group(2))
+            parse_property(pm.group(1), pm.group(2), known_enums)
             for pm in PROPERTY_RE.finditer(body)
         ]
         functions = [
@@ -401,7 +458,11 @@ def emit_generated_header(classes: list[ClassInfo]) -> str:
 # ──────────────────────────────────────────────
 # Emission — .gen.cpp
 # ──────────────────────────────────────────────
-def emit_gen_cpp(source_header_include: str, classes: list[ClassInfo]) -> str:
+def emit_gen_cpp(
+    source_header_include: str,
+    classes: list[ClassInfo],
+    known_enums: dict[str, EnumInfo],
+) -> str:
     has_lua = any(fn.is_lua for c in classes for fn in c.functions)
     out = [
         "// AUTOGENERATED by GenerateCode.py — do not edit.",
@@ -414,7 +475,7 @@ def emit_gen_cpp(source_header_include: str, classes: list[ClassInfo]) -> str:
     out.append("")
     for c in classes:
         out.append(emit_class_static(c))
-        out.append(emit_property_registrar(c))
+        out.append(emit_property_registrar(c, known_enums))
         lua_block = emit_lua_registrar(c)
         if lua_block:
             out.append(lua_block)
@@ -437,7 +498,7 @@ def emit_class_static(c: ClassInfo) -> str:
     return "\n".join(parts) + "\n"
 
 
-def emit_property_registrar(c: ClassInfo) -> str:
+def emit_property_registrar(c: ClassInfo, known_enums: dict[str, EnumInfo]) -> str:
     lines = [
         f"struct {c.name}_PropertyRegistrar {{",
         f"    {c.name}_PropertyRegistrar() {{",
@@ -446,14 +507,14 @@ def emit_property_registrar(c: ClassInfo) -> str:
         f"        (void)Cls;",
     ]
     for p in c.properties:
-        lines.append("        " + emit_property_call(p))
+        lines.append("        " + emit_property_call(p, known_enums))
     lines.append("    }")
     lines.append("};")
     lines.append(f"static {c.name}_PropertyRegistrar s_{c.name}_PropertyReg;\n")
     return "\n".join(lines)
 
 
-def emit_property_call(p: PropertyInfo) -> str:
+def emit_property_call(p: PropertyInfo, known_enums: dict[str, EnumInfo]) -> str:
     flags = " | ".join(p.flags)
     cat = f'"{p.category}"'
     disp = p.display_name or p.name  # PostEditProperty/editor keys off display name
@@ -479,7 +540,7 @@ def emit_property_call(p: PropertyInfo) -> str:
     if p.prop_type == "EPropertyType::Array":
         if not p.array_inner_type:
             raise CodegenError(f"TArray property {p.name} has no inner type")
-        inner_et, _, _ = classify_type(p.array_inner_type)
+        inner_et, _, _ = classify_type(p.array_inner_type, known_enums)
         return (
             f'PROPERTY_ARRAY({p.name}, "{disp}", {cat}, {flags}, '
             f'{p.array_inner_type}, {inner_et}, (void)0)'
@@ -588,14 +649,15 @@ def main():
 
     headers = discover_headers()
     check_collisions(headers)
+    known_enums = build_enum_registry(headers)
 
     written = 0
     for h in headers:
-        classes = parse_header(h)
+        classes = parse_header(h, known_enums)
         if not classes:
             continue
         gh_text  = emit_generated_header(classes)
-        cpp_text = emit_gen_cpp(make_include_path(h), classes)
+        cpp_text = emit_gen_cpp(make_include_path(h), classes, known_enums)
 
         if write_if_different(OUT_INC / f"{h.stem}.generated.h", gh_text):
             written += 1
