@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include "Object/ObjectFactory.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 #include "Engine/Platform/Paths.h"
 #include "Collision/RayUtils.h"
 #include "Mesh/StaticMeshAsset.h"

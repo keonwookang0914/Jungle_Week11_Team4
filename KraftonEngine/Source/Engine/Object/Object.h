@@ -4,7 +4,7 @@
 #include "Object/FName.h"
 #include "Object/ObjectMacros.h"
 #include "Core/Singleton.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 #include "Object/UClass.h"
 
 class FArchive;

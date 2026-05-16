@@ -1,4 +1,4 @@
-﻿#include "Core/PropertyTypes.h"
+﻿#include "Core/Property/PropertyTypes.h"
 
 #include <cstring>
 #include "SimpleJSON/json.hpp"

@@ -12,7 +12,7 @@
 #include "Math/Vector.h"
 #include "Core/CollisionTypes.h"
 #include "Core/Log.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 #include "Serialization/Archive.h"
 
 IMPLEMENT_CLASS(AWalkingPersonActor, AActor)

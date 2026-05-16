@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Core/CoreTypes.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 
 #include <cstring>
 #include <unordered_set>

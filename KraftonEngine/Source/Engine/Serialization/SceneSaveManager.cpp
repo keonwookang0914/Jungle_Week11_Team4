@@ -17,7 +17,7 @@
 #include "Component/Light/LightComponentBase.h"
 #include "Object/Object.h"
 #include "Object/ObjectFactory.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 #include "Object/FName.h"
 #include "Profiling/PlatformTime.h"
 

@@ -2,7 +2,7 @@
 #include "Engine/Math/Matrix.h"
 #include "Engine/Math/Rotator.h"
 #include "Engine/Math/Quat.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 #include "Object/ObjectMacros.h"
 #include "Transform.generated.h"
 

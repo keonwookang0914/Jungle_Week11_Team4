@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Math/Vector.h"
 #include "Core/CoreTypes.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 
 class AActor;
 class UPrimitiveComponent;

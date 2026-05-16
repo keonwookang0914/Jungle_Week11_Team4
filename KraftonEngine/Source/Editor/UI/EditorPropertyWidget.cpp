@@ -18,7 +18,7 @@
 #include "Component/Light/LightComponentBase.h"
 #include "Component/DecalComponent.h"
 #include "Component/HeightFogComponent.h"
-#include "Core/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 #include "Core/ClassTypes.h"
 #include "Math/FloatCurve.h"
 #include "Lua/LuaScriptManager.h"

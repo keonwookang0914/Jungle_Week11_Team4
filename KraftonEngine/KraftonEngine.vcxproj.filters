@@ -88,6 +88,9 @@
     <Filter Include="Source\Engine\Core">
       <UniqueIdentifier>{aaeb2f3f-eff4-9d0e-a471-82c1372b9aed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Core\Property">
+      <UniqueIdentifier>{25647ff2-6251-d6c8-4f33-105c96cacd0f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Debug">
       <UniqueIdentifier>{94a820a1-1cf9-b142-f9b6-735eff25a3ee}</UniqueIdentifier>
     </Filter>
@@ -776,11 +779,11 @@
     <ClCompile Include="Source\Engine\Core\ProjectSettings.cpp">
       <Filter>Source\Engine\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Core\PropertyTypes.cpp">
-      <Filter>Source\Engine\Core</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Core\TickFunction.cpp">
       <Filter>Source\Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Core\Property\PropertyTypes.cpp">
+      <Filter>Source\Engine\Core\Property</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Debug\DebugDrawQueue.cpp">
       <Filter>Source\Engine\Debug</Filter>
@@ -1631,9 +1634,6 @@
     <ClInclude Include="Source\Engine\Core\ProjectSettings.h">
       <Filter>Source\Engine\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Core\PropertyTypes.h">
-      <Filter>Source\Engine\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Core\RayTypes.h">
       <Filter>Source\Engine\Core</Filter>
     </ClInclude>
@@ -1645,6 +1645,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Core\TickFunction.h">
       <Filter>Source\Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\PropertyTypes.h">
+      <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Debug\DebugDrawQueue.h">
       <Filter>Source\Engine\Debug</Filter>
