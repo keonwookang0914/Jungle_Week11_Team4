@@ -461,6 +461,7 @@ def emit_generated_header(classes: list[ClassInfo]) -> str:
 def emit_gen_cpp(
     source_header_include: str,
     classes: list[ClassInfo],
+    enums: list[EnumInfo],
     known_enums: dict[str, EnumInfo],
 ) -> str:
     has_lua = any(fn.is_lua for c in classes for fn in c.functions)
@@ -473,6 +474,8 @@ def emit_gen_cpp(
         out.append('#include "Object/LuaClassRegistry.h"')
         out.append("#include <sol/sol.hpp>")
     out.append("")
+    for enum in enums:
+        out.append(emit_enum_names_table(enum))
     for c in classes:
         out.append(emit_class_static(c))
         out.append(emit_property_registrar(c, known_enums))
@@ -480,6 +483,20 @@ def emit_gen_cpp(
         if lua_block:
             out.append(lua_block)
     return "\n".join(out)
+
+
+def enum_names_symbol(enum_name: str) -> str:
+    stem = enum_name[1:] if enum_name.startswith("E") else enum_name
+    return f"G{stem}Names"
+
+
+def emit_enum_names_table(enum: EnumInfo) -> str:
+    entries = ",\n".join(f'    "{entry}"' for entry in enum.entries)
+    return (
+        f"static const char* {enum_names_symbol(enum.name)}[] = {{\n"
+        f"{entries}\n"
+        "};\n"
+    )
 
 
 def emit_class_static(c: ClassInfo) -> str:
@@ -547,6 +564,15 @@ def emit_property_call(p: PropertyInfo, known_enums: dict[str, EnumInfo]) -> str
         )
 
     if p.prop_type == "EPropertyType::Enum":
+        if p.enum_type:
+            enum = known_enums.get(p.enum_type)
+            if not enum:
+                raise CodegenError(f"unknown generated enum type {p.enum_type}")
+            return (
+                f'PROPERTY_ENUM({p.name}, "{disp}", {cat}, '
+                f'{enum_names_symbol(enum.name)}, {len(enum.entries)}, sizeof({enum.name}), {flags})'
+            )
+
         if not (p.enum_names and p.enum_count and p.enum_size):
             raise CodegenError(
                 f"enum property {p.name}: v1 requires EnumNames=, EnumCount=, EnumSize= attributes"
@@ -653,11 +679,12 @@ def main():
 
     written = 0
     for h in headers:
+        enums = parse_enums(h)
         classes = parse_header(h, known_enums)
-        if not classes:
+        if not classes and not enums:
             continue
         gh_text  = emit_generated_header(classes)
-        cpp_text = emit_gen_cpp(make_include_path(h), classes, known_enums)
+        cpp_text = emit_gen_cpp(make_include_path(h), classes, enums, known_enums)
 
         if write_if_different(OUT_INC / f"{h.stem}.generated.h", gh_text):
             written += 1
