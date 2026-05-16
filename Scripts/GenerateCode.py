@@ -416,6 +416,11 @@ def parse_property(
     if not m:
         raise CodegenError(f"cannot parse property declaration: {decl_text!r}")
     cpp_type, name = m.group(1).strip(), m.group(2)
+
+    # Strip leading CV/storage qualifiers — they don't affect property type
+    # classification. Only the head is stripped so inner template args like
+    # TArray<const T*> keep their qualifiers intact.
+    cpp_type = re.sub(r"^\s*((?:mutable|const|volatile)\s+)+", "", cpp_type).strip()
     enum_type = None
     struct_type = None
 

@@ -8,3 +8,13 @@ UClass USceneComponent::StaticClassInstance(
 FClassRegistrar USceneComponent::s_Registrar(&USceneComponent::StaticClassInstance);
 REGISTER_FACTORY(USceneComponent)
 
+struct USceneComponent_PropertyRegistrar {
+    USceneComponent_PropertyRegistrar() {
+        using ThisClass = USceneComponent;
+        UClass* Cls = USceneComponent::StaticClass();
+        (void)Cls;
+        PROPERTY_STRUCT(RelativeTransform, "RelativeTransform", "Transform", &FTransform::DescribeProperties, CPF_Edit)
+        REGISTER_PROPERTY(CachedEditRotator, "Rotation", EPropertyType::Rotator, "Transform", CPF_Edit)
+    }
+};
+static USceneComponent_PropertyRegistrar s_USceneComponent_PropertyReg;

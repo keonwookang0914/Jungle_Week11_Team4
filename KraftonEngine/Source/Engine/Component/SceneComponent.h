@@ -79,8 +79,12 @@ protected:
 
 	mutable bool bTransformDirty = true;
 
+	UPROPERTY(Edit, Category="Transform")
 	FTransform RelativeTransform;
+
+	UPROPERTY(Edit, Category="Transform", DisplayName="Rotation")
 	mutable FRotator CachedEditRotator;	// 에디터 프로퍼티 바인딩용 (Euler 캐시)
+
 	mutable bool bCachedEulerDirty = true;	// Quat가 외부에서 변경됐을 때만 Euler 재계산
 
 	//world matrix caching
