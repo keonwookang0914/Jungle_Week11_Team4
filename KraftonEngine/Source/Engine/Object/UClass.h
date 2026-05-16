@@ -27,21 +27,6 @@ public:
 
 	~UClass()
 	{
-		for (uint32 i = 0; i < Properties.size(); i++)
-		{
-			if (Properties[i])
-			{
-				// Array registration allocates one heap-owned Inner descriptor per parent.
-				// FProperty 자체에는 dtor 가 없으므로 (값 복사 안전성 때문) 여기서 명시 해제.
-				if (Properties[i]->Inner)
-				{
-					delete Properties[i]->Inner;
-					Properties[i]->Inner = nullptr;
-				}
-				delete Properties[i];
-				Properties[i] = nullptr;
-			}              
-		}
 		Properties.clear();
 	}
 

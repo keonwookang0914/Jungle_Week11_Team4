@@ -1,4 +1,5 @@
-﻿#pragma once
+#pragma once
+
 #include "PropertyTypes.h"
 
 class FVec4Property final : public FProperty

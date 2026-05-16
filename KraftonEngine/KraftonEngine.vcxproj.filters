@@ -3947,19 +3947,34 @@
     <ClInclude Include="Source\Engine\Core\Property\FNameProperty.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FVectorProperty.h">
+    <ClInclude Include="Source\Engine\Core\Property\FVec3Property.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FVector4Property.h">
+    <ClInclude Include="Source\Engine\Core\Property\FVec4Property.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Core\Property\FRotatorProperty.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FColorPorperty.h">
+    <ClInclude Include="Source\Engine\Core\Property\FColor4Property.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Core\Property\FEnumProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FMaterialSlotProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FSceneComponentRefProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FScriptProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FSkeletalMeshRefProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FStaticMeshRefProperty.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
   </ItemGroup>

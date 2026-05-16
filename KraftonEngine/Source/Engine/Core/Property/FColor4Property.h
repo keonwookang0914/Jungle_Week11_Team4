@@ -1,10 +1,11 @@
-﻿#pragma once
+#pragma once
+
 #include "PropertyTypes.h"
 
-class FColorProperty final : public FProperty
+class FColor4Property final : public FProperty
 {
 public:
-	FColorProperty(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
+	FColor4Property(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
 		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
 	{
 	}

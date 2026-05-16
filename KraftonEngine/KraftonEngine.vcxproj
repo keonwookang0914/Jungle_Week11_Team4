@@ -756,8 +756,9 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Property\FArrayProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FBoolProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FByteBoolProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FColorPorperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FColor4Property.h" />
     <ClInclude Include="Source\Engine\Core\Property\FEnumProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FMaterialSlotProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FNameProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FDoubleProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FFloatProperty.h" />
@@ -766,10 +767,14 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FClassProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FRotatorProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FSceneComponentRefProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FScriptProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FSkeletalMeshRefProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FStaticMeshRefProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FStringProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FStructProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FVector4Property.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FVectorProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FVec3Property.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FVec4Property.h" />
     <ClInclude Include="Source\Engine\Core\RayTypes.h" />
     <ClInclude Include="Source\Engine\Core\ResourceTypes.h" />
     <ClInclude Include="Source\Engine\Core\Singleton.h" />

@@ -1,11 +1,20 @@
-﻿#pragma once
-#include "Core/Property/PropertyTypes.h"
+#pragma once
 
-class FIntProperty final : public FProperty
+#include "Core/Property/FNumericProperty/FNumericProperty.h"
+
+class FIntProperty final : public FNumericProperty
 {
 public:
-	FIntProperty(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
-		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
+	FIntProperty(
+		const FString& InName,
+		const FString& InCategory,
+		uint32 InPropertyFlag,
+		uint32 InOffset,
+		uint32 InElementSize,
+		float InMin = 0.0f,
+		float InMax = 0.0f,
+		float InSpeed = 0.1f)
+		: FNumericProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize, InMin, InMax, InSpeed)
 	{
 	}
 

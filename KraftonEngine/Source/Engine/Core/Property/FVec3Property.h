@@ -1,10 +1,11 @@
-﻿#pragma once
+#pragma once
+
 #include "PropertyTypes.h"
 
-class FVectorProperty final : public FProperty
+class FVec3Property final : public FProperty
 {
 public:
-	FVectorProperty(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
+	FVec3Property(const FString& InName, const FString& InCategory, uint32 InPropertyFlag, uint32 InOffset, uint32 InElementSize)
 		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
 	{
 	}

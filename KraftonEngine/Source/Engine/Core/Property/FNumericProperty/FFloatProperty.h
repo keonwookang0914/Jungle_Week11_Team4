@@ -1,7 +1,8 @@
-﻿#pragma once
-#include "Core/Property/PropertyTypes.h"
+#pragma once
 
-class FFloatProperty final : public FProperty
+#include "Core/Property/FNumericProperty/FNumericProperty.h"
+
+class FFloatProperty final : public FNumericProperty
 {
 public:
 	FFloatProperty(
@@ -13,16 +14,9 @@ public:
 		float InMin = 0.0f,
 		float InMax = 0.0f,
 		float InSpeed = 0.1f)
-		: FProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize)
-		, Min(InMin)
-		, Max(InMax)
-		, Speed(InSpeed)
+		: FNumericProperty(InName, InCategory, InPropertyFlag, InOffset, InElementSize, InMin, InMax, InSpeed)
 	{
 	}
-
-	float Min = 0.0f;
-	float Max = 0.0f;
-	float Speed = 0.1f;
 
 	EPropertyType GetType() const override { return EPropertyType::Float; }
 	json::JSON Serialize(const void* Instance) const override;
