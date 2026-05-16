@@ -9,7 +9,6 @@
 #include "GameFramework/AActor.h"
 #include "Viewport/Viewport.h"
 
-IMPLEMENT_CLASS(UObjViewerEngine, UEngine)
 
 void UObjViewerEngine::Init(FWindowsWindow* InWindow)
 {

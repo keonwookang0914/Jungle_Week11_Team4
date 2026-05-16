@@ -2,7 +2,6 @@
 #include "Object/ObjectFactory.h"
 #include <GameFramework/World.h>
 
-IMPLEMENT_CLASS(ULevel, UObject)
 
 ULevel::ULevel(UWorld* OwingWorld)
 	: OwingWorld(OwingWorld)

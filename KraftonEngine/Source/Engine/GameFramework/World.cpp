@@ -17,7 +17,6 @@
 #include "Runtime/Engine.h"
 #include <algorithm>
 
-IMPLEMENT_CLASS(UWorld, UObject)
 
 
 UWorld::~UWorld()

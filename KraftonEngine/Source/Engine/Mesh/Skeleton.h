@@ -2,11 +2,13 @@
 
 #include "Object/Object.h"
 #include "Mesh/SkeletonAsset.h"
+#include "Skeleton.generated.h"
 
+UCLASS()
 class USkeleton : public UObject
 {
 public:
-	DECLARE_CLASS(USkeleton, UObject)
+	GENERATED_BODY(USkeleton)
 
 	USkeleton() = default;
 	~USkeleton() override = default;

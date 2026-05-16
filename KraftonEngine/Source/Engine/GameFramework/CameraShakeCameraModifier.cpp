@@ -32,7 +32,6 @@ namespace
 	}
 }
 
-IMPLEMENT_CLASS(UCameraModifier_CameraShake, UCameraModifier)
 
 UCameraModifier_CameraShake::UCameraModifier_CameraShake()
 {

@@ -6,7 +6,6 @@
 #include "Engine/Profiling/MemoryStats.h"
 #include "Mesh/MeshSimplifier.h"
 
-IMPLEMENT_CLASS(UStaticMesh, UObject)
 
 UStaticMesh::~UStaticMesh()
 {

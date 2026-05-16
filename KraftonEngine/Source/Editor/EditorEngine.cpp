@@ -32,7 +32,6 @@
 
 #include "Mesh/SkeletalMesh.h"
 
-IMPLEMENT_CLASS(UEditorEngine, UEngine)
 
 namespace
 {

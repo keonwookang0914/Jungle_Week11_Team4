@@ -20,7 +20,6 @@
 #include "UI/UIManager.h"
 #include "Audio/AudioManager.h"
 
-DEFINE_CLASS(UEngine, UObject)
 
 UEngine* GEngine = nullptr;
 

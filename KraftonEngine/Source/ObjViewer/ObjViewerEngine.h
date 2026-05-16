@@ -5,11 +5,13 @@
 #include "Editor/Import/EditorObjImportService.h"
 #include "ObjViewer/ObjViewerPanel.h"
 #include "ObjViewer/ObjViewerViewportClient.h"
+#include "ObjViewerEngine.generated.h"
 
+UCLASS()
 class UObjViewerEngine : public UEngine
 {
 public:
-	DECLARE_CLASS(UObjViewerEngine, UEngine)
+	GENERATED_BODY(UObjViewerEngine)
 
 	UObjViewerEngine() = default;
 	~UObjViewerEngine() override = default;

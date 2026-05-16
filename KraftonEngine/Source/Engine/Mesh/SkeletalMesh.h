@@ -2,14 +2,16 @@
 
 #include "Object/Object.h"
 #include "SkeletalMeshAsset.h"
+#include "SkeletalMesh.generated.h"
 
 class USkeleton;
 struct FSkeletonAsset;
 
+UCLASS()
 class USkeletalMesh : public UObject
 {
 public:
-	DECLARE_CLASS(USkeletalMesh, UObject)
+	GENERATED_BODY(USkeletalMesh)
 
 	USkeletalMesh() = default;
 	~USkeletalMesh() override = default;
