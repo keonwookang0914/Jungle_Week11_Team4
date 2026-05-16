@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Component/SceneComponent.h"
 #include "Core/CollisionTypes.h"
@@ -6,15 +6,15 @@
 #include "Math/Quat.h"
 
 // ============================================================
-// USpringArmComponent — 부착 액터 뒤를 부드럽게 따라가는 카메라 부착점.
+// USpringArmComponent - 부착 액터 뒤를 부드럽게 따라가는 카메라 부착점.
 //
-// 사용 패턴: Pawn(Owner) → SpringArm(자식) → Camera(SpringArm 의 자식).
+// 사용 패턴: Pawn(Owner) -> SpringArm(자식) -> Camera(SpringArm 의 자식).
 // SpringArm 의 World 는 매 Tick 에 부모의 World 를 따라 갱신되되, lag 옵션이
 // 켜져 있으면 부드러운 보간으로 따라온다. Camera 컴포넌트는 SpringArm 의
 // World 를 자동 상속하므로 별도 후크 없이 부드럽게 끌려오는 효과가 난다.
 //
 // 차량/플레이어 뒤를 따라오는 3인칭 카메라, 흔들림 있는 카메라 마운트 등에 사용.
-// 충돌 인지(raycast) 는 별도 PR 에서 추가 — 현재는 lag 만 처리.
+// 충돌 인지(raycast) 는 별도 PR 에서 추가. 현재는 lag 만 처리.
 // UE: USpringArmComponent (간소화)
 // ============================================================
 class USpringArmComponent : public USceneComponent
@@ -46,7 +46,7 @@ public:
 	float CameraRotationLagSpeed = 10.0f;
 	float CameraLagMaxDistance = 0.0f;     // 0 = 무제한
 
-	// Collision 옵션 — 활성화 시 부착점 → ArmEnd 사이로 ray 를 쏴서 첫 충돌점까지만 arm
+	// Collision 옵션 — 활성화 시 부착점 -> ArmEnd 사이로 ray 를 쏴서 첫 충돌점까지만 arm
 	// 길이를 단축. 카메라가 벽/지형 너머로 빠지는 현상 방지. Owner Pawn 은 ignore.
 	// (본 엔진은 sphere sweep 미지원이라 단일 ray + ProbeSize 안전 거리로 근사한다.)
 	bool bDoCollisionTest = false;
@@ -54,7 +54,7 @@ public:
 	float ProbeSize = 0.12f;               // hit 지점에서 ProbeSize 만큼 안쪽에 정지
 
 private:
-	// 매 Tick 에 갱신되는 보간 상태 — 부착점 (parent + TargetOffset) 위치/회전.
+	// 매 Tick 에 갱신되는 보간 상태 - 부착점 (parent + TargetOffset) 위치/회전.
 	FVector LaggedAttachLoc = FVector(0.0f, 0.0f, 0.0f);
 	FQuat LaggedAttachRot;
 	bool bHasPreviousState = false;

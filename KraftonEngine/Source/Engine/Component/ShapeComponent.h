@@ -3,11 +3,13 @@
 
 #include "PrimitiveComponent.h"
 #include "Core/EngineTypes.h"
+#include "ShapeComponent.generated.h"
 
+UCLASS()
 class UShapeComponent : public UPrimitiveComponent
 {
 public:
-	DECLARE_CLASS(UShapeComponent, UPrimitiveComponent)
+	GENERATED_BODY(UShapeComponent)
 
 	UShapeComponent();
 
@@ -31,6 +33,8 @@ protected:
 		);
 	}
 
+	UPROPERTY(Edit, Category="Shape", DisplayName="Shape Color", Type=Color4)
 	FVector4 ShapeColor = { 0.0f, 1.0f, 0.0f, 1.0f }; // Green
+	UPROPERTY(Edit, Category="Shape", DisplayName="Draw Only If Selected")
 	bool bDrawOnlyIfSelected = false;
 };

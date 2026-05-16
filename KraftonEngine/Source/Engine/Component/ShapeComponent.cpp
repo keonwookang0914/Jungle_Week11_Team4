@@ -6,13 +6,7 @@
 
 #include <cstring>
 
-IMPLEMENT_CLASS(UShapeComponent, UPrimitiveComponent)
 HIDE_FROM_COMPONENT_LIST(UShapeComponent)
-
-BEGIN_CLASS_PROPERTIES(UShapeComponent)
-	REGISTER_PROPERTY(ShapeColor, "Shape Color", EPropertyType::Color4, "Shape", CPF_Edit)
-	PROPERTY_BOOL(bDrawOnlyIfSelected, "Draw Only If Selected", "Shape", CPF_Edit)
-END_CLASS_PROPERTIES(UShapeComponent)
 
 UShapeComponent::UShapeComponent()
 {
