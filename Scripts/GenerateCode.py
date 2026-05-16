@@ -75,10 +75,11 @@ def strip_comments(src: str) -> str:
 # ──────────────────────────────────────────────
 @dataclass
 class PropertyInfo:
-    name: str                  # member name
+    name: str                  # member name (C++ identifier)
     cpp_type: str              # raw C++ type as written
     prop_type: str             # EPropertyType::Float etc
     category: str = ""
+    display_name: str | None = None  # DisplayName="..." — falls back to name
     flags: list[str] = field(default_factory=lambda: ["CPF_None"])
     min: str | None = None     # raw expression, emitted as-is
     max: str | None = None
@@ -289,6 +290,7 @@ def parse_property(attr_text: str, decl_text: str) -> PropertyInfo:
         cpp_type=cpp_type,
         prop_type=prop_type,
         category=kvs.get("Category", ""),
+        display_name=kvs.get("DisplayName"),
         flags=flags,
         min=kvs.get("Min"),
         max=kvs.get("Max"),
@@ -431,31 +433,32 @@ def emit_property_registrar(c: ClassInfo) -> str:
 def emit_property_call(p: PropertyInfo) -> str:
     flags = " | ".join(p.flags)
     cat = f'"{p.category}"'
+    disp = p.display_name or p.name  # PostEditProperty/editor keys off display name
 
     if p.prop_type == "EPropertyType::Float":
         return (
-            f'PROPERTY_FLOAT({p.name}, "{p.name}", {cat}, '
+            f'PROPERTY_FLOAT({p.name}, "{disp}", {cat}, '
             f'{p.min or "0.0f"}, {p.max or "0.0f"}, {p.speed or "0.1f"}, {flags})'
         )
 
     if p.prop_type == "EPropertyType::Bool":
-        return f'PROPERTY_BOOL({p.name}, "{p.name}", {cat}, {flags})'
+        return f'PROPERTY_BOOL({p.name}, "{disp}", {cat}, {flags})'
 
     if p.prop_type == "EPropertyType::Int":
-        return f'PROPERTY_INT({p.name}, "{p.name}", {cat}, {flags})'
+        return f'PROPERTY_INT({p.name}, "{disp}", {cat}, {flags})'
 
     if p.prop_type == "EPropertyType::Vec3":
-        return f'PROPERTY_VEC3({p.name}, "{p.name}", {cat}, {flags})'
+        return f'PROPERTY_VEC3({p.name}, "{disp}", {cat}, {flags})'
 
     if p.prop_type == "EPropertyType::String":
-        return f'PROPERTY_STRING({p.name}, "{p.name}", {cat}, {flags})'
+        return f'PROPERTY_STRING({p.name}, "{disp}", {cat}, {flags})'
 
     if p.prop_type == "EPropertyType::Array":
         if not p.array_inner_type:
             raise CodegenError(f"TArray property {p.name} has no inner type")
         inner_et, _, _ = classify_type(p.array_inner_type)
         return (
-            f'PROPERTY_ARRAY({p.name}, "{p.name}", {cat}, {flags}, '
+            f'PROPERTY_ARRAY({p.name}, "{disp}", {cat}, {flags}, '
             f'{p.array_inner_type}, {inner_et}, (void)0)'
         )
 
@@ -465,17 +468,17 @@ def emit_property_call(p: PropertyInfo) -> str:
                 f"enum property {p.name}: v1 requires EnumNames=, EnumCount=, EnumSize= attributes"
             )
         return (
-            f'PROPERTY_ENUM({p.name}, "{p.name}", {cat}, '
+            f'PROPERTY_ENUM({p.name}, "{disp}", {cat}, '
             f'{p.enum_names}, {p.enum_count}, {p.enum_size}, {flags})'
         )
 
     if p.prop_type == "EPropertyType::Struct":
         if not p.struct_func:
             raise CodegenError(f"struct property {p.name}: v1 requires StructFunc= attribute")
-        return f'PROPERTY_STRUCT({p.name}, "{p.name}", {cat}, {p.struct_func}, {flags})'
+        return f'PROPERTY_STRUCT({p.name}, "{disp}", {cat}, {p.struct_func}, {flags})'
 
     # Fallback for asset refs (StaticMeshRef etc.) and any explicit Type=
-    return f'REGISTER_PROPERTY({p.name}, "{p.name}", {p.prop_type}, {cat}, {flags})'
+    return f'REGISTER_PROPERTY({p.name}, "{disp}", {p.prop_type}, {cat}, {flags})'
 
 
 _LUA_PREFIX_STRIP = re.compile(r"^[UAF][A-Z]")

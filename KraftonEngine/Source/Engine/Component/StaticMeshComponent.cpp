@@ -13,13 +13,6 @@
 #include "Render/Proxy/PrimitiveSceneProxy.h"
 #include "Serialization/Archive.h"
 
-IMPLEMENT_CLASS(UStaticMeshComponent, UMeshComponent)
-
-BEGIN_CLASS_PROPERTIES(UStaticMeshComponent)
-	REGISTER_PROPERTY(StaticMeshPath, "Static Mesh", EPropertyType::StaticMeshRef, "Mesh", CPF_Edit)
-	PROPERTY_ARRAY(MaterialSlots, "Materials", "Materials", CPF_Edit | CPF_FixedSize, FMaterialSlot, EPropertyType::MaterialSlot, (void)0)
-END_CLASS_PROPERTIES(UStaticMeshComponent)
-
 FPrimitiveSceneProxy* UStaticMeshComponent::CreateSceneProxy()
 {
 	return new FStaticMeshSceneProxy(this);

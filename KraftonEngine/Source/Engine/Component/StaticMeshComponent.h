@@ -4,6 +4,7 @@
 #include "Core/PropertyTypes.h"
 #include "Mesh/MeshManager.h"
 #include "Mesh/StaticMesh.h"
+#include "StaticMeshComponent.generated.h"
 
 class UMaterial;
 class FPrimitiveSceneProxy;
@@ -11,11 +12,11 @@ class FPrimitiveSceneProxy;
 namespace json { class JSON; }
 
 // UStaticMeshComponent — 월드 배치 컴포넌트
+UCLASS()
 class UStaticMeshComponent : public UMeshComponent
 {
 public:
-	DECLARE_CLASS(UStaticMeshComponent, UMeshComponent)
-
+	GENERATED_BODY(UStaticMeshComponent)
 	UStaticMeshComponent() = default;
 	~UStaticMeshComponent() override = default;
 
@@ -47,8 +48,12 @@ private:
 	void CacheLocalBounds();
 
 	UStaticMesh* StaticMesh = nullptr;
+
+	UPROPERTY(Edit, Category = "Mesh", DisplayName = "Static Mesh", Type = StaticMeshRef)
 	FString StaticMeshPath = "None";
 	TArray<UMaterial*> OverrideMaterials;
+
+	UPROPERTY(Edit, FixedSize, Category = "Materials", DisplayName = "Materials")
 	TArray<FMaterialSlot> MaterialSlots; // 경로 + UVScroll 묶음
 
 	FVector CachedLocalCenter = { 0, 0, 0 };
