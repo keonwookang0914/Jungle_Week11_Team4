@@ -3,6 +3,7 @@
 #include "Object/ObjectFactory.h"
 #include "Component/SceneComponent.h"
 #include "Core/TickFunction.h"
+#include "AActor.generated.h"
 
 class FArchive;
 
@@ -14,11 +15,12 @@ class UWorld;
 class ULevel;
 class UPrimitiveComponent;
 
+UCLASS(Actor)
 class AActor : public UObject
 {
     friend struct FActorTickFunction;
 public:
-	DECLARE_CLASS(AActor, UObject)
+	GENERATED_BODY(AActor)
 	AActor();
 	~AActor() override;
 

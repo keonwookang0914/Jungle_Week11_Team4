@@ -12,8 +12,6 @@
 #include "Object/UClass.h"
 #include <algorithm>
 
-IMPLEMENT_CLASS(APlayerCameraManager, AActor)
-
 void APlayerCameraManager::RegisterCamera(UCameraComponent* Camera)
 {
 	if (Camera)

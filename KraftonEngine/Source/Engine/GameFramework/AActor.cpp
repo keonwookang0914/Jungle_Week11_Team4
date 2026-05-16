@@ -10,8 +10,6 @@
 
 #include <algorithm>
 
-IMPLEMENT_CLASS(AActor, UObject)
-
 AActor::AActor()
 {
 	PrimaryActorTick.SetTarget(this);
