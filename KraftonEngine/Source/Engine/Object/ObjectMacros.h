@@ -40,4 +40,10 @@
 #define UENUM(...)
 #define USTRUCT(...)
 
+// Stand-alone class-body marker. The codegen emits Cls->HideInheritedProperty("X")
+// inside the property registrar for each occurrence. Use when a derived class
+// should hide a UPROPERTY exposed by its parent (e.g. USubUVComponent hides
+// UBillboardComponent's "Material" since it manages its own SubUV material).
+#define UPROPERTY_HIDE(...)
+
 #define GENERATED_BODY(ClassName) KE_GENERATED_BODY_##ClassName()

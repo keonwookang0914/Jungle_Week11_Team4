@@ -111,6 +111,7 @@ class ClassInfo:
     class_flags: list[str] = field(default_factory=lambda: ["CF_None"])
     properties: list[PropertyInfo] = field(default_factory=list)
     functions: list[FunctionInfo] = field(default_factory=list)
+    hidden_properties: list[str] = field(default_factory=list)  # UPROPERTY_HIDE("Name")
     no_factory: bool = False  # UCLASS(NoFactory) — skip FObjectFactory registration
 
 @dataclass
@@ -178,6 +179,10 @@ STRUCT_RE = re.compile(
     r"struct\s+(?:\w+\s+)?(\w+)",
     re.MULTILINE,
 )
+
+# Stand-alone class-body marker — no associated declaration follows.
+# UPROPERTY_HIDE("Material") suppresses an inherited property in the editor.
+HIDE_PROPERTY_RE = re.compile(r'UPROPERTY_HIDE\s*\(\s*"([^"]+)"\s*\)')
 
 
 # ──────────────────────────────────────────────
@@ -498,6 +503,9 @@ def parse_header(
             parse_function(fm.group(1), fm.group(2))
             for fm in FUNCTION_RE.finditer(body)
         ]
+        hidden_properties = [
+            hm.group(1) for hm in HIDE_PROPERTY_RE.finditer(body)
+        ]
 
         classes.append(ClassInfo(
             name=name,
@@ -505,6 +513,7 @@ def parse_header(
             class_flags=class_flags,
             properties=properties,
             functions=functions,
+            hidden_properties=hidden_properties,
             no_factory="NoFactory" in meta,
         ))
     return classes
@@ -707,12 +716,12 @@ def emit_property_registrar(
     known_enums: dict[str, EnumInfo],
     known_structs: dict[str, StructInfo],
 ) -> str:
-    # When a class has zero UPROPERTY annotations, skip the registrar entirely
-    # so a hand-written BEGIN_CLASS_PROPERTIES block in the .cpp (hybrid
-    # migration: header on codegen, properties still legacy — e.g. classes
-    # using REGISTER_PROPERTY_OFFSET for nested-struct fields) can provide
-    # the same-named struct without colliding.
-    if not c.properties:
+    # Skip the registrar entirely only when the class has no codegen-driven
+    # property work at all — no UPROPERTYs to register and no UPROPERTY_HIDEs
+    # to apply. That lets a hand-written BEGIN_CLASS_PROPERTIES block in the
+    # .cpp (hybrid migration for classes still on REGISTER_PROPERTY_OFFSET)
+    # provide the same-named struct without colliding.
+    if not c.properties and not c.hidden_properties:
         return ""
 
     lines = [
@@ -722,6 +731,8 @@ def emit_property_registrar(
         f"        UClass* Cls = {c.name}::StaticClass();",
         f"        (void)Cls;",
     ]
+    for h in c.hidden_properties:
+        lines.append(f'        HIDE_PROPERTY("{h}")')
     for p in c.properties:
         lines.append("        " + emit_property_call(p, known_enums, known_structs))
     lines.append("    }")
