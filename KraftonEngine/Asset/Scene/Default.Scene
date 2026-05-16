@@ -22,14 +22,16 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [0.000000, 0.000000, 0.000000],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/CubeGrid/SM_CubeGrid_M_CubeGrid.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [50.000000, 50.000000, 1.000000]
+          },
           "Rotation" : [0.000000, 0.000000, 0.000000],
-          "Scale" : [30.000000, 30.000000, 1.000000],
           "Simulate Physics" : false,
           "Static Mesh" : "Asset/Mesh/CubeGrid/SM_CubeGrid_StaticMesh.uasset",
           "Two Sided Shadow" : false,
@@ -62,14 +64,16 @@
                 "WorldStatic" : 2
               },
               "Generate Overlap Events" : false,
-              "Location" : [0.000000, 0.000000, 0.000000],
               "Mass (kg)" : 1.000000,
               "Material" : {
                 "Path" : "Asset/Materials/Editor/DirectionalLight.mat"
               },
               "Object Type" : 0,
+              "RelativeTransform" : {
+                "Location" : [0.000000, 0.000000, 0.000000],
+                "Scale" : [1.000000, 1.000000, 1.000000]
+              },
               "Rotation" : [0.000000, 0.000000, 0.000000],
-              "Scale" : [1.000000, 1.000000, 1.000000],
               "Simulate Physics" : false,
               "Two Sided Shadow" : false,
               "Visible" : true,
@@ -84,9 +88,11 @@
           "Cast Shadows" : true,
           "Color" : [1.000000, 1.000000, 1.000000, 1.000000],
           "Intensity" : 1.000000,
-          "Location" : [0.000000, 0.000000, 8.191914],
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [45.000000, -45.000000, 0.000000],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Shadow Bias" : -0.000100,
           "Shadow Normal Bias" : -0.002000,
           "Shadow Resolution Scale" : 1.000000,
@@ -133,14 +139,16 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [-3.205277, -2.917898, 1.707360],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/BasicShape/Cube_BasicShapeMaterial.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [-5.782008, 2.837957, 3.453170],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [12.015320, -30.556564, 13.652405],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Simulate Physics" : false,
           "Static Mesh" : "Asset/Mesh/BasicShape/Cube_StaticMesh.uasset",
           "Two Sided Shadow" : false,
@@ -173,14 +181,16 @@
                 "WorldStatic" : 2
               },
               "Generate Overlap Events" : false,
-              "Location" : [0.000000, 0.000000, 0.000000],
               "Mass (kg)" : 1.000000,
               "Material" : {
                 "Path" : "Asset/Materials/Editor/AmbientLight.mat"
               },
               "Object Type" : 0,
+              "RelativeTransform" : {
+                "Location" : [0.000000, 0.000000, 0.000000],
+                "Scale" : [1.000000, 1.000000, 1.000000]
+              },
               "Rotation" : [0.000000, 0.000000, 0.000000],
-              "Scale" : [1.000000, 1.000000, 1.000000],
               "Simulate Physics" : false,
               "Two Sided Shadow" : false,
               "Visible" : true,
@@ -195,9 +205,11 @@
           "Cast Shadows" : true,
           "Color" : [1.000000, 1.000000, 1.000000, 1.000000],
           "Intensity" : 0.100000,
-          "Location" : [0.000000, 0.000000, 10.000000],
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [0.000000, 0.000000, 0.000000],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Visible" : true,
           "bEditorOnly" : false,
           "bTickEnable" : true
@@ -227,14 +239,16 @@
                 "WorldStatic" : 2
               },
               "Generate Overlap Events" : false,
-              "Location" : [0.000000, 0.000000, 0.000000],
               "Mass (kg)" : 1.000000,
               "Material" : {
                 "Path" : "Asset/Materials/Editor/PointLight.mat"
               },
               "Object Type" : 0,
+              "RelativeTransform" : {
+                "Location" : [0.000000, 0.000000, 0.000000],
+                "Scale" : [1.000000, 1.000000, 1.000000]
+              },
               "Rotation" : [0.000000, 0.000000, 0.000000],
-              "Scale" : [1.000000, 1.000000, 1.000000],
               "Simulate Physics" : false,
               "Two Sided Shadow" : false,
               "Visible" : true,
@@ -251,9 +265,11 @@
           "Color" : [1.000000, 1.000000, 1.000000, 1.000000],
           "Intensity" : 2.400000,
           "LightFalloffExponent" : 0.840000,
-          "Location" : [-0.114756, -4.615559, 6.626549],
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [0.000000, 0.000000, 0.000000],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Shadow Bias" : -0.000100,
           "Shadow Normal Bias" : -0.002000,
           "Shadow Resolution Scale" : 1.000000,
@@ -300,14 +316,16 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [-2.347035, -7.132638, 1.610602],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/BasicShape/Sphere_BasicShapeMaterial.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [5.400000, -5.400000, 2.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [0.000000, 0.000000, 0.000000],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Simulate Physics" : false,
           "Static Mesh" : "Asset/Mesh/BasicShape/Sphere_StaticMesh.uasset",
           "Two Sided Shadow" : false,
@@ -340,14 +358,16 @@
                 "WorldStatic" : 2
               },
               "Generate Overlap Events" : false,
-              "Location" : [0.000000, 0.000000, 0.000000],
               "Mass (kg)" : 1.000000,
               "Material" : {
                 "Path" : "Asset/Materials/Editor/SpotLight.mat"
               },
               "Object Type" : 0,
+              "RelativeTransform" : {
+                "Location" : [0.000000, 0.000000, 0.000000],
+                "Scale" : [1.000000, 1.000000, 1.000000]
+              },
               "Rotation" : [0.000000, 0.000000, 0.000000],
-              "Scale" : [1.000000, 1.000000, 1.000000],
               "Simulate Physics" : false,
               "Two Sided Shadow" : false,
               "Visible" : true,
@@ -365,10 +385,12 @@
           "InnerConeAngle" : 8.500000,
           "Intensity" : 3.000000,
           "LightFalloffExponent" : 0.050000,
-          "Location" : [1.661258, 9.227077, 5.513202],
           "OuterConeAngle" : 36.500000,
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [61.853668, -89.514763, -43.256897],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Shadow Bias" : -0.000100,
           "Shadow Normal Bias" : -0.002000,
           "Shadow Resolution Scale" : 1.000000,
@@ -444,7 +466,6 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [5.480577, -2.606570, 0.947476],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/hirasawa-yui/yui_KON001_Hirasawa_Yui.003.mat"
@@ -454,8 +475,11 @@
               "Path" : "Asset/Mesh/hirasawa-yui/yui_KON001_Hirasawa_Yui_face.003.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [10.935703, -4.940681, 0.900000],
+            "Scale" : [3.000000, 3.000000, 3.000000]
+          },
           "Rotation" : [0.000000, -24.313141, 0.000000],
-          "Scale" : [3.000000, 3.000000, 3.000000],
           "Simulate Physics" : false,
           "Skeletal Mesh" : "Asset/Mesh/hirasawa-yui/yui_SkeletalMesh.uasset",
           "Two Sided Shadow" : false,
@@ -488,14 +512,16 @@
                 "WorldStatic" : 2
               },
               "Generate Overlap Events" : false,
-              "Location" : [0.000000, 0.000000, 0.000000],
               "Mass (kg)" : 1.000000,
               "Material" : {
                 "Path" : "Asset/Materials/Editor/SpotLight.mat"
               },
               "Object Type" : 0,
+              "RelativeTransform" : {
+                "Location" : [0.000000, 0.000000, 0.000000],
+                "Scale" : [1.000000, 1.000000, 1.000000]
+              },
               "Rotation" : [0.000000, 0.000000, 0.000000],
-              "Scale" : [1.000000, 1.000000, 1.000000],
               "Simulate Physics" : false,
               "Two Sided Shadow" : false,
               "Visible" : true,
@@ -513,10 +539,12 @@
           "InnerConeAngle" : 20.000000,
           "Intensity" : 3.000000,
           "LightFalloffExponent" : 0.620000,
-          "Location" : [-0.847880, -7.020331, 6.941662],
           "OuterConeAngle" : 40.000000,
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [45.774841, 66.692856, -3.998230],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Shadow Bias" : -0.000100,
           "Shadow Normal Bias" : -0.002000,
           "Shadow Resolution Scale" : 1.000000,
@@ -551,14 +579,16 @@
                 "WorldStatic" : 2
               },
               "Generate Overlap Events" : false,
-              "Location" : [0.000000, 0.000000, 0.000000],
               "Mass (kg)" : 1.000000,
               "Material" : {
                 "Path" : "Asset/Materials/Editor/AmbientLight.mat"
               },
               "Object Type" : 0,
+              "RelativeTransform" : {
+                "Location" : [0.000000, 0.000000, 0.000000],
+                "Scale" : [1.000000, 1.000000, 1.000000]
+              },
               "Rotation" : [0.000000, 0.000000, 0.000000],
-              "Scale" : [1.000000, 1.000000, 1.000000],
               "Simulate Physics" : false,
               "Two Sided Shadow" : false,
               "Visible" : true,
@@ -573,9 +603,11 @@
           "Cast Shadows" : true,
           "Color" : [1.000000, 1.000000, 1.000000, 1.000000],
           "Intensity" : 0.150000,
-          "Location" : [0.000000, 0.000000, 10.000000],
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [0.000000, 0.000000, 0.000000],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Visible" : true,
           "bEditorOnly" : false,
           "bTickEnable" : true
@@ -605,14 +637,16 @@
                 "WorldStatic" : 2
               },
               "Generate Overlap Events" : false,
-              "Location" : [0.000000, 0.000000, 0.000000],
               "Mass (kg)" : 1.000000,
               "Material" : {
                 "Path" : "Asset/Materials/Editor/HeightFog.mat"
               },
               "Object Type" : 0,
+              "RelativeTransform" : {
+                "Location" : [0.000000, 0.000000, 0.000000],
+                "Scale" : [1.000000, 1.000000, 1.000000]
+              },
               "Rotation" : [0.000000, 0.000000, 0.000000],
-              "Scale" : [1.000000, 1.000000, 1.000000],
               "Simulate Physics" : false,
               "Two Sided Shadow" : false,
               "Visible" : true,
@@ -628,10 +662,12 @@
           "Fog Density" : 0.003000,
           "Height Falloff" : 0.100000,
           "Inscattering Color" : [0.450000, 0.550000, 0.650000, 1.000000],
-          "Location" : [0.000000, 0.000000, 12.000000],
           "Max Opacity" : 1.000000,
+          "RelativeTransform" : {
+            "Location" : [0.000000, 0.000000, 0.000000],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [0.000000, 0.000000, 0.000000],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Start Distance" : 30.000000,
           "bEditorOnly" : false,
           "bTickEnable" : true
@@ -660,14 +696,16 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [1.519097, 5.845717, 1.831645],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/BasicShape/Cube_BasicShapeMaterial.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [-0.324053, 1.341161, 2.203696],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [-8.286392, 0.132538, -31.072220],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Simulate Physics" : false,
           "Static Mesh" : "Asset/Mesh/BasicShape/Cube_StaticMesh.uasset",
           "Two Sided Shadow" : false,
@@ -706,7 +744,6 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [10.694828, -8.653132, 0.994482],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/Samba Dancing/Samba Dancing (10)_acc.002.mat"
@@ -720,8 +757,11 @@
               "Path" : "Asset/Mesh/Samba Dancing/Samba Dancing (10)_e.002.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [11.621058, 2.047176, 1.100000],
+            "Scale" : [2.000000, 2.000000, 2.000000]
+          },
           "Rotation" : [0.000000, -80.009224, 0.000000],
-          "Scale" : [2.000000, 2.000000, 2.000000],
           "Simulate Physics" : false,
           "Skeletal Mesh" : "Asset/Mesh/Samba Dancing/Samba Dancing (10)_SkeletalMesh.uasset",
           "Two Sided Shadow" : false,
@@ -753,14 +793,16 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [10.757595, -1.601472, 1.722572],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/BasicShape/Cube_BasicShapeMaterial.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [9.220843, -10.702366, 4.157585],
+            "Scale" : [1.000000, 1.000000, 1.000000]
+          },
           "Rotation" : [-27.286530, 31.608643, -10.822815],
-          "Scale" : [1.000000, 1.000000, 1.000000],
           "Simulate Physics" : false,
           "Static Mesh" : "Asset/Mesh/BasicShape/Cube_StaticMesh.uasset",
           "Two Sided Shadow" : false,
@@ -792,7 +834,6 @@
             "WorldStatic" : 2
           },
           "Generate Overlap Events" : false,
-          "Location" : [8.349896, -3.344031, 1.000000],
           "Mass (kg)" : 1.000000,
           "Materials" : [{
               "Path" : "Asset/Mesh/hirasawa-yui/yui_KON001_Hirasawa_Yui.003.mat"
@@ -802,8 +843,11 @@
               "Path" : "Asset/Mesh/hirasawa-yui/yui_KON001_Hirasawa_Yui_face.003.mat"
             }],
           "Object Type" : 0,
+          "RelativeTransform" : {
+            "Location" : [5.846572, 2.840355, 1.000001],
+            "Scale" : [3.000000, 3.000000, 3.000000]
+          },
           "Rotation" : [0.000000, -64.088791, 0.000000],
-          "Scale" : [2.000000, 2.000000, 2.000000],
           "Simulate Physics" : false,
           "Skeletal Mesh" : "Asset/Mesh/hirasawa-yui/yui_SkeletalMesh.uasset",
           "Two Sided Shadow" : false,
@@ -820,9 +864,9 @@
   "PerspectiveCamera" : {
     "FOV" : 1.047198,
     "FarClip" : 1000.000000,
-    "Location" : [-24.228544, -15.122900, 14.168142],
+    "Location" : [-3.750554, -13.738703, 8.011571],
     "NearClip" : 0.100000,
-    "Rotation" : [0.000000, 21.372032, 33.751770]
+    "Rotation" : [0.000000, 10.422051, 51.301758]
   },
   "Version" : 2,
   "WorldSettings" : {
