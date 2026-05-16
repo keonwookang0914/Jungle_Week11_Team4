@@ -67,19 +67,6 @@ void USceneComponent::AttachToComponent(USceneComponent* InParent)
 	SetParent(InParent);
 }
 
-void USceneComponent::GetEditableProperties(TArray<FProperty>& OutProps)
-{
-	// Quat 가 외부 setter 로 갱신된 직후엔 CachedEditRotator 가 stale. 매크로 경로가
-	// ValuePtr = Base + Offset(CachedEditRotator) 로 바인딩하기 전에 동기화해줘야
-	// 에디터가 최신 Euler 를 본다.
-	if (bCachedEulerDirty)
-	{
-		CachedEditRotator = RelativeTransform.GetRotator();
-		bCachedEulerDirty = false;
-	}
-	UActorComponent::GetEditableProperties(OutProps);
-}
-
 void USceneComponent::PostEditProperty(const char* PropertyName)
 {
 	bool bApplyChangeToPartition = (strcmp(PropertyName, "Location") == 0
