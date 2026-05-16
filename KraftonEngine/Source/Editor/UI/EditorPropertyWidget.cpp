@@ -813,10 +813,6 @@ void FEditorPropertyWidget::RenderComponentProperties(AActor* Actor, const TArra
 	{
 		if (bPropsInvalidated) break;
 
-		// Root 컴포넌트는 Transform 카테고리 스킵
-		if (bIsRoot && Cat == "Transform")
-			continue;
-
 		// 카테고리 헤더 (빈 문자열이면 헤더 없이 렌더)
 		bool bInTreeNode = false;
 		if (!Cat.empty())
