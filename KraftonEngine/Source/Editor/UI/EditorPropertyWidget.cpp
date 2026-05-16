@@ -1037,7 +1037,7 @@ void FEditorPropertyWidget::AddComponentToActor(AActor* Actor, UClass* Component
 	bActorSelected = false;
 }
 
-bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32& Index)
+bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32& Index, bool bNotifyPostEdit)
 {
 	ImGui::PushID(Index);
 	FProperty& Prop = Props[Index];
@@ -1465,7 +1465,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 
 		if (!Names.empty())
 		{
-			if (ImGui::BeginCombo(PropLabel(Prop), Current.c_str()))
+			if (ImGui::BeginCombo("##Value", Current.c_str()))
 			{
 				for (const auto& Name : Names)
 				{
@@ -1485,7 +1485,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		{
 			char Buf[256];
 			strncpy_s(Buf, sizeof(Buf), Current.c_str(), _TRUNCATE);
-			if (ImGui::InputText(PropLabel(Prop), Buf, sizeof(Buf)))
+			if (ImGui::InputText("##Value", Buf, sizeof(Buf)))
 			{
 				*Val = FName(Buf);
 				bChanged = true;
@@ -1499,7 +1499,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		int32 Val = 0;
 		memcpy(&Val, Prop.ValuePtr, Prop.EnumSize);
 		const char* Preview = ((uint32)Val < Prop.EnumCount) ? Prop.EnumNames[Val] : "Unknown";
-		if (ImGui::BeginCombo(PropLabel(Prop), Preview))
+		if (ImGui::BeginCombo("##Value", Preview))
 		{
 			for (uint32 i = 0; i < Prop.EnumCount; ++i)
 			{
@@ -1615,41 +1615,18 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 				ImGui::PushID(ci);
 
 				FProperty& ChildProp = ChildProps[ci];
-				// Struct 자식 프로퍼티는 재귀적으로 같은 위젯 렌더링 함수를 사용
-				// 단, SelectedComponent의 PostEditProperty는 부모 Struct 이름으로 호출
 				int32 ChildIdx = ci;
 
-				// Enum 위젯 인라인 렌더링 (가장 빈번한 자식 타입)
-				if (ChildProp.Type == EPropertyType::Enum && ChildProp.EnumNames && ChildProp.EnumCount > 0)
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(PropLabel(ChildProp));
+				ImGui::SameLine(120.0f);
+				ImGui::SetNextItemWidth(-1);
+
+				// Child changes bubble up so the owning component receives one
+				// PostEditProperty call for the parent struct property below.
+				if (RenderPropertyWidget(ChildProps, ChildIdx, false))
 				{
-					int32 Val = 0;
-					memcpy(&Val, ChildProp.ValuePtr, ChildProp.EnumSize);
-
-					const char* Preview = ((uint32)Val < ChildProp.EnumCount) ? ChildProp.EnumNames[Val] : "Unknown";
-
-					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(PropLabel(ChildProp));
-
-					ImGui::SameLine(120.0f);
-					ImGui::SetNextItemWidth(-1);
-
-					if (ImGui::BeginCombo("##Value", Preview))
-					{
-						for (uint32 ei = 0; ei < ChildProp.EnumCount; ++ei)
-						{
-							bool bSel = (Val == (int32)ei);
-
-							if (ImGui::Selectable(ChildProp.EnumNames[ei], bSel))
-							{
-								int32 NewVal = (int32)ei;
-								memcpy(ChildProp.ValuePtr, &NewVal, ChildProp.EnumSize);
-								bChanged = true;
-							}
-
-							if (bSel) ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}
+					bChanged = true;
 				}
 				ImGui::PopID();
 			}
@@ -1664,7 +1641,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 		FString* Val = static_cast<FString*>(Prop.ValuePtr);
 		char Buf[256];
 		strncpy_s(Buf, sizeof(Buf), Val->c_str(), _TRUNCATE);
-		if (ImGui::InputText(PropLabel(Prop), Buf, sizeof(Buf)))
+		if (ImGui::InputText("##Value", Buf, sizeof(Buf)))
 		{
 			*Val = Buf;
 			bChanged = true;
@@ -1682,7 +1659,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(TArray<FProperty>& Props, int32
 	}
 	}
 
-	if (bChanged && SelectedComponent)
+	if (bChanged && SelectedComponent && bNotifyPostEdit)
 	{
 		SelectedComponent->PostEditProperty(Prop.Name.c_str());
 	}
