@@ -118,10 +118,10 @@ class EnumInfo:
     entries: list[str]
     underlying_type: str | None = None
 
-@dataclass
-class HeaderInfo:
-    classes: list[ClassInfo] = field(default_factory=list)
-    enums: list[EnumInfo] = field(default_factory=list)
+# @dataclass
+# class HeaderInfo:
+#     classes: list[ClassInfo] = field(default_factory=list)
+#     enums: list[EnumInfo] = field(default_factory=list)
 
 
 # ──────────────────────────────────────────────
@@ -447,12 +447,16 @@ CLASS_MACRO_TEMPLATE = """\
     friend struct {class_name}_PropertyRegistrar;
 """
 
-def emit_generated_header(classes: list[ClassInfo]) -> str:
-    macros = "\n".join(
-        CLASS_MACRO_TEMPLATE.format(class_name=c.name, parent=c.parent)
-        for c in classes
-    )
-    return GENERATED_H_TEMPLATE.format(class_macros=macros)
+def emit_generated_header(classes: list[ClassInfo], enums: list[EnumInfo]) -> str:
+    sections: list[str] = []
+    if classes:
+        sections.append("\n".join(
+            CLASS_MACRO_TEMPLATE.format(class_name=c.name, parent=c.parent)
+            for c in classes
+        ))
+    if enums:
+        sections.append("\n".join(emit_enum_names_table(e) for e in enums))
+    return GENERATED_H_TEMPLATE.format(class_macros="\n".join(sections))
 
 
 # ──────────────────────────────────────────────
@@ -461,7 +465,6 @@ def emit_generated_header(classes: list[ClassInfo]) -> str:
 def emit_gen_cpp(
     source_header_include: str,
     classes: list[ClassInfo],
-    enums: list[EnumInfo],
     known_enums: dict[str, EnumInfo],
 ) -> str:
     has_lua = any(fn.is_lua for c in classes for fn in c.functions)
@@ -474,8 +477,6 @@ def emit_gen_cpp(
         out.append('#include "Object/LuaClassRegistry.h"')
         out.append("#include <sol/sol.hpp>")
     out.append("")
-    for enum in enums:
-        out.append(emit_enum_names_table(enum))
     for c in classes:
         out.append(emit_class_static(c))
         out.append(emit_property_registrar(c, known_enums))
@@ -492,8 +493,12 @@ def enum_names_symbol(enum_name: str) -> str:
 
 def emit_enum_names_table(enum: EnumInfo) -> str:
     entries = ",\n".join(f'    "{entry}"' for entry in enum.entries)
+    # C++17 inline variable: ODR-merged across TUs so a UENUM in Foo.h can
+    # be referenced from a UPROPERTY in Bar.h. Emitted in .generated.h (not
+    # .gen.cpp) because Bar.h transitively reaches Foo.generated.h through
+    # the include chain that brings the enum type itself into Bar.h.
     return (
-        f"static const char* {enum_names_symbol(enum.name)}[] = {{\n"
+        f"inline const char* {enum_names_symbol(enum.name)}[] = {{\n"
         f"{entries}\n"
         "};\n"
     )
@@ -683,17 +688,21 @@ def main():
         classes = parse_header(h, known_enums)
         if not classes and not enums:
             continue
-        gh_text  = emit_generated_header(classes)
-        cpp_text = emit_gen_cpp(make_include_path(h), classes, enums, known_enums)
 
+        gh_text = emit_generated_header(classes, enums)
         if write_if_different(OUT_INC / f"{h.stem}.generated.h", gh_text):
             written += 1
             if args.verbose:
                 print(f"  wrote {h.stem}.generated.h")
-        if write_if_different(OUT_SRC / f"{h.stem}.gen.cpp", cpp_text):
-            written += 1
-            if args.verbose:
-                print(f"  wrote {h.stem}.gen.cpp")
+
+        # Enum-only headers don't need a .gen.cpp — the names table lives in
+        # the .generated.h and there's no UClass static to define.
+        if classes:
+            cpp_text = emit_gen_cpp(make_include_path(h), classes, known_enums)
+            if write_if_different(OUT_SRC / f"{h.stem}.gen.cpp", cpp_text):
+                written += 1
+                if args.verbose:
+                    print(f"  wrote {h.stem}.gen.cpp")
 
     print(f"GenerateCode: scanned {len(headers)} headers, wrote {written} files.")
 
