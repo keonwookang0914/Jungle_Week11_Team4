@@ -731,7 +731,7 @@ def emit_property_registrar(
         f"        (void)Cls;",
     ]
     for h in c.hidden_properties:
-        lines.append(f'        HIDE_PROPERTY("{h}")')
+        lines.append(f'        Cls->HideInheritedProperty("{h}");')
     for p in c.properties:
         lines.extend("        " + line for line in emit_property_registration(
             p, known_enums, known_structs

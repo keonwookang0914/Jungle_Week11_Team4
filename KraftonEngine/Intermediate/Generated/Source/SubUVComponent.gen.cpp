@@ -13,7 +13,7 @@ struct USubUVComponent_PropertyRegistrar {
         using ThisClass = USubUVComponent;
         UClass* Cls = USubUVComponent::StaticClass();
         (void)Cls;
-        HIDE_PROPERTY("Material")
+        Cls->HideInheritedProperty("Material");
         {
             FProperty* P = new FProperty();
             P->Name = "Particle";

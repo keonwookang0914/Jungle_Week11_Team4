@@ -37,9 +37,12 @@ class FArchive;
 // Manual property registration helpers.
 //
 // Normal reflected properties are authored with UPROPERTY(...) and emitted
-// directly by Scripts/GenerateCode.py. The macros below remain for unusual
-// manual registrations such as explicit offsets or hand-written compatibility
-// code. Instance binding (ValuePtr = this + Offset) is still performed by
+// directly by Scripts/GenerateCode.py — the per-member registration code is
+// inlined into the generated .gen.cpp, no macro indirection. The BEGIN/END
+// scaffold and the *_OFFSET helpers below remain for the case the generator
+// cannot express: properties whose address can't be reached with
+// offsetof(ThisClass, X) (e.g. nested members). Instance binding
+// (ValuePtr = this + Offset) is still performed by
 // UObject::GetEditableProperties.
 // ---------------------------------------------------------------------------
 
@@ -55,25 +58,6 @@ class FArchive;
 	};                                                                      \
 	static ClassName##_PropertyRegistrar s_##ClassName##_PropertyReg;
 
-#define HIDE_PROPERTY(PropertyName) \
-	Cls->HideInheritedProperty(PropertyName);
-
-// 모든 PROPERTY_* 매크로의 공통 구현.
-// ExtraSetup 은 type-specific 필드를 채우는 쉼표 표현식(예: (P->Min = X, P->Max = Y)).
-// 추가 필드가 없으면 (void)0 전달.
-#define KE_REGISTER_PROPERTY_IMPL(MemberName, InName, InType, InCategory, InFlags, ExtraSetup) \
-	{                                                                                                 \
-		FProperty* P = new FProperty();                                                               \
-		P->Name            = (InName);                                                                \
-		P->Type            = (InType);                                                                \
-		P->Category        = (InCategory);                                                            \
-		P->PropertyFlag    = (InFlags);                                                               \
-		P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));                    \
-		P->ElementSize     = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));                \
-		ExtraSetup;                                                                                   \
-		Cls->AddProperty(P);                                                                          \
-	}
-
 #define KE_REGISTER_PROPERTY_OFFSET_IMPL(InName, InType, InCategory, InOffset, InSize, InFlags, ExtraSetup) \
 	{                                                                                                 \
 		FProperty* P = new FProperty();                                                               \
@@ -86,61 +70,6 @@ class FArchive;
 		ExtraSetup;                                                                                   \
 		Cls->AddProperty(P);                                                                          \
 	}
-
-#define PROPERTY_BOOL(MemberName, InName, InCategory, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::Bool,   InCategory, InFlags, (void)0)
-#define PROPERTY_INT(MemberName, InName, InCategory, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::Int,    InCategory, InFlags, (void)0)
-#define PROPERTY_VEC3(MemberName, InName, InCategory, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::Vec3,   InCategory, InFlags, (void)0)
-#define PROPERTY_STRING(MemberName, InName, InCategory, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::String, InCategory, InFlags, (void)0)
-
-#define PROPERTY_FLOAT(MemberName, InName, InCategory, InMin, InMax, InSpeed, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::Float, InCategory, InFlags, \
-		(P->Min = (InMin), P->Max = (InMax), P->Speed = (InSpeed)))
-
-// Enum 멤버 등록. EnumNamesArr/EnumCountVal/EnumSizeVal 은 호출자가 제공.
-//   예: PROPERTY_ENUM(CollisionEnabled, "Collision Enabled", "Collision",
-//                     GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT,
-//                     sizeof(ECollisionEnabled), CPF_Edit)
-#define PROPERTY_ENUM(MemberName, InName, InCategory, EnumNamesArr, EnumCountVal, EnumSizeVal, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::Enum, InCategory, InFlags, \
-		(P->EnumNames = (EnumNamesArr), P->EnumCount = (EnumCountVal), P->EnumSize = (EnumSizeVal)))
-
-// Struct 멤버 등록. StructFuncPtr 는 자식 프로퍼티 디스크립터를 만드는 콜백.
-//   예: PROPERTY_STRUCT(ResponseContainer, "Collision Responses", "Collision",
-//                       &FCollisionResponseContainer::DescribeProperties, CPF_Edit)
-#define PROPERTY_STRUCT(MemberName, InName, InCategory, StructFuncPtr, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, EPropertyType::Struct, InCategory, InFlags, \
-		P->StructFunc = (StructFuncPtr))
-
-// TArray 멤버 등록
-#define PROPERTY_ARRAY(MemberName, InName, InCategory, InFlags, ElementType, InnerType, InnerSetup) \
-    {                                                                                               \
-        FProperty* P = new FProperty();                                                             \
-        P->Name            = (InName);                                                              \
-        P->Type            = EPropertyType::Array;                                                  \
-        P->Category        = (InCategory);                                                          \
-        P->PropertyFlag    = (InFlags);                                                             \
-        P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MemberName));                  \
-        P->ElementSize     = static_cast<uint32>(sizeof(((ThisClass*)0)->MemberName));              \
-        P->Accessor        = GetTArrayAccessor<ElementType>();                                      \
-        FProperty* Inner   = new FProperty();                                                       \
-        Inner->Name        = "Element";                                                             \
-        Inner->Type        = (InnerType);                                                           \
-        Inner->Category    = (InCategory);                                                          \
-        Inner->ElementSize = static_cast<uint32>(sizeof(ElementType));                              \
-        /* Inner->Offset_Internal intentionally unused since accessor resolves element address */   \
-        InnerSetup;                                                                                 \
-        P->Inner = Inner;                                                                           \
-        Cls->AddProperty(P);                                                                        \
-    }
-
-
-// 일반화: 명시적 EPropertyType 으로 등록. 위 매크로가 못 잡는 케이스용.
-#define REGISTER_PROPERTY(MemberName, InName, InType, InCategory, InFlags) \
-	KE_REGISTER_PROPERTY_IMPL(MemberName, InName, InType, InCategory, InFlags, (void)0)
 
 // 명시적 offset 버전. 중첩 멤버처럼 offsetof(ThisClass, MemberName) 으로 표현할 수 없는
 // 필드를 등록할 때 사용한다.
