@@ -34,14 +34,13 @@ class FArchive;
     DEFINE_CLASS_WITH_FLAGS(ClassName, ParentClass, CF_None)
 
 // ---------------------------------------------------------------------------
-// Property registration — UPROPERTY-style 매크로.
-// 
-//     BEGIN_CLASS_PROPERTIES(UCarMovementComponent)
-//         PROPERTY_FLOAT(MaxSpeed, "Max Speed", "Movement", 0.0f, 200.0f, 0.5f, CPF_Edit)
-//         PROPERTY_BOOL(bUseRaycastSuspension, "Use Raycast Suspension", "Suspension", CPF_Edit)
-//     END_CLASS_PROPERTIES(UCarMovementComponent)
+// Manual property registration helpers.
 //
-// 인스턴스 바인딩(ValuePtr = this+Offset)은 UObject::GetEditableProperties 가 수행.
+// Normal reflected properties are authored with UPROPERTY(...) and emitted
+// directly by Scripts/GenerateCode.py. The macros below remain for unusual
+// manual registrations such as explicit offsets or hand-written compatibility
+// code. Instance binding (ValuePtr = this + Offset) is still performed by
+// UObject::GetEditableProperties.
 // ---------------------------------------------------------------------------
 
 #define BEGIN_CLASS_PROPERTIES(ClassName)                                   \

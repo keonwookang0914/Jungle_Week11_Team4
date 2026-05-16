@@ -13,8 +13,32 @@ struct UPointLightComponent_PropertyRegistrar {
         using ThisClass = UPointLightComponent;
         UClass* Cls = UPointLightComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(AttenuationRadius, "AttenuationRadius", "Lighting", 0.05f, 1000.f, 0.01f, CPF_Edit)
-        PROPERTY_FLOAT(LightFalloffExponent, "LightFalloffExponent", "Lighting", 0.05f, 10.f, 0.01f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "AttenuationRadius";
+            P->Type = EPropertyType::Float;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, AttenuationRadius));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->AttenuationRadius));
+            P->Min = 0.05f;
+            P->Max = 1000.f;
+            P->Speed = 0.01f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "LightFalloffExponent";
+            P->Type = EPropertyType::Float;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, LightFalloffExponent));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->LightFalloffExponent));
+            P->Min = 0.05f;
+            P->Max = 10.f;
+            P->Speed = 0.01f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UPointLightComponent_PropertyRegistrar s_UPointLightComponent_PropertyReg;

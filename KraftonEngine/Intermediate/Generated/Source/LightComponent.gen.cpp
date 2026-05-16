@@ -13,11 +13,71 @@ struct ULightComponent_PropertyRegistrar {
         using ThisClass = ULightComponent;
         UClass* Cls = ULightComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(ShadowResolutionScale, "Shadow Resolution Scale", "Shadow", 0.1f, 4.0f, 0.1f, CPF_Edit)
-        PROPERTY_FLOAT(ShadowBias, "Shadow Bias", "Shadow", -0.2f, 0.2f, 0.0001f, CPF_Edit)
-        PROPERTY_FLOAT(ShadowSlopeBias, "Shadow Slope Bias", "Shadow", -0.2f, 0.2f, 0.0001f, CPF_Edit)
-        PROPERTY_FLOAT(ShadowNormalBias, "Shadow Normal Bias", "Shadow", -0.2f, 0.2f, 0.0001f, CPF_Edit)
-        PROPERTY_FLOAT(ShadowSharpen, "Shadow Sharpen", "Shadow", 0.f, 1.f, 0.06f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Shadow Resolution Scale";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shadow";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ShadowResolutionScale));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ShadowResolutionScale));
+            P->Min = 0.1f;
+            P->Max = 4.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Shadow Bias";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shadow";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ShadowBias));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ShadowBias));
+            P->Min = -0.2f;
+            P->Max = 0.2f;
+            P->Speed = 0.0001f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Shadow Slope Bias";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shadow";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ShadowSlopeBias));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ShadowSlopeBias));
+            P->Min = -0.2f;
+            P->Max = 0.2f;
+            P->Speed = 0.0001f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Shadow Normal Bias";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shadow";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ShadowNormalBias));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ShadowNormalBias));
+            P->Min = -0.2f;
+            P->Max = 0.2f;
+            P->Speed = 0.0001f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Shadow Sharpen";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shadow";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ShadowSharpen));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ShadowSharpen));
+            P->Min = 0.f;
+            P->Max = 1.f;
+            P->Speed = 0.06f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static ULightComponent_PropertyRegistrar s_ULightComponent_PropertyReg;

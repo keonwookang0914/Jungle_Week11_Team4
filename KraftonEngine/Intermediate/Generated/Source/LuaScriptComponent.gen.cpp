@@ -13,7 +13,16 @@ struct ULuaScriptComponent_PropertyRegistrar {
         using ThisClass = ULuaScriptComponent;
         UClass* Cls = ULuaScriptComponent::StaticClass();
         (void)Cls;
-        REGISTER_PROPERTY(ScriptFile, "ScriptFile", EPropertyType::Script, "Script", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "ScriptFile";
+            P->Type = EPropertyType::Script;
+            P->Category = "Script";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ScriptFile));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ScriptFile));
+            Cls->AddProperty(P);
+        }
     }
 };
 static ULuaScriptComponent_PropertyRegistrar s_ULuaScriptComponent_PropertyReg;

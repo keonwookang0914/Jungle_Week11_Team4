@@ -13,8 +13,33 @@ struct UStaticMeshComponent_PropertyRegistrar {
         using ThisClass = UStaticMeshComponent;
         UClass* Cls = UStaticMeshComponent::StaticClass();
         (void)Cls;
-        REGISTER_PROPERTY(StaticMeshPath, "Static Mesh", EPropertyType::StaticMeshRef, "Mesh", CPF_Edit)
-        PROPERTY_ARRAY(MaterialSlots, "Materials", "Materials", CPF_Edit | CPF_FixedSize, FMaterialSlot, EPropertyType::MaterialSlot, (void)0)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Static Mesh";
+            P->Type = EPropertyType::StaticMeshRef;
+            P->Category = "Mesh";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, StaticMeshPath));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->StaticMeshPath));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Materials";
+            P->Type = EPropertyType::Array;
+            P->Category = "Materials";
+            P->PropertyFlag = CPF_Edit | CPF_FixedSize;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MaterialSlots));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlots));
+            P->Accessor = GetTArrayAccessor<FMaterialSlot>();
+            FProperty* Inner = new FProperty();
+            Inner->Name = "Element";
+            Inner->Type = EPropertyType::MaterialSlot;
+            Inner->Category = "Materials";
+            Inner->ElementSize = static_cast<uint32>(sizeof(FMaterialSlot));
+            P->Inner = Inner;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UStaticMeshComponent_PropertyRegistrar s_UStaticMeshComponent_PropertyReg;

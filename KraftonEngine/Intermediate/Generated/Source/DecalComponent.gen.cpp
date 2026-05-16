@@ -13,12 +13,78 @@ struct UDecalComponent_PropertyRegistrar {
         using ThisClass = UDecalComponent;
         UClass* Cls = UDecalComponent::StaticClass();
         (void)Cls;
-        REGISTER_PROPERTY(MaterialSlot, "Material", EPropertyType::MaterialSlot, "Rendering", CPF_Edit)
-        REGISTER_PROPERTY(Color, "Color", EPropertyType::Vec4, "Rendering", CPF_Edit)
-        PROPERTY_FLOAT(FadeInDelay, "FadeInDelay", "Rendering", 0.0f, 0.0f, 0.1f, CPF_Edit)
-        PROPERTY_FLOAT(FadeInDuration, "FadeInDuration", "Rendering", 0.0f, 0.0f, 0.1f, CPF_Edit)
-        PROPERTY_FLOAT(FadeOutDelay, "FadeOutDelay", "Rendering", 0.0f, 0.0f, 0.1f, CPF_Edit)
-        PROPERTY_FLOAT(FadeOutDuration, "FadeOutDuration", "Rendering", 0.0f, 0.0f, 0.1f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Material";
+            P->Type = EPropertyType::MaterialSlot;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MaterialSlot));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlot));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Color";
+            P->Type = EPropertyType::Vec4;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Color));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Color));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "FadeInDelay";
+            P->Type = EPropertyType::Float;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FadeInDelay));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FadeInDelay));
+            P->Min = 0.0f;
+            P->Max = 0.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "FadeInDuration";
+            P->Type = EPropertyType::Float;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FadeInDuration));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FadeInDuration));
+            P->Min = 0.0f;
+            P->Max = 0.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "FadeOutDelay";
+            P->Type = EPropertyType::Float;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FadeOutDelay));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FadeOutDelay));
+            P->Min = 0.0f;
+            P->Max = 0.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "FadeOutDuration";
+            P->Type = EPropertyType::Float;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FadeOutDuration));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FadeOutDuration));
+            P->Min = 0.0f;
+            P->Max = 0.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UDecalComponent_PropertyRegistrar s_UDecalComponent_PropertyReg;

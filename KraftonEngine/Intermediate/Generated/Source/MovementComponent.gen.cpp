@@ -13,8 +13,26 @@ struct UMovementComponent_PropertyRegistrar {
         using ThisClass = UMovementComponent;
         UClass* Cls = UMovementComponent::StaticClass();
         (void)Cls;
-        PROPERTY_BOOL(bAutoRegisterUpdatedComponent, "Auto Register Updated", "Movement", CPF_Edit)
-        REGISTER_PROPERTY(UpdatedComponentPath, "Updated Component", EPropertyType::SceneComponentRef, "Movement", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Auto Register Updated";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bAutoRegisterUpdatedComponent));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bAutoRegisterUpdatedComponent));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Updated Component";
+            P->Type = EPropertyType::SceneComponentRef;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, UpdatedComponentPath));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->UpdatedComponentPath));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UMovementComponent_PropertyRegistrar s_UMovementComponent_PropertyReg;

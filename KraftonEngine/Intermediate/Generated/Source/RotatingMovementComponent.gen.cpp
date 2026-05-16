@@ -13,9 +13,36 @@ struct URotatingMovementComponent_PropertyRegistrar {
         using ThisClass = URotatingMovementComponent;
         UClass* Cls = URotatingMovementComponent::StaticClass();
         (void)Cls;
-        REGISTER_PROPERTY(RotationRate, "Rotation Rate", EPropertyType::Rotator, "Movement", CPF_Edit)
-        PROPERTY_BOOL(bRotationInLocalSpace, "Rotation In Local Space", "Movement", CPF_Edit)
-        PROPERTY_VEC3(PivotTranslation, "Pivot Translation", "Movement", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Rotation Rate";
+            P->Type = EPropertyType::Rotator;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, RotationRate));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->RotationRate));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Rotation In Local Space";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bRotationInLocalSpace));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bRotationInLocalSpace));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Pivot Translation";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, PivotTranslation));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->PivotTranslation));
+            Cls->AddProperty(P);
+        }
     }
 };
 static URotatingMovementComponent_PropertyRegistrar s_URotatingMovementComponent_PropertyReg;

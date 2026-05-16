@@ -13,7 +13,19 @@ struct USphereComponent_PropertyRegistrar {
         using ThisClass = USphereComponent;
         UClass* Cls = USphereComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(SphereRadius, "Sphere Radius", "Shape", 0.01f, 10000.0f, 1.0f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Sphere Radius";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shape";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, SphereRadius));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->SphereRadius));
+            P->Min = 0.01f;
+            P->Max = 10000.0f;
+            P->Speed = 1.0f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static USphereComponent_PropertyRegistrar s_USphereComponent_PropertyReg;

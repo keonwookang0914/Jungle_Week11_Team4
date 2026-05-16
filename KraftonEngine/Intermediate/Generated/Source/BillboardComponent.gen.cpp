@@ -13,7 +13,16 @@ struct UBillboardComponent_PropertyRegistrar {
         using ThisClass = UBillboardComponent;
         UClass* Cls = UBillboardComponent::StaticClass();
         (void)Cls;
-        REGISTER_PROPERTY(MaterialSlot, "Material", EPropertyType::MaterialSlot, "Rendering", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Material";
+            P->Type = EPropertyType::MaterialSlot;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MaterialSlot));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlot));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UBillboardComponent_PropertyRegistrar s_UBillboardComponent_PropertyReg;

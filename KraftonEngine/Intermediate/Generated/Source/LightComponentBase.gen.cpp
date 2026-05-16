@@ -13,10 +13,49 @@ struct ULightComponentBase_PropertyRegistrar {
         using ThisClass = ULightComponentBase;
         UClass* Cls = ULightComponentBase::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(Intensity, "Intensity", "Lighting", 0.f, 50.f, 0.05f, CPF_Edit)
-        REGISTER_PROPERTY(LightColor, "Color", EPropertyType::Color4, "Lighting", CPF_Edit)
-        PROPERTY_BOOL(bVisible, "Visible", "Lighting", CPF_Edit)
-        PROPERTY_BOOL(bCastShadows, "Cast Shadows", "Lighting", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Intensity";
+            P->Type = EPropertyType::Float;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Intensity));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Intensity));
+            P->Min = 0.f;
+            P->Max = 50.f;
+            P->Speed = 0.05f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Color";
+            P->Type = EPropertyType::Color4;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, LightColor));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->LightColor));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Visible";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bVisible));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bVisible));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Cast Shadows";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bCastShadows));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bCastShadows));
+            Cls->AddProperty(P);
+        }
     }
 };
 static ULightComponentBase_PropertyRegistrar s_ULightComponentBase_PropertyReg;

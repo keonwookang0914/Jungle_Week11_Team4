@@ -13,8 +13,32 @@ struct UFloatingPawnMovementComponent_PropertyRegistrar {
         using ThisClass = UFloatingPawnMovementComponent;
         UClass* Cls = UFloatingPawnMovementComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(Speed, "Speed", "Movement", 0.0f, 100.0f, 0.1f, CPF_Edit)
-        PROPERTY_FLOAT(MouseSensitivity, "MouseSensitivity", "Movement", 0.0f, 10.0f, 0.01f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Speed";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Speed));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Speed));
+            P->Min = 0.0f;
+            P->Max = 100.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "MouseSensitivity";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MouseSensitivity));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MouseSensitivity));
+            P->Min = 0.0f;
+            P->Max = 10.0f;
+            P->Speed = 0.01f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UFloatingPawnMovementComponent_PropertyRegistrar s_UFloatingPawnMovementComponent_PropertyReg;

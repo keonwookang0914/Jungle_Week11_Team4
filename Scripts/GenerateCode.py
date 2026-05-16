@@ -718,9 +718,8 @@ def emit_property_registrar(
 ) -> str:
     # Skip the registrar entirely only when the class has no codegen-driven
     # property work at all — no UPROPERTYs to register and no UPROPERTY_HIDEs
-    # to apply. That lets a hand-written BEGIN_CLASS_PROPERTIES block in the
-    # .cpp (hybrid migration for classes still on REGISTER_PROPERTY_OFFSET)
-    # provide the same-named struct without colliding.
+    # to apply. That still leaves room for a rare hand-written registrar when
+    # a class genuinely needs one.
     if not c.properties and not c.hidden_properties:
         return ""
 
@@ -734,83 +733,91 @@ def emit_property_registrar(
     for h in c.hidden_properties:
         lines.append(f'        HIDE_PROPERTY("{h}")')
     for p in c.properties:
-        lines.append("        " + emit_property_call(p, known_enums, known_structs))
+        lines.extend("        " + line for line in emit_property_registration(
+            p, known_enums, known_structs
+        ).splitlines())
     lines.append("    }")
     lines.append("};")
     lines.append(f"static {c.name}_PropertyRegistrar s_{c.name}_PropertyReg;\n")
     return "\n".join(lines)
 
 
-def emit_property_call(
+def emit_property_registration(
     p: PropertyInfo,
     known_enums: dict[str, EnumInfo],
     known_structs: dict[str, StructInfo],
 ) -> str:
     flags = " | ".join(p.flags)
-    cat = f'"{p.category}"'
     disp = p.display_name or p.name  # PostEditProperty/editor keys off display name
+    lines = [
+        "{",
+        "    FProperty* P = new FProperty();",
+        f'    P->Name = "{disp}";',
+        f"    P->Type = {p.prop_type};",
+        f'    P->Category = "{p.category}";',
+        f"    P->PropertyFlag = {flags};",
+        f"    P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, {p.name}));",
+        f"    P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->{p.name}));",
+    ]
 
     if p.prop_type == "EPropertyType::Float":
-        return (
-            f'PROPERTY_FLOAT({p.name}, "{disp}", {cat}, '
-            f'{p.min or "0.0f"}, {p.max or "0.0f"}, {p.speed or "0.1f"}, {flags})'
-        )
-
-    if p.prop_type == "EPropertyType::Bool":
-        return f'PROPERTY_BOOL({p.name}, "{disp}", {cat}, {flags})'
-
-    if p.prop_type == "EPropertyType::Int":
-        return f'PROPERTY_INT({p.name}, "{disp}", {cat}, {flags})'
-
-    if p.prop_type == "EPropertyType::Vec3":
-        return f'PROPERTY_VEC3({p.name}, "{disp}", {cat}, {flags})'
-
-    if p.prop_type == "EPropertyType::String":
-        return f'PROPERTY_STRING({p.name}, "{disp}", {cat}, {flags})'
+        lines.extend([
+            f'    P->Min = {p.min or "0.0f"};',
+            f'    P->Max = {p.max or "0.0f"};',
+            f'    P->Speed = {p.speed or "0.1f"};',
+        ])
 
     if p.prop_type == "EPropertyType::Array":
         if not p.array_inner_type:
             raise CodegenError(f"TArray property {p.name} has no inner type")
         inner_et, _, _ = classify_type(p.array_inner_type, known_enums, known_structs)
-        return (
-            f'PROPERTY_ARRAY({p.name}, "{disp}", {cat}, {flags}, '
-            f'{p.array_inner_type}, {inner_et}, (void)0)'
-        )
+        lines.extend([
+            f"    P->Accessor = GetTArrayAccessor<{p.array_inner_type}>();",
+            "    FProperty* Inner = new FProperty();",
+            '    Inner->Name = "Element";',
+            f"    Inner->Type = {inner_et};",
+            f'    Inner->Category = "{p.category}";',
+            f"    Inner->ElementSize = static_cast<uint32>(sizeof({p.array_inner_type}));",
+            "    P->Inner = Inner;",
+        ])
 
     if p.prop_type == "EPropertyType::Enum":
         if p.enum_type:
             enum = known_enums.get(p.enum_type)
             if not enum:
                 raise CodegenError(f"unknown generated enum type {p.enum_type}")
-            return (
-                f'PROPERTY_ENUM({p.name}, "{disp}", {cat}, '
-                f'{enum_names_symbol(enum.name)}, {len(enum.entries)}, sizeof({enum.name}), {flags})'
-            )
-
-        if not (p.enum_names and p.enum_count and p.enum_size):
-            raise CodegenError(
-                f"enum property {p.name}: v1 requires EnumNames=, EnumCount=, EnumSize= attributes"
-            )
-        return (
-            f'PROPERTY_ENUM({p.name}, "{disp}", {cat}, '
-            f'{p.enum_names}, {p.enum_count}, {p.enum_size}, {flags})'
-        )
+            lines.extend([
+                f"    P->EnumNames = {enum_names_symbol(enum.name)};",
+                f"    P->EnumCount = {len(enum.entries)};",
+                f"    P->EnumSize = sizeof({enum.name});",
+            ])
+        else:
+            if not (p.enum_names and p.enum_count and p.enum_size):
+                raise CodegenError(
+                    f"enum property {p.name}: v1 requires EnumNames=, EnumCount=, EnumSize= attributes"
+                )
+            lines.extend([
+                f"    P->EnumNames = {p.enum_names};",
+                f"    P->EnumCount = {p.enum_count};",
+                f"    P->EnumSize = {p.enum_size};",
+            ])
 
     if p.prop_type == "EPropertyType::Struct":
         if p.struct_type:
             struct = known_structs.get(p.struct_type)
             if not struct:
                 raise CodegenError(f"unknown generated struct type {p.struct_type}")
-            return (
-                f'PROPERTY_STRUCT({p.name}, "{disp}", {cat}, '
-                f'&{struct.name}::DescribeProperties, {flags})'
-            )
-        if not p.struct_func:
-            raise CodegenError(f"struct property {p.name}: v1 requires StructFunc= attribute")
-        return f'PROPERTY_STRUCT({p.name}, "{disp}", {cat}, {p.struct_func}, {flags})'
+            lines.append(f"    P->StructFunc = &{struct.name}::DescribeProperties;")
+        else:
+            if not p.struct_func:
+                raise CodegenError(f"struct property {p.name}: v1 requires StructFunc= attribute")
+            lines.append(f"    P->StructFunc = {p.struct_func};")
 
-    # Fallback for asset refs (StaticMeshRef etc.) and any explicit Type=
-    return f'REGISTER_PROPERTY({p.name}, "{disp}", {p.prop_type}, {cat}, {flags})'
+    lines.extend([
+        "    Cls->AddProperty(P);",
+        "}",
+    ])
+    return "\n".join(lines)
 
 
 _LUA_PREFIX_STRIP = re.compile(r"^[UAF][A-Z]")

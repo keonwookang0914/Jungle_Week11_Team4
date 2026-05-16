@@ -13,10 +13,59 @@ struct UInterpToMovementComponent_PropertyRegistrar {
         using ThisClass = UInterpToMovementComponent;
         UClass* Cls = UInterpToMovementComponent::StaticClass();
         (void)Cls;
-        PROPERTY_ENUM(InterpBehaviour, "Interpolation Behaviour", "Movement", GInterpBehaviourNames, 4, sizeof(EInterpBehaviour), CPF_Edit)
-        PROPERTY_ARRAY(ControlPoints, "Control Points", "Movement", CPF_Edit, FVector, EPropertyType::Vec3, (void)0)
-        PROPERTY_FLOAT(Duration, "Interp Duration", "Movement", 0.1, 2048.0, 0.1, CPF_Edit)
-        PROPERTY_BOOL(bFaceTargetDir, "Orient to Target Direction", "Movement", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Interpolation Behaviour";
+            P->Type = EPropertyType::Enum;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, InterpBehaviour));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->InterpBehaviour));
+            P->EnumNames = GInterpBehaviourNames;
+            P->EnumCount = 4;
+            P->EnumSize = sizeof(EInterpBehaviour);
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Control Points";
+            P->Type = EPropertyType::Array;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ControlPoints));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ControlPoints));
+            P->Accessor = GetTArrayAccessor<FVector>();
+            FProperty* Inner = new FProperty();
+            Inner->Name = "Element";
+            Inner->Type = EPropertyType::Vec3;
+            Inner->Category = "Movement";
+            Inner->ElementSize = static_cast<uint32>(sizeof(FVector));
+            P->Inner = Inner;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Interp Duration";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Duration));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Duration));
+            P->Min = 0.1;
+            P->Max = 2048.0;
+            P->Speed = 0.1;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Orient to Target Direction";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bFaceTargetDir));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bFaceTargetDir));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UInterpToMovementComponent_PropertyRegistrar s_UInterpToMovementComponent_PropertyReg;

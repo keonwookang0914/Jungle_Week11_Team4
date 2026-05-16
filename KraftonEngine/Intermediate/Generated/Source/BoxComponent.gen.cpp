@@ -13,7 +13,16 @@ struct UBoxComponent_PropertyRegistrar {
         using ThisClass = UBoxComponent;
         UClass* Cls = UBoxComponent::StaticClass();
         (void)Cls;
-        PROPERTY_VEC3(BoxExtent, "Box Extent", "Shape", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Box Extent";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "Shape";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, BoxExtent));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->BoxExtent));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UBoxComponent_PropertyRegistrar s_UBoxComponent_PropertyReg;

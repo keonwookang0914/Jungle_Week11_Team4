@@ -75,7 +75,17 @@ struct UCameraComponent_PropertyRegistrar {
         using ThisClass = UCameraComponent;
         UClass* Cls = UCameraComponent::StaticClass();
         (void)Cls;
-        PROPERTY_STRUCT(CameraState, "Camera State", "Camera", &FCameraState::DescribeProperties, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Camera State";
+            P->Type = EPropertyType::Struct;
+            P->Category = "Camera";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CameraState));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CameraState));
+            P->StructFunc = &FCameraState::DescribeProperties;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UCameraComponent_PropertyRegistrar s_UCameraComponent_PropertyReg;

@@ -13,8 +13,27 @@ struct USceneComponent_PropertyRegistrar {
         using ThisClass = USceneComponent;
         UClass* Cls = USceneComponent::StaticClass();
         (void)Cls;
-        PROPERTY_STRUCT(RelativeTransform, "RelativeTransform", "Transform", &FTransform::DescribeProperties, CPF_Edit)
-        REGISTER_PROPERTY(CachedEditRotator, "Rotation", EPropertyType::Rotator, "Transform", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "RelativeTransform";
+            P->Type = EPropertyType::Struct;
+            P->Category = "Transform";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, RelativeTransform));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->RelativeTransform));
+            P->StructFunc = &FTransform::DescribeProperties;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Rotation";
+            P->Type = EPropertyType::Rotator;
+            P->Category = "Transform";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CachedEditRotator));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CachedEditRotator));
+            Cls->AddProperty(P);
+        }
     }
 };
 static USceneComponent_PropertyRegistrar s_USceneComponent_PropertyReg;

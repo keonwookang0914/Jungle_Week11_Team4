@@ -13,9 +13,39 @@ struct UTextRenderComponent_PropertyRegistrar {
         using ThisClass = UTextRenderComponent;
         UClass* Cls = UTextRenderComponent::StaticClass();
         (void)Cls;
-        PROPERTY_STRING(Text, "Text", "Text", CPF_Edit)
-        REGISTER_PROPERTY(FontName, "Font", EPropertyType::Name, "Text", CPF_Edit)
-        PROPERTY_FLOAT(FontSize, "Font Size", "Text", 0.1f, 100.f, 0.1f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Text";
+            P->Type = EPropertyType::String;
+            P->Category = "Text";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Text));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Text));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Font";
+            P->Type = EPropertyType::Name;
+            P->Category = "Text";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FontName));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FontName));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Font Size";
+            P->Type = EPropertyType::Float;
+            P->Category = "Text";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FontSize));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FontSize));
+            P->Min = 0.1f;
+            P->Max = 100.f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UTextRenderComponent_PropertyRegistrar s_UTextRenderComponent_PropertyReg;

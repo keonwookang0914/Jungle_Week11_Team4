@@ -60,7 +60,17 @@ struct UCineCameraComponent_PropertyRegistrar {
         using ThisClass = UCineCameraComponent;
         UClass* Cls = UCineCameraComponent::StaticClass();
         (void)Cls;
-        PROPERTY_STRUCT(Letterbox, "Letterbox", "Cinematic", &FCineLetterboxSettings::DescribeProperties, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Letterbox";
+            P->Type = EPropertyType::Struct;
+            P->Category = "Cinematic";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Letterbox));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Letterbox));
+            P->StructFunc = &FCineLetterboxSettings::DescribeProperties;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UCineCameraComponent_PropertyRegistrar s_UCineCameraComponent_PropertyReg;

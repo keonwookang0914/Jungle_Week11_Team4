@@ -13,8 +13,33 @@ struct USkinnedMeshComponent_PropertyRegistrar {
         using ThisClass = USkinnedMeshComponent;
         UClass* Cls = USkinnedMeshComponent::StaticClass();
         (void)Cls;
-        REGISTER_PROPERTY(SkeletalMeshPath, "Skeletal Mesh", EPropertyType::SkeletalMeshRef, "Mesh", CPF_Edit)
-        PROPERTY_ARRAY(MaterialSlots, "Materials", "Materials", CPF_Edit | CPF_FixedSize, FMaterialSlot, EPropertyType::MaterialSlot, (void)0)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Skeletal Mesh";
+            P->Type = EPropertyType::SkeletalMeshRef;
+            P->Category = "Mesh";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, SkeletalMeshPath));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->SkeletalMeshPath));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Materials";
+            P->Type = EPropertyType::Array;
+            P->Category = "Materials";
+            P->PropertyFlag = CPF_Edit | CPF_FixedSize;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MaterialSlots));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlots));
+            P->Accessor = GetTArrayAccessor<FMaterialSlot>();
+            FProperty* Inner = new FProperty();
+            Inner->Name = "Element";
+            Inner->Type = EPropertyType::MaterialSlot;
+            Inner->Category = "Materials";
+            Inner->ElementSize = static_cast<uint32>(sizeof(FMaterialSlot));
+            P->Inner = Inner;
+            Cls->AddProperty(P);
+        }
     }
 };
 static USkinnedMeshComponent_PropertyRegistrar s_USkinnedMeshComponent_PropertyReg;

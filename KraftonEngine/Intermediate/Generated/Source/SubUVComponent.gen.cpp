@@ -14,9 +14,39 @@ struct USubUVComponent_PropertyRegistrar {
         UClass* Cls = USubUVComponent::StaticClass();
         (void)Cls;
         HIDE_PROPERTY("Material")
-        REGISTER_PROPERTY(ParticleName, "Particle", EPropertyType::Name, "Particle", CPF_Edit)
-        PROPERTY_FLOAT(PlayRate, "Play Rate", "Particle", 1.0, 120.0, 1.0, CPF_Edit)
-        PROPERTY_BOOL(bLoop, "bLoop", "Particle", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Particle";
+            P->Type = EPropertyType::Name;
+            P->Category = "Particle";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ParticleName));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ParticleName));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Play Rate";
+            P->Type = EPropertyType::Float;
+            P->Category = "Particle";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, PlayRate));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->PlayRate));
+            P->Min = 1.0;
+            P->Max = 120.0;
+            P->Speed = 1.0;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "bLoop";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Particle";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bLoop));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bLoop));
+            Cls->AddProperty(P);
+        }
     }
 };
 static USubUVComponent_PropertyRegistrar s_USubUVComponent_PropertyReg;

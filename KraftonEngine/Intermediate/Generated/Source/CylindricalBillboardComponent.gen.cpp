@@ -13,7 +13,16 @@ struct UCylindricalBillboardComponent_PropertyRegistrar {
         using ThisClass = UCylindricalBillboardComponent;
         UClass* Cls = UCylindricalBillboardComponent::StaticClass();
         (void)Cls;
-        PROPERTY_VEC3(BillboardAxis, "BillboardAxis", "Rendering", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "BillboardAxis";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, BillboardAxis));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->BillboardAxis));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UCylindricalBillboardComponent_PropertyRegistrar s_UCylindricalBillboardComponent_PropertyReg;

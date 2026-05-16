@@ -29,9 +29,9 @@
 // the matching .generated.h, so multiple UCLASSes can coexist in one header
 // without UE's __LINE__ tracking.
 //
-// v1 scope: UENUM/USTRUCT are recognized as markers but do NOT trigger
-// names-table or DescribeProperties emission. Enum/struct UPROPERTY sites
-// must still pass EnumNames=... / StructFunc=... explicitly until v2.
+// UENUM/USTRUCT metadata is emitted by GenerateCode.py when the annotated
+// type itself is generated. Manually declared enum/struct property types can
+// still provide EnumNames=/EnumCount=/EnumSize= or StructFunc= explicitly.
 // ---------------------------------------------------------------------------
 
 #define UCLASS(...)

@@ -13,9 +13,36 @@ struct UActorComponent_PropertyRegistrar {
         using ThisClass = UActorComponent;
         UClass* Cls = UActorComponent::StaticClass();
         (void)Cls;
-        PROPERTY_BOOL(bTickEnable, "bTickEnable", "Component", CPF_Edit)
-        PROPERTY_BOOL(bAutoActivate, "Auto Activate", "Component", CPF_Edit)
-        PROPERTY_BOOL(bEditorOnly, "bEditorOnly", "Component", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "bTickEnable";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Component";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bTickEnable));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bTickEnable));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Auto Activate";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Component";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bAutoActivate));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bAutoActivate));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "bEditorOnly";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Component";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bEditorOnly));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bEditorOnly));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UActorComponent_PropertyRegistrar s_UActorComponent_PropertyReg;

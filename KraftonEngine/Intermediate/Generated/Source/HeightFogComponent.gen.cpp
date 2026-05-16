@@ -13,12 +13,81 @@ struct UHeightFogComponent_PropertyRegistrar {
         using ThisClass = UHeightFogComponent;
         UClass* Cls = UHeightFogComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(FogDensity, "Fog Density", "Fog", 0.0f, 0.05f, 0.001f, CPF_Edit)
-        PROPERTY_FLOAT(FogHeightFalloff, "Height Falloff", "Fog", 0.001f, 5.0f, 0.01f, CPF_Edit)
-        PROPERTY_FLOAT(StartDistance, "Start Distance", "Fog", 0.0f, 100000.0f, 1.0f, CPF_Edit)
-        PROPERTY_FLOAT(FogCutoffDistance, "Cutoff Distance", "Fog", 0.0f, 100000.0f, 1.0f, CPF_Edit)
-        PROPERTY_FLOAT(FogMaxOpacity, "Max Opacity", "Fog", 0.0f, 1.0f, 0.01f, CPF_Edit)
-        REGISTER_PROPERTY(FogInscatteringColor, "Inscattering Color", EPropertyType::Color4, "Fog", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Fog Density";
+            P->Type = EPropertyType::Float;
+            P->Category = "Fog";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FogDensity));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FogDensity));
+            P->Min = 0.0f;
+            P->Max = 0.05f;
+            P->Speed = 0.001f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Height Falloff";
+            P->Type = EPropertyType::Float;
+            P->Category = "Fog";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FogHeightFalloff));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FogHeightFalloff));
+            P->Min = 0.001f;
+            P->Max = 5.0f;
+            P->Speed = 0.01f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Start Distance";
+            P->Type = EPropertyType::Float;
+            P->Category = "Fog";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, StartDistance));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->StartDistance));
+            P->Min = 0.0f;
+            P->Max = 100000.0f;
+            P->Speed = 1.0f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Cutoff Distance";
+            P->Type = EPropertyType::Float;
+            P->Category = "Fog";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FogCutoffDistance));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FogCutoffDistance));
+            P->Min = 0.0f;
+            P->Max = 100000.0f;
+            P->Speed = 1.0f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Max Opacity";
+            P->Type = EPropertyType::Float;
+            P->Category = "Fog";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FogMaxOpacity));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FogMaxOpacity));
+            P->Min = 0.0f;
+            P->Max = 1.0f;
+            P->Speed = 0.01f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Inscattering Color";
+            P->Type = EPropertyType::Color4;
+            P->Category = "Fog";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, FogInscatteringColor));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->FogInscatteringColor));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UHeightFogComponent_PropertyRegistrar s_UHeightFogComponent_PropertyReg;

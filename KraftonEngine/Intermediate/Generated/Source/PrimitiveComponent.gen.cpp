@@ -13,16 +13,116 @@ struct UPrimitiveComponent_PropertyRegistrar {
         using ThisClass = UPrimitiveComponent;
         UClass* Cls = UPrimitiveComponent::StaticClass();
         (void)Cls;
-        PROPERTY_BOOL(bIsVisible, "Is Visible", "Rendering", CPF_Edit)
-        PROPERTY_BOOL(bCastShadow, "Cast Shadow", "Rendering", CPF_Edit)
-        PROPERTY_BOOL(bCastShadowAsTwoSided, "Cast Shadow as Two-Sided", "Rendering", CPF_Edit)
-        PROPERTY_BOOL(bSimulatePhysics, "Simulate Physics", "Collision", CPF_Edit)
-        PROPERTY_BOOL(bGenerateOverlapEvents, "Generate Overlap Events", "Collision", CPF_Edit)
-        PROPERTY_FLOAT(Mass, "Mass (Kg)", "Physics", 0.0, 1000.0, 0.1, CPF_Edit)
-        PROPERTY_VEC3(CenterOfMassOffset, "Center of Mass", "Physics", CPF_Edit)
-        PROPERTY_ENUM(CollisionEnabled, "Collision Enabled", "Collision", GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT, sizeof(ECollisionEnabled), CPF_Edit)
-        PROPERTY_ENUM(ObjectType, "Object Type", "Collision", GCollisionChannelNames, (uint32)ECollisionChannel::ActiveCount, sizeof(ECollisionChannel), CPF_Edit)
-        PROPERTY_STRUCT(ResponseContainer, "Response Container", "Collision", &FCollisionResponseContainer::DescribeProperties, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Is Visible";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bIsVisible));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bIsVisible));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Cast Shadow";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bCastShadow));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bCastShadow));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Cast Shadow as Two-Sided";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Rendering";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bCastShadowAsTwoSided));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bCastShadowAsTwoSided));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Simulate Physics";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Collision";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bSimulatePhysics));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bSimulatePhysics));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Generate Overlap Events";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Collision";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bGenerateOverlapEvents));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bGenerateOverlapEvents));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Mass (Kg)";
+            P->Type = EPropertyType::Float;
+            P->Category = "Physics";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Mass));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Mass));
+            P->Min = 0.0;
+            P->Max = 1000.0;
+            P->Speed = 0.1;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Center of Mass";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "Physics";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CenterOfMassOffset));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CenterOfMassOffset));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Collision Enabled";
+            P->Type = EPropertyType::Enum;
+            P->Category = "Collision";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CollisionEnabled));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CollisionEnabled));
+            P->EnumNames = GCollisionEnabledNames;
+            P->EnumCount = (uint32)ECollisionEnabled::COUNT;
+            P->EnumSize = sizeof(ECollisionEnabled);
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Object Type";
+            P->Type = EPropertyType::Enum;
+            P->Category = "Collision";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ObjectType));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ObjectType));
+            P->EnumNames = GCollisionChannelNames;
+            P->EnumCount = (uint32)ECollisionChannel::ActiveCount;
+            P->EnumSize = sizeof(ECollisionChannel);
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Response Container";
+            P->Type = EPropertyType::Struct;
+            P->Category = "Collision";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ResponseContainer));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ResponseContainer));
+            P->StructFunc = &FCollisionResponseContainer::DescribeProperties;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UPrimitiveComponent_PropertyRegistrar s_UPrimitiveComponent_PropertyReg;

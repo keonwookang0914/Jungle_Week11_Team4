@@ -13,16 +13,121 @@ struct USpringArmComponent_PropertyRegistrar {
         using ThisClass = USpringArmComponent;
         UClass* Cls = USpringArmComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(TargetArmLength, "Target Arm Length", "SpringArm", 0.0, 100000.0, 1.0, CPF_Edit)
-        PROPERTY_VEC3(SocketOffset, "Socket Offset", "SpringArm", CPF_Edit)
-        PROPERTY_VEC3(TargetOffset, "Target Offset", "SpringArm", CPF_Edit)
-        PROPERTY_BOOL(bEnableCameraLag, "Enable Camera Lag", "SpringArm", CPF_Edit)
-        PROPERTY_BOOL(bEnableCameraRotationLag, "Enable Rotation Lag", "SpringArm", CPF_Edit)
-        PROPERTY_FLOAT(CameraLagSpeed, "Camera Lag Speed", "SpringArm", 0.0, 1000.0, 0.1, CPF_Edit)
-        PROPERTY_FLOAT(CameraRotationLagSpeed, "Camera Rotation Lag Speed", "SpringArm", 0.0, 1000.0, 0.1, CPF_Edit)
-        PROPERTY_FLOAT(CameraLagMaxDistance, "Camera Lag Max Distance", "SpringArm", 0.0, 100000.0, 1.0, CPF_Edit)
-        PROPERTY_BOOL(bDoCollisionTest, "Do Collision Test", "SpringArm", CPF_Edit)
-        PROPERTY_FLOAT(ProbeSize, "Probe Size", "SpringArm", 0.0, 100.0, 0.01, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Target Arm Length";
+            P->Type = EPropertyType::Float;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, TargetArmLength));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->TargetArmLength));
+            P->Min = 0.0;
+            P->Max = 100000.0;
+            P->Speed = 1.0;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Socket Offset";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, SocketOffset));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->SocketOffset));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Target Offset";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, TargetOffset));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->TargetOffset));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Enable Camera Lag";
+            P->Type = EPropertyType::Bool;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bEnableCameraLag));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bEnableCameraLag));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Enable Rotation Lag";
+            P->Type = EPropertyType::Bool;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bEnableCameraRotationLag));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bEnableCameraRotationLag));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Camera Lag Speed";
+            P->Type = EPropertyType::Float;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CameraLagSpeed));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CameraLagSpeed));
+            P->Min = 0.0;
+            P->Max = 1000.0;
+            P->Speed = 0.1;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Camera Rotation Lag Speed";
+            P->Type = EPropertyType::Float;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CameraRotationLagSpeed));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CameraRotationLagSpeed));
+            P->Min = 0.0;
+            P->Max = 1000.0;
+            P->Speed = 0.1;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Camera Lag Max Distance";
+            P->Type = EPropertyType::Float;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CameraLagMaxDistance));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CameraLagMaxDistance));
+            P->Min = 0.0;
+            P->Max = 100000.0;
+            P->Speed = 1.0;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Do Collision Test";
+            P->Type = EPropertyType::Bool;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bDoCollisionTest));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bDoCollisionTest));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Probe Size";
+            P->Type = EPropertyType::Float;
+            P->Category = "SpringArm";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ProbeSize));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ProbeSize));
+            P->Min = 0.0;
+            P->Max = 100.0;
+            P->Speed = 0.01;
+            Cls->AddProperty(P);
+        }
     }
 };
 static USpringArmComponent_PropertyRegistrar s_USpringArmComponent_PropertyReg;

@@ -13,8 +13,26 @@ struct UShapeComponent_PropertyRegistrar {
         using ThisClass = UShapeComponent;
         UClass* Cls = UShapeComponent::StaticClass();
         (void)Cls;
-        REGISTER_PROPERTY(ShapeColor, "Shape Color", EPropertyType::Color4, "Shape", CPF_Edit)
-        PROPERTY_BOOL(bDrawOnlyIfSelected, "Draw Only If Selected", "Shape", CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Shape Color";
+            P->Type = EPropertyType::Color4;
+            P->Category = "Shape";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, ShapeColor));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->ShapeColor));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Draw Only If Selected";
+            P->Type = EPropertyType::Bool;
+            P->Category = "Shape";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, bDrawOnlyIfSelected));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->bDrawOnlyIfSelected));
+            Cls->AddProperty(P);
+        }
     }
 };
 static UShapeComponent_PropertyRegistrar s_UShapeComponent_PropertyReg;

@@ -13,11 +13,68 @@ struct UPendulumMovementComponent_PropertyRegistrar {
         using ThisClass = UPendulumMovementComponent;
         UClass* Cls = UPendulumMovementComponent::StaticClass();
         (void)Cls;
-        PROPERTY_VEC3(Axis, "Swing Axis", "Movement", CPF_Edit)
-        PROPERTY_FLOAT(Amplitude, "Amplitude (deg)", "Movement", 0.0f, 180.0f, 0.5f, CPF_Edit)
-        PROPERTY_FLOAT(Frequency, "Frequency (Hz)", "Movement", 0.01f, 10.0f, 0.01f, CPF_Edit)
-        PROPERTY_FLOAT(Phase, "Phase (deg)", "Movement", 0.0f, 360.0f, 1.0f, CPF_Edit)
-        PROPERTY_FLOAT(AngleOffset, "Angle Offset (deg)", "Movement", -180.0f, 180.0f, 0.5f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Swing Axis";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Axis));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Axis));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Amplitude (deg)";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Amplitude));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Amplitude));
+            P->Min = 0.0f;
+            P->Max = 180.0f;
+            P->Speed = 0.5f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Frequency (Hz)";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Frequency));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Frequency));
+            P->Min = 0.01f;
+            P->Max = 10.0f;
+            P->Speed = 0.01f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Phase (deg)";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Phase));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Phase));
+            P->Min = 0.0f;
+            P->Max = 360.0f;
+            P->Speed = 1.0f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Angle Offset (deg)";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, AngleOffset));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->AngleOffset));
+            P->Min = -180.0f;
+            P->Max = 180.0f;
+            P->Speed = 0.5f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UPendulumMovementComponent_PropertyRegistrar s_UPendulumMovementComponent_PropertyReg;

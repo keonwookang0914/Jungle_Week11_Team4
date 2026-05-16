@@ -13,8 +13,32 @@ struct USpotLightComponent_PropertyRegistrar {
         using ThisClass = USpotLightComponent;
         UClass* Cls = USpotLightComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(InnerConeAngle, "InnerConeAngle", "Lighting", 0.0f, 89.0f, 0.1f, CPF_Edit)
-        PROPERTY_FLOAT(OuterConeAngle, "OuterConeAngle", "Lighting", 0.0f, 89.0f, 0.1f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "InnerConeAngle";
+            P->Type = EPropertyType::Float;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, InnerConeAngle));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->InnerConeAngle));
+            P->Min = 0.0f;
+            P->Max = 89.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "OuterConeAngle";
+            P->Type = EPropertyType::Float;
+            P->Category = "Lighting";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, OuterConeAngle));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->OuterConeAngle));
+            P->Min = 0.0f;
+            P->Max = 89.0f;
+            P->Speed = 0.1f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static USpotLightComponent_PropertyRegistrar s_USpotLightComponent_PropertyReg;

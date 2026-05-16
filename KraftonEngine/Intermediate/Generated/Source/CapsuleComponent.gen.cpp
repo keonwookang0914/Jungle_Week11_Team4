@@ -13,8 +13,32 @@ struct UCapsuleComponent_PropertyRegistrar {
         using ThisClass = UCapsuleComponent;
         UClass* Cls = UCapsuleComponent::StaticClass();
         (void)Cls;
-        PROPERTY_FLOAT(CapsuleRadius, "Capsule Radius", "Shape", 0.01f, 10000.0f, 1.0f, CPF_Edit)
-        PROPERTY_FLOAT(CapsuleHalfHeight, "Capsule Half Height", "Shape", 0.01f, 10000.0f, 1.0f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Capsule Radius";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shape";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CapsuleRadius));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CapsuleRadius));
+            P->Min = 0.01f;
+            P->Max = 10000.0f;
+            P->Speed = 1.0f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Capsule Half Height";
+            P->Type = EPropertyType::Float;
+            P->Category = "Shape";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, CapsuleHalfHeight));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->CapsuleHalfHeight));
+            P->Min = 0.01f;
+            P->Max = 10000.0f;
+            P->Speed = 1.0f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UCapsuleComponent_PropertyRegistrar s_UCapsuleComponent_PropertyReg;

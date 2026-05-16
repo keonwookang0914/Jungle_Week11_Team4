@@ -13,9 +13,42 @@ struct UProjectileMovementComponent_PropertyRegistrar {
         using ThisClass = UProjectileMovementComponent;
         UClass* Cls = UProjectileMovementComponent::StaticClass();
         (void)Cls;
-        PROPERTY_VEC3(Velocity, "Velocity", "Movement", CPF_Edit)
-        PROPERTY_FLOAT(InitialSpeed, "Initial Speed", "Movement", 0.0f, 0.0f, 10.0f, CPF_Edit)
-        PROPERTY_FLOAT(MaxSpeed, "Max Speed", "Movement", 0.0f, 0.0f, 10.0f, CPF_Edit)
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Velocity";
+            P->Type = EPropertyType::Vec3;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, Velocity));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->Velocity));
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Initial Speed";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, InitialSpeed));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->InitialSpeed));
+            P->Min = 0.0f;
+            P->Max = 0.0f;
+            P->Speed = 10.0f;
+            Cls->AddProperty(P);
+        }
+        {
+            FProperty* P = new FProperty();
+            P->Name = "Max Speed";
+            P->Type = EPropertyType::Float;
+            P->Category = "Movement";
+            P->PropertyFlag = CPF_Edit;
+            P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, MaxSpeed));
+            P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->MaxSpeed));
+            P->Min = 0.0f;
+            P->Max = 0.0f;
+            P->Speed = 10.0f;
+            Cls->AddProperty(P);
+        }
     }
 };
 static UProjectileMovementComponent_PropertyRegistrar s_UProjectileMovementComponent_PropertyReg;
