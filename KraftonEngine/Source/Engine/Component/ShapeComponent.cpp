@@ -1,12 +1,10 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 #include "ShapeComponent.h"
 #include "Object/ObjectFactory.h"
 #include "Serialization/Archive.h"
 #include "Render/Proxy/ShapeSceneProxy.h"
 
 #include <cstring>
-
-HIDE_FROM_COMPONENT_LIST(UShapeComponent)
 
 UShapeComponent::UShapeComponent()
 {

@@ -12,7 +12,7 @@ class USceneComponent;
  * USceneComponent를 움직이는 로직들의 베이스 클래스.
  * 실제 이동 로직은 자식 클래스에서 담당합니다.
  */
-UCLASS()
+UCLASS(HiddenInComponentList)
 class UMovementComponent : public UActorComponent
 {
 public:

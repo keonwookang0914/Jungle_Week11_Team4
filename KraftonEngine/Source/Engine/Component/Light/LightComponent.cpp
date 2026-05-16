@@ -2,8 +2,6 @@
 #include "Serialization/Archive.h"
 #include "Object/ObjectFactory.h"
 
-HIDE_FROM_COMPONENT_LIST(ULightComponent)
-
 void ULightComponent::Serialize(FArchive& Ar)
 {
 	ULightComponentBase::Serialize(Ar);

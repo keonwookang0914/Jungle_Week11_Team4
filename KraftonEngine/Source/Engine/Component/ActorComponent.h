@@ -8,7 +8,7 @@ class AActor;
 class UWorld;
 class FScene;
 
-UCLASS()
+UCLASS(HiddenInComponentList)
 class UActorComponent : public UObject
 {
     friend struct FActorComponentTickFunction;

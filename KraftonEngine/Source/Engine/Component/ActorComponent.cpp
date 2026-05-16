@@ -3,8 +3,6 @@
 #include "Serialization/Archive.h"
 #include "GameFramework/AActor.h"
 
-HIDE_FROM_COMPONENT_LIST(UActorComponent)
-
 void UActorComponent::BeginPlay()
 {
 	if (bAutoActivate)

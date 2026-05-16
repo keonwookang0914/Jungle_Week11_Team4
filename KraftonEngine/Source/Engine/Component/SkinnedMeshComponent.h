@@ -13,7 +13,7 @@ class UMaterial;
 // Mesh/Material 경로 관리, CPU skinning 결과, bone edit pose, bounds dirty 처리를
 // 한 곳에 모아 USkeletalMeshComponent가 렌더 proxy용 얇은 wrapper로 남을 수 있게 한다.
 // ==================================================================================
-UCLASS()
+UCLASS(HiddenInComponentList)
 class USkinnedMeshComponent : public UMeshComponent
 {
 public:

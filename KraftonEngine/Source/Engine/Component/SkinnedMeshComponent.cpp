@@ -6,8 +6,6 @@
 #include "Collision/RayUtils.h"
 #include "Core/Log.h"
 
-HIDE_FROM_COMPONENT_LIST(USkinnedMeshComponent)
-
 namespace
 {
 	constexpr float MatrixDecomposeTolerance = 1.0e-6f;

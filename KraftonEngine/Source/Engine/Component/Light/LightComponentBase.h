@@ -21,7 +21,7 @@ struct FLightViewProjResult
 
 struct FMinimalViewInfo;
 
-UCLASS()
+UCLASS(HiddenInComponentList)
 class ULightComponentBase : public USceneComponent
 {
 public:

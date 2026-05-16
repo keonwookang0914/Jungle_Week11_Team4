@@ -1,11 +1,11 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 #pragma once
 
 #include "PrimitiveComponent.h"
 #include "Core/EngineTypes.h"
 #include "ShapeComponent.generated.h"
 
-UCLASS()
+UCLASS(HiddenInComponentList)
 class UShapeComponent : public UPrimitiveComponent
 {
 public:

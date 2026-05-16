@@ -9,9 +9,6 @@
 #include <cstring>
 #include <sstream>
 
-// Base movement logic only; concrete movement types should be added instead.
-HIDE_FROM_COMPONENT_LIST(UMovementComponent)
-
 namespace
 {
 	constexpr const char* RootComponentPathToken = "Root";

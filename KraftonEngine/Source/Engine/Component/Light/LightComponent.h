@@ -2,7 +2,7 @@
 #include "Component/Light/LightComponentBase.h"
 #include "LightComponent.generated.h"
 
-UCLASS()
+UCLASS(HiddenInComponentList)
 class ULightComponent : public ULightComponentBase
 {
 public:
