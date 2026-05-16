@@ -4,7 +4,7 @@
 
 UClass USkinnedMeshComponent::StaticClassInstance(
     "USkinnedMeshComponent", &UMeshComponent::StaticClassInstance,
-    sizeof(USkinnedMeshComponent), CF_None);
+    sizeof(USkinnedMeshComponent), CF_HiddenInComponentList);
 FClassRegistrar USkinnedMeshComponent::s_Registrar(&USkinnedMeshComponent::StaticClassInstance);
 REGISTER_FACTORY(USkinnedMeshComponent)
 

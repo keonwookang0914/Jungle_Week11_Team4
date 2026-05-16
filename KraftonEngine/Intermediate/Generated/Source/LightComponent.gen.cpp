@@ -4,7 +4,7 @@
 
 UClass ULightComponent::StaticClassInstance(
     "ULightComponent", &ULightComponentBase::StaticClassInstance,
-    sizeof(ULightComponent), CF_None);
+    sizeof(ULightComponent), CF_HiddenInComponentList);
 FClassRegistrar ULightComponent::s_Registrar(&ULightComponent::StaticClassInstance);
 REGISTER_FACTORY(ULightComponent)
 

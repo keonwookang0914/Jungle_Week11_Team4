@@ -647,45 +647,16 @@ def emit_struct_child_property(
         f"        Desc.PropertyFlag = {flags};",
     ]
 
-    if p.prop_type == "EPropertyType::Float":
-        lines.extend([
-            f'        Desc.Min = {p.min or "0.0f"};',
-            f'        Desc.Max = {p.max or "0.0f"};',
-            f'        Desc.Speed = {p.speed or "0.1f"};',
-        ])
-    elif p.prop_type == "EPropertyType::Enum":
-        if p.enum_type:
-            enum = known_enums.get(p.enum_type)
-            if not enum:
-                raise CodegenError(f"unknown generated enum type {p.enum_type}")
-            lines.extend([
-                f"        Desc.EnumNames = {enum_names_symbol(enum.name)};",
-                f"        Desc.EnumCount = {len(enum.entries)};",
-                f"        Desc.EnumSize = sizeof({enum.name});",
-            ])
-        elif p.enum_names and p.enum_count and p.enum_size:
-            lines.extend([
-                f"        Desc.EnumNames = {p.enum_names};",
-                f"        Desc.EnumCount = {p.enum_count};",
-                f"        Desc.EnumSize = {p.enum_size};",
-            ])
-        else:
-            raise CodegenError(
-                f"enum struct field {p.name}: v1 requires generated UENUM or EnumNames=/EnumCount=/EnumSize="
-            )
-    elif p.prop_type == "EPropertyType::Struct":
-        if p.struct_type:
-            struct = known_structs.get(p.struct_type)
-            if not struct:
-                raise CodegenError(f"unknown generated struct type {p.struct_type}")
-            lines.append(f"        Desc.StructFunc = &{struct.name}::DescribeProperties;")
-        elif p.struct_func:
-            lines.append(f"        Desc.StructFunc = {p.struct_func};")
-        else:
-            raise CodegenError(
-                f"struct field {p.name}: v1 requires generated USTRUCT or StructFunc="
-            )
-    elif p.prop_type == "EPropertyType::Array":
+    lines.extend(emit_property_type_metadata(
+        p,
+        target_prefix="Desc.",
+        indent="        ",
+        known_enums=known_enums,
+        known_structs=known_structs,
+        error_context="struct field",
+    ))
+
+    if p.prop_type == "EPropertyType::Array":
         raise CodegenError(f"array struct field {p.name}: v1 struct arrays are not supported")
 
     lines.extend([
@@ -709,6 +680,64 @@ def emit_class_static(c: ClassInfo) -> str:
     if not c.no_factory:
         parts.append(f"REGISTER_FACTORY({c.name})")
     return "\n".join(parts) + "\n"
+
+
+def emit_property_type_metadata(
+    p: PropertyInfo,
+    *,
+    target_prefix: str,
+    indent: str,
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+    error_context: str,
+) -> list[str]:
+    """Emit metadata shared by class and struct property descriptors.
+
+    Descriptor ownership and address binding differ between the two callers,
+    but float/enum/struct metadata rules should stay identical.
+    """
+    lines: list[str] = []
+
+    if p.prop_type == "EPropertyType::Float":
+        lines.extend([
+            f'{indent}{target_prefix}Min = {p.min or "0.0f"};',
+            f'{indent}{target_prefix}Max = {p.max or "0.0f"};',
+            f'{indent}{target_prefix}Speed = {p.speed or "0.1f"};',
+        ])
+    elif p.prop_type == "EPropertyType::Enum":
+        if p.enum_type:
+            enum = known_enums.get(p.enum_type)
+            if not enum:
+                raise CodegenError(f"unknown generated enum type {p.enum_type}")
+            lines.extend([
+                f"{indent}{target_prefix}EnumNames = {enum_names_symbol(enum.name)};",
+                f"{indent}{target_prefix}EnumCount = {len(enum.entries)};",
+                f"{indent}{target_prefix}EnumSize = sizeof({enum.name});",
+            ])
+        elif p.enum_names and p.enum_count and p.enum_size:
+            lines.extend([
+                f"{indent}{target_prefix}EnumNames = {p.enum_names};",
+                f"{indent}{target_prefix}EnumCount = {p.enum_count};",
+                f"{indent}{target_prefix}EnumSize = {p.enum_size};",
+            ])
+        else:
+            raise CodegenError(
+                f"enum {error_context} {p.name}: v1 requires generated UENUM or EnumNames=/EnumCount=/EnumSize="
+            )
+    elif p.prop_type == "EPropertyType::Struct":
+        if p.struct_type:
+            struct = known_structs.get(p.struct_type)
+            if not struct:
+                raise CodegenError(f"unknown generated struct type {p.struct_type}")
+            lines.append(f"{indent}{target_prefix}StructFunc = &{struct.name}::DescribeProperties;")
+        elif p.struct_func:
+            lines.append(f"{indent}{target_prefix}StructFunc = {p.struct_func};")
+        else:
+            raise CodegenError(
+                f"struct {error_context} {p.name}: v1 requires generated USTRUCT or StructFunc="
+            )
+
+    return lines
 
 
 def emit_property_registrar(
@@ -760,12 +789,14 @@ def emit_property_registration(
         f"    P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->{p.name}));",
     ]
 
-    if p.prop_type == "EPropertyType::Float":
-        lines.extend([
-            f'    P->Min = {p.min or "0.0f"};',
-            f'    P->Max = {p.max or "0.0f"};',
-            f'    P->Speed = {p.speed or "0.1f"};',
-        ])
+    lines.extend(emit_property_type_metadata(
+        p,
+        target_prefix="P->",
+        indent="    ",
+        known_enums=known_enums,
+        known_structs=known_structs,
+        error_context="property",
+    ))
 
     if p.prop_type == "EPropertyType::Array":
         if not p.array_inner_type:
@@ -780,38 +811,6 @@ def emit_property_registration(
             f"    Inner->ElementSize = static_cast<uint32>(sizeof({p.array_inner_type}));",
             "    P->Inner = Inner;",
         ])
-
-    if p.prop_type == "EPropertyType::Enum":
-        if p.enum_type:
-            enum = known_enums.get(p.enum_type)
-            if not enum:
-                raise CodegenError(f"unknown generated enum type {p.enum_type}")
-            lines.extend([
-                f"    P->EnumNames = {enum_names_symbol(enum.name)};",
-                f"    P->EnumCount = {len(enum.entries)};",
-                f"    P->EnumSize = sizeof({enum.name});",
-            ])
-        else:
-            if not (p.enum_names and p.enum_count and p.enum_size):
-                raise CodegenError(
-                    f"enum property {p.name}: v1 requires EnumNames=, EnumCount=, EnumSize= attributes"
-                )
-            lines.extend([
-                f"    P->EnumNames = {p.enum_names};",
-                f"    P->EnumCount = {p.enum_count};",
-                f"    P->EnumSize = {p.enum_size};",
-            ])
-
-    if p.prop_type == "EPropertyType::Struct":
-        if p.struct_type:
-            struct = known_structs.get(p.struct_type)
-            if not struct:
-                raise CodegenError(f"unknown generated struct type {p.struct_type}")
-            lines.append(f"    P->StructFunc = &{struct.name}::DescribeProperties;")
-        else:
-            if not p.struct_func:
-                raise CodegenError(f"struct property {p.name}: v1 requires StructFunc= attribute")
-            lines.append(f"    P->StructFunc = {p.struct_func};")
 
     lines.extend([
         "    Cls->AddProperty(P);",

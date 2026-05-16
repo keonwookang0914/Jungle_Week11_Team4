@@ -4,7 +4,7 @@
 
 UClass UMovementComponent::StaticClassInstance(
     "UMovementComponent", &UActorComponent::StaticClassInstance,
-    sizeof(UMovementComponent), CF_None);
+    sizeof(UMovementComponent), CF_HiddenInComponentList);
 FClassRegistrar UMovementComponent::s_Registrar(&UMovementComponent::StaticClassInstance);
 REGISTER_FACTORY(UMovementComponent)
 

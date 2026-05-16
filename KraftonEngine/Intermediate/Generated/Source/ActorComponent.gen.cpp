@@ -4,7 +4,7 @@
 
 UClass UActorComponent::StaticClassInstance(
     "UActorComponent", &UObject::StaticClassInstance,
-    sizeof(UActorComponent), CF_None);
+    sizeof(UActorComponent), CF_HiddenInComponentList);
 FClassRegistrar UActorComponent::s_Registrar(&UActorComponent::StaticClassInstance);
 REGISTER_FACTORY(UActorComponent)
 

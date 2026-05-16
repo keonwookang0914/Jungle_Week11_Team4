@@ -4,7 +4,7 @@
 
 UClass UShapeComponent::StaticClassInstance(
     "UShapeComponent", &UPrimitiveComponent::StaticClassInstance,
-    sizeof(UShapeComponent), CF_None);
+    sizeof(UShapeComponent), CF_HiddenInComponentList);
 FClassRegistrar UShapeComponent::s_Registrar(&UShapeComponent::StaticClassInstance);
 REGISTER_FACTORY(UShapeComponent)
 

@@ -4,7 +4,7 @@
 
 UClass ULightComponentBase::StaticClassInstance(
     "ULightComponentBase", &USceneComponent::StaticClassInstance,
-    sizeof(ULightComponentBase), CF_None);
+    sizeof(ULightComponentBase), CF_HiddenInComponentList);
 FClassRegistrar ULightComponentBase::s_Registrar(&ULightComponentBase::StaticClassInstance);
 REGISTER_FACTORY(ULightComponentBase)
 
