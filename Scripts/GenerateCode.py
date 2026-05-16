@@ -53,7 +53,7 @@ def discover_headers() -> list[Path]:
             continue
         for path in root.rglob("*.h"):
             text = path.read_text(encoding="utf-8-sig")  # tolerate BOM
-            if "UCLASS(" in text:
+            if any(marker in text for marker in ("UCLASS(", "UENUM(", "USTRUCT(")):
                 headers.append(path)
     return headers
 
@@ -111,6 +111,17 @@ class ClassInfo:
     functions: list[FunctionInfo] = field(default_factory=list)
     no_factory: bool = False  # UCLASS(NoFactory) — skip FObjectFactory registration
 
+@dataclass
+class EnumInfo:
+    name: str
+    entries: list[str]
+    underlying_type: str | None = None
+
+@dataclass
+class HeaderInfo:
+    classes: list[ClassInfo] = field(default_factory=list)
+    enums: list[EnumInfo] = field(default_factory=list)
+
 
 # ──────────────────────────────────────────────
 # Regex Patterns
@@ -125,6 +136,13 @@ CLASS_RE = re.compile(
     rf"UCLASS\s*\({ANNOTATION_ARGS_RE}\)\s*"
     r"class\s+(?:\w+\s+)?(\w+)\s*"          # optional API-export tag
     r":\s*public\s+(\w+)",                  # single public base
+    re.MULTILINE,
+)
+
+ENUM_RE = re.compile(
+    rf"UENUM\s*\({ANNOTATION_ARGS_RE}\)\s*"
+    r"enum\s+class\s+(\w+)"
+    r"(?:\s*:\s*(\w+))?",
     re.MULTILINE,
 )
 
@@ -246,7 +264,7 @@ def classify_type(cpp_type: str) -> tuple[str, str | None, str | None]:
 # ──────────────────────────────────────────────
 # Header Parser
 # ──────────────────────────────────────────────
-def find_class_body(src: str, start_idx: int) -> str:
+def find_braced_body(src: str, start_idx: int) -> str:
     """Given an offset just after the class declaration, return text between
     the matching {...}. Handles nested braces (inner struct/method bodies)."""
     i = src.find("{", start_idx)
@@ -328,7 +346,7 @@ def parse_header(path: Path) -> list[ClassInfo]:
             [CLASS_FLAG_MAP.get(f, f"CF_{f}") for f in runtime_flags_raw] or ["CF_None"]
         )
 
-        body = find_class_body(text, m.end())
+        body = find_braced_body(text, m.end())
         if not body:
             raise CodegenError(f"{path}: could not locate class body for {name}")
 
