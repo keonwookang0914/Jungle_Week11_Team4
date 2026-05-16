@@ -4,14 +4,16 @@
 #include "Core/Delegate.h"
 #include "Math/Vector.h"
 #include <sol/sol.hpp>
+#include "LuaScriptComponent.generated.h"
 
 class UPrimitiveComponent;
 struct FHitResult;
 
+UCLASS()
 class ULuaScriptComponent : public UActorComponent
 {
 public:
-	DECLARE_CLASS(ULuaScriptComponent, UActorComponent)
+	GENERATED_BODY(ULuaScriptComponent)
 
 	ULuaScriptComponent();
 	~ULuaScriptComponent();
@@ -64,6 +66,7 @@ private:
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp);
 
+	UPROPERTY(Edit, Category="Script", DisplayName="ScriptFile", Type=Script)
 	FString ScriptFile;
 	
 	sol::environment Env;

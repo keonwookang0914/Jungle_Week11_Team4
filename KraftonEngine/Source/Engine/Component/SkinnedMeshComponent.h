@@ -3,6 +3,7 @@
 
 #include "Math/Rotator.h"
 #include "Math/Transform.h"
+#include "SkinnedMeshComponent.generated.h"
 
 class USkeletalMesh;
 class UMaterial;
@@ -12,10 +13,11 @@ class UMaterial;
 // Mesh/Material 경로 관리, CPU skinning 결과, bone edit pose, bounds dirty 처리를
 // 한 곳에 모아 USkeletalMeshComponent가 렌더 proxy용 얇은 wrapper로 남을 수 있게 한다.
 // ==================================================================================
+UCLASS()
 class USkinnedMeshComponent : public UMeshComponent
 {
 public:
-	DECLARE_CLASS(USkinnedMeshComponent, UMeshComponent)
+	GENERATED_BODY(USkinnedMeshComponent)
 
 	USkinnedMeshComponent() = default;
 	~USkinnedMeshComponent() override = default;
@@ -76,8 +78,10 @@ protected:
 protected:
 	// Mesh/material state는 SetSkeletalMesh와 PostEditProperty가 같은 경로를 쓰도록 여기서 소유한다.
 	USkeletalMesh* SkeletalMesh = nullptr;
+	UPROPERTY(Edit, Category="Mesh", DisplayName="Skeletal Mesh", Type=SkeletalMeshRef)
 	FString SkeletalMeshPath = "None";
 	TArray<UMaterial*> OverrideMaterials;
+	UPROPERTY(Edit, FixedSize, Category="Materials", DisplayName="Materials")
 	TArray<FMaterialSlot> MaterialSlots;
 
 	// Bone edit pose는 asset 원본 bone을 직접 바꾸지 않고 component-local override로만 유지한다.

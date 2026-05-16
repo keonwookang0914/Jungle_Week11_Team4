@@ -6,13 +6,7 @@
 #include "Collision/RayUtils.h"
 #include "Core/Log.h"
 
-IMPLEMENT_CLASS(USkinnedMeshComponent, UMeshComponent)
 HIDE_FROM_COMPONENT_LIST(USkinnedMeshComponent)
-
-BEGIN_CLASS_PROPERTIES(USkinnedMeshComponent)
-	REGISTER_PROPERTY(SkeletalMeshPath, "Skeletal Mesh", EPropertyType::SkeletalMeshRef, "Mesh", CPF_Edit)
-	PROPERTY_ARRAY(MaterialSlots, "Materials", "Materials", CPF_Edit | CPF_FixedSize, FMaterialSlot, EPropertyType::MaterialSlot, (void)0)
-END_CLASS_PROPERTIES(USkinnedMeshComponent)
 
 namespace
 {

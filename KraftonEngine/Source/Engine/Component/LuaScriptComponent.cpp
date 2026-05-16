@@ -8,12 +8,6 @@
 #include "Object/ObjectFactory.h"
 #include "Serialization/Archive.h"
 
-IMPLEMENT_CLASS(ULuaScriptComponent, UActorComponent)
-
-BEGIN_CLASS_PROPERTIES(ULuaScriptComponent)
-	REGISTER_PROPERTY(ScriptFile, "ScriptFile", EPropertyType::Script, "Script", CPF_Edit)
-END_CLASS_PROPERTIES(ULuaScriptComponent)
-
 ULuaScriptComponent::ULuaScriptComponent()
 {
 }
