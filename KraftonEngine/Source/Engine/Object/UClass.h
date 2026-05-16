@@ -27,6 +27,14 @@ public:
 
 	~UClass()
 	{
+		for (uint32 i = 0; i < Properties.size(); i++)
+		{
+			if (Properties[i])
+			{
+				delete Properties[i];
+				Properties[i] = nullptr;
+			}
+		}
 		Properties.clear();
 	}
 
