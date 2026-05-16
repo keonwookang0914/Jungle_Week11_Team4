@@ -13,16 +13,16 @@ struct UPrimitiveComponent_PropertyRegistrar {
         using ThisClass = UPrimitiveComponent;
         UClass* Cls = UPrimitiveComponent::StaticClass();
         (void)Cls;
-        PROPERTY_BOOL(bIsVisible, "FName::NameToDisplayString(bIsVisible", "Rendering", CPF_Edit | CPF_true))
-        PROPERTY_BOOL(bCastShadow, "FName::NameToDisplayString(bCastShadow", "Rendering", CPF_Edit | CPF_true))
-        PROPERTY_BOOL(bCastShadowAsTwoSided, "FName::NameToDisplayString(bCastShadowAsTwoSided", "Rendering", CPF_Edit | CPF_true))
-        PROPERTY_BOOL(bSimulatePhysics, "FName::NameToDisplayString(bSimulatePhysics", "Collision", CPF_Edit | CPF_true))
-        PROPERTY_BOOL(bGenerateOverlapEvents, "FName::NameToDisplayString(bGenerateOverlapEvents", "Collision", CPF_Edit | CPF_true))
-        PROPERTY_FLOAT(Mass, "FName::NameToDisplayString(Mass", "Physics", 0.0, 1000.0, 0.1, CPF_Edit | CPF_false))
-        PROPERTY_VEC3(CenterOfMassOffset, "FName::NameToDisplayString(Center of Mass", "Physics", CPF_Edit | CPF_false))
-        PROPERTY_ENUM(CollisionEnabled, "FName::NameToDisplayString(CollisionEnabled", "Collision", GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT, sizeof(ECollisionEnabled), CPF_Edit | CPF_false))
-        PROPERTY_ENUM(ObjectType, "FName::NameToDisplayString(Object Type", "Collision", GCollisionChannelNames, (uint32)ECollisionChannel::ActiveCount, sizeof(ECollisionChannel), CPF_Edit | CPF_false))
-        PROPERTY_STRUCT(ResponseContainer, "FName::NameToDisplayString(Response Container", "Collision", &FCollisionResponseContainer::DescribeProperties, CPF_Edit | CPF_false))
+        PROPERTY_BOOL(bIsVisible, "Is Visible", "Rendering", CPF_Edit)
+        PROPERTY_BOOL(bCastShadow, "Cast Shadow", "Rendering", CPF_Edit)
+        PROPERTY_BOOL(bCastShadowAsTwoSided, "Cast Shadow as Two-Sided", "Rendering", CPF_Edit)
+        PROPERTY_BOOL(bSimulatePhysics, "Simulate Physics", "Collision", CPF_Edit)
+        PROPERTY_BOOL(bGenerateOverlapEvents, "Generate Overlap Events", "Collision", CPF_Edit)
+        PROPERTY_FLOAT(Mass, "Mass (Kg)", "Physics", 0.0, 1000.0, 0.1, CPF_Edit)
+        PROPERTY_VEC3(CenterOfMassOffset, "Center of Mass", "Physics", CPF_Edit)
+        PROPERTY_ENUM(CollisionEnabled, "Collision Enabled", "Collision", GCollisionEnabledNames, (uint32)ECollisionEnabled::COUNT, sizeof(ECollisionEnabled), CPF_Edit)
+        PROPERTY_ENUM(ObjectType, "Object Type", "Collision", GCollisionChannelNames, (uint32)ECollisionChannel::ActiveCount, sizeof(ECollisionChannel), CPF_Edit)
+        PROPERTY_STRUCT(ResponseContainer, "Response Container", "Collision", &FCollisionResponseContainer::DescribeProperties, CPF_Edit)
     }
 };
 static UPrimitiveComponent_PropertyRegistrar s_UPrimitiveComponent_PropertyReg;
