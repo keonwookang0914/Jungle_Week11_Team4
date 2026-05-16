@@ -115,9 +115,14 @@ class ClassInfo:
 # ──────────────────────────────────────────────
 # Regex Patterns
 # ──────────────────────────────────────────────
+# Annotation argument lists may contain quoted strings with ')' characters,
+# e.g. DisplayName="Amplitude (deg)". Keep the regex parser small, but do not
+# terminate an annotation while still inside a quoted string.
+ANNOTATION_ARGS_RE = r'((?:[^)"\n]|"[^"]*")*)'
+
 # UCLASS(...) followed by class declaration. Captures: flags, class name, parent.
 CLASS_RE = re.compile(
-    r"UCLASS\s*\(([^)]*)\)\s*"
+    rf"UCLASS\s*\({ANNOTATION_ARGS_RE}\)\s*"
     r"class\s+(?:\w+\s+)?(\w+)\s*"          # optional API-export tag
     r":\s*public\s+(\w+)",                  # single public base
     re.MULTILINE,
@@ -125,13 +130,13 @@ CLASS_RE = re.compile(
 
 # UPROPERTY(...) <decl-up-to-semicolon> ;
 PROPERTY_RE = re.compile(
-    r"UPROPERTY\s*\(([^)]*)\)\s*([^;]+);",
+    rf"UPROPERTY\s*\({ANNOTATION_ARGS_RE}\)\s*([^;]+);",
     re.MULTILINE,
 )
 
 # UFUNCTION(...) <return-type> <name> ( ... ) ;
 FUNCTION_RE = re.compile(
-    r"UFUNCTION\s*\(([^)]*)\)\s*"
+    rf"UFUNCTION\s*\({ANNOTATION_ARGS_RE}\)\s*"
     r"[\w\s\*&:<>,]+?\s+"                   # return type (greedy-ish)
     r"(\w+)\s*\([^)]*\)\s*[^;{]*[;{]",
     re.MULTILINE,
