@@ -89,6 +89,7 @@ class PropertyInfo:
     enum_size: str | None = None
     enum_type: str | None = None
     struct_func: str | None = None
+    struct_type: str | None = None
     array_inner_type: str | None = None  # for TArray<T>
 
 
@@ -117,6 +118,11 @@ class EnumInfo:
     name: str
     entries: list[str]
     underlying_type: str | None = None
+
+@dataclass
+class StructInfo:
+    name: str
+    properties: list[PropertyInfo] = field(default_factory=list)
 
 # @dataclass
 # class HeaderInfo:
@@ -158,6 +164,13 @@ FUNCTION_RE = re.compile(
     rf"UFUNCTION\s*\({ANNOTATION_ARGS_RE}\)\s*"
     r"[\w\s\*&:<>,]+?\s+"                   # return type (greedy-ish)
     r"(\w+)\s*\([^)]*\)\s*[^;{]*[;{]",
+    re.MULTILINE,
+)
+
+
+STRUCT_RE = re.compile(
+    rf"USTRUCT\s*\({ANNOTATION_ARGS_RE}\)\s*"
+    r"struct\s+(?:\w+\s+)?(\w+)",
     re.MULTILINE,
 )
 
@@ -239,6 +252,7 @@ POINTER_TYPE_MAP = {
 def classify_type(
     cpp_type: str,
     known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
 ) -> tuple[str, str | None, str | None]:
     """Returns (EPropertyType, helper_macro_or_None, array_inner_type_or_None)."""
     t = cpp_type.strip()
@@ -262,6 +276,9 @@ def classify_type(
     
     if t in known_enums:
         return "EPropertyType::Enum", None, None
+    
+    if t in known_structs:
+        return "EPropertyType::Struct", None, None
 
     raise CodegenError(
         f"unknown type '{t}' — add to TYPE_MAP, mark as UENUM/USTRUCT, or use UPROPERTY(Type=...)"
@@ -334,10 +351,58 @@ def build_enum_registry(headers: list[Path]) -> dict[str, EnumInfo]:
     return registry
 
 
+def parse_structs(
+    path: Path,
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+) -> list[StructInfo]:
+    text = strip_comments(path.read_text(encoding="utf-8-sig"))
+    structs: list[StructInfo] = []
+
+    for m in STRUCT_RE.finditer(text):
+        _, name = m.group(1), m.group(2)
+        body = find_braced_body(text, m.end())
+        if not body:
+            raise CodegenError(f"{path}: could not locate struct body for {name}")
+        properties = [
+            parse_property(pm.group(1), pm.group(2), known_enums, known_structs)
+            for pm in PROPERTY_RE.finditer(body)
+        ]
+        structs.append(StructInfo(name=name, properties=properties))
+    return structs
+
+
+def build_struct_registry(
+    headers: list[Path],
+    known_enums: dict[str, EnumInfo],
+) -> dict[str, StructInfo]:
+    registry: dict[str, StructInfo] = {}
+    owners: dict[str, Path] = {}
+
+    # Seed the registry with declarations so properties in one generated struct
+    # can resolve a generated struct type declared later in the scan.
+    for path in headers:
+        text = strip_comments(path.read_text(encoding="utf-8-sig"))
+        for m in STRUCT_RE.finditer(text):
+            _, name = m.group(1), m.group(2)
+            if name in registry:
+                raise CodegenError(
+                    f"duplicate USTRUCT {name}: {path} and {owners[name]}"
+                )
+            registry[name] = StructInfo(name=name)
+            owners[name] = path
+
+    for path in headers:
+        for struct in parse_structs(path, known_enums, registry):
+            registry[struct.name] = struct
+    return registry
+
+
 def parse_property(
     attr_text: str,
     decl_text: str,
     known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
 ) -> PropertyInfo:
     flags_raw, kvs = parse_attributes(attr_text)
 
@@ -352,15 +417,18 @@ def parse_property(
         raise CodegenError(f"cannot parse property declaration: {decl_text!r}")
     cpp_type, name = m.group(1).strip(), m.group(2)
     enum_type = None
+    struct_type = None
 
     # Explicit Type= override bypasses classify_type.
     if "Type" in kvs:
         prop_type = f"EPropertyType::{kvs['Type']}"
         array_inner = None
     else:
-        prop_type, _, array_inner = classify_type(cpp_type, known_enums)
+        prop_type, _, array_inner = classify_type(cpp_type, known_enums, known_structs)
         if cpp_type in known_enums:
             enum_type = cpp_type
+        if cpp_type in known_structs:
+            struct_type = cpp_type
 
     flags = [PROPERTY_FLAG_MAP.get(f, f"CPF_{f}") for f in flags_raw] or ["CPF_None"]
 
@@ -379,6 +447,7 @@ def parse_property(
         enum_size=kvs.get("EnumSize"),
         enum_type=enum_type,
         struct_func=kvs.get("StructFunc"),
+        struct_type=struct_type,
         array_inner_type=array_inner,
     )
 
@@ -388,7 +457,11 @@ def parse_function(attr_text: str, name: str) -> FunctionInfo:
     return FunctionInfo(name=name, flags=flags_raw, lua_name=kvs.get("LuaName"))
 
 
-def parse_header(path: Path, known_enums: dict[str, EnumInfo]) -> list[ClassInfo]:
+def parse_header(
+    path: Path,
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+) -> list[ClassInfo]:
     text = strip_comments(path.read_text(encoding="utf-8-sig"))
     classes: list[ClassInfo] = []
 
@@ -408,7 +481,7 @@ def parse_header(path: Path, known_enums: dict[str, EnumInfo]) -> list[ClassInfo
             raise CodegenError(f"{path}: could not locate class body for {name}")
 
         properties = [
-            parse_property(pm.group(1), pm.group(2), known_enums)
+            parse_property(pm.group(1), pm.group(2), known_enums, known_structs)
             for pm in PROPERTY_RE.finditer(body)
         ]
         functions = [
@@ -434,7 +507,7 @@ GENERATED_H_TEMPLATE = """\
 // AUTOGENERATED by GenerateCode.py — do not edit.
 #pragma once
 
-{class_macros}
+{body_macros}
 """
 
 CLASS_MACRO_TEMPLATE = """\
@@ -447,16 +520,30 @@ CLASS_MACRO_TEMPLATE = """\
     friend struct {class_name}_PropertyRegistrar;
 """
 
-def emit_generated_header(classes: list[ClassInfo], enums: list[EnumInfo]) -> str:
+STRUCT_MACRO_TEMPLATE = """\
+#define KE_GENERATED_BODY_{struct_name}() \\
+    static void DescribeProperties(void* Ptr, std::vector<FProperty>& OutProps);
+"""
+
+def emit_generated_header(
+    classes: list[ClassInfo],
+    enums: list[EnumInfo],
+    structs: list[StructInfo],
+) -> str:
     sections: list[str] = []
     if classes:
         sections.append("\n".join(
             CLASS_MACRO_TEMPLATE.format(class_name=c.name, parent=c.parent)
             for c in classes
         ))
+    if structs:
+        sections.append("\n".join(
+            STRUCT_MACRO_TEMPLATE.format(struct_name=s.name)
+            for s in structs
+        ))
     if enums:
         sections.append("\n".join(emit_enum_names_table(e) for e in enums))
-    return GENERATED_H_TEMPLATE.format(class_macros="\n".join(sections))
+    return GENERATED_H_TEMPLATE.format(body_macros="\n".join(sections))
 
 
 # ──────────────────────────────────────────────
@@ -465,7 +552,9 @@ def emit_generated_header(classes: list[ClassInfo], enums: list[EnumInfo]) -> st
 def emit_gen_cpp(
     source_header_include: str,
     classes: list[ClassInfo],
+    structs: list[StructInfo],
     known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
 ) -> str:
     has_lua = any(fn.is_lua for c in classes for fn in c.functions)
     out = [
@@ -477,9 +566,11 @@ def emit_gen_cpp(
         out.append('#include "Object/LuaClassRegistry.h"')
         out.append("#include <sol/sol.hpp>")
     out.append("")
+    for s in structs:
+        out.append(emit_struct_describe_properties(s, known_enums, known_structs))
     for c in classes:
         out.append(emit_class_static(c))
-        out.append(emit_property_registrar(c, known_enums))
+        out.append(emit_property_registrar(c, known_enums, known_structs))
         lua_block = emit_lua_registrar(c)
         if lua_block:
             out.append(lua_block)
@@ -504,6 +595,87 @@ def emit_enum_names_table(enum: EnumInfo) -> str:
     )
 
 
+def emit_struct_describe_properties(
+    s: StructInfo,
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+) -> str:
+    lines = [
+        f"void {s.name}::DescribeProperties(void* Ptr, std::vector<FProperty>& OutProps)",
+        "{",
+        f"    auto* Struct = static_cast<{s.name}*>(Ptr);",
+    ]
+    for p in s.properties:
+        lines.extend(emit_struct_child_property(p, known_enums, known_structs))
+    lines.append("}")
+    return "\n".join(lines) + "\n"
+
+
+def emit_struct_child_property(
+    p: PropertyInfo,
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+) -> list[str]:
+    flags = " | ".join(p.flags)
+    disp = p.display_name or p.name
+    lines = [
+        "    {",
+        "        FProperty Desc;",
+        f'        Desc.Name = "{disp}";',
+        f"        Desc.Type = {p.prop_type};",
+        f'        Desc.Category = "{p.category}";',
+        f"        Desc.ValuePtr = &Struct->{p.name};",
+        f"        Desc.PropertyFlag = {flags};",
+    ]
+
+    if p.prop_type == "EPropertyType::Float":
+        lines.extend([
+            f'        Desc.Min = {p.min or "0.0f"};',
+            f'        Desc.Max = {p.max or "0.0f"};',
+            f'        Desc.Speed = {p.speed or "0.1f"};',
+        ])
+    elif p.prop_type == "EPropertyType::Enum":
+        if p.enum_type:
+            enum = known_enums.get(p.enum_type)
+            if not enum:
+                raise CodegenError(f"unknown generated enum type {p.enum_type}")
+            lines.extend([
+                f"        Desc.EnumNames = {enum_names_symbol(enum.name)};",
+                f"        Desc.EnumCount = {len(enum.entries)};",
+                f"        Desc.EnumSize = sizeof({enum.name});",
+            ])
+        elif p.enum_names and p.enum_count and p.enum_size:
+            lines.extend([
+                f"        Desc.EnumNames = {p.enum_names};",
+                f"        Desc.EnumCount = {p.enum_count};",
+                f"        Desc.EnumSize = {p.enum_size};",
+            ])
+        else:
+            raise CodegenError(
+                f"enum struct field {p.name}: v1 requires generated UENUM or EnumNames=/EnumCount=/EnumSize="
+            )
+    elif p.prop_type == "EPropertyType::Struct":
+        if p.struct_type:
+            struct = known_structs.get(p.struct_type)
+            if not struct:
+                raise CodegenError(f"unknown generated struct type {p.struct_type}")
+            lines.append(f"        Desc.StructFunc = &{struct.name}::DescribeProperties;")
+        elif p.struct_func:
+            lines.append(f"        Desc.StructFunc = {p.struct_func};")
+        else:
+            raise CodegenError(
+                f"struct field {p.name}: v1 requires generated USTRUCT or StructFunc="
+            )
+    elif p.prop_type == "EPropertyType::Array":
+        raise CodegenError(f"array struct field {p.name}: v1 struct arrays are not supported")
+
+    lines.extend([
+        "        OutProps.push_back(Desc);",
+        "    }",
+    ])
+    return lines
+
+
 def emit_class_static(c: ClassInfo) -> str:
     flags = " | ".join(c.class_flags)
     parts = [
@@ -520,7 +692,11 @@ def emit_class_static(c: ClassInfo) -> str:
     return "\n".join(parts) + "\n"
 
 
-def emit_property_registrar(c: ClassInfo, known_enums: dict[str, EnumInfo]) -> str:
+def emit_property_registrar(
+    c: ClassInfo,
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+) -> str:
     lines = [
         f"struct {c.name}_PropertyRegistrar {{",
         f"    {c.name}_PropertyRegistrar() {{",
@@ -529,14 +705,18 @@ def emit_property_registrar(c: ClassInfo, known_enums: dict[str, EnumInfo]) -> s
         f"        (void)Cls;",
     ]
     for p in c.properties:
-        lines.append("        " + emit_property_call(p, known_enums))
+        lines.append("        " + emit_property_call(p, known_enums, known_structs))
     lines.append("    }")
     lines.append("};")
     lines.append(f"static {c.name}_PropertyRegistrar s_{c.name}_PropertyReg;\n")
     return "\n".join(lines)
 
 
-def emit_property_call(p: PropertyInfo, known_enums: dict[str, EnumInfo]) -> str:
+def emit_property_call(
+    p: PropertyInfo,
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+) -> str:
     flags = " | ".join(p.flags)
     cat = f'"{p.category}"'
     disp = p.display_name or p.name  # PostEditProperty/editor keys off display name
@@ -562,7 +742,7 @@ def emit_property_call(p: PropertyInfo, known_enums: dict[str, EnumInfo]) -> str
     if p.prop_type == "EPropertyType::Array":
         if not p.array_inner_type:
             raise CodegenError(f"TArray property {p.name} has no inner type")
-        inner_et, _, _ = classify_type(p.array_inner_type, known_enums)
+        inner_et, _, _ = classify_type(p.array_inner_type, known_enums, known_structs)
         return (
             f'PROPERTY_ARRAY({p.name}, "{disp}", {cat}, {flags}, '
             f'{p.array_inner_type}, {inner_et}, (void)0)'
@@ -588,6 +768,14 @@ def emit_property_call(p: PropertyInfo, known_enums: dict[str, EnumInfo]) -> str
         )
 
     if p.prop_type == "EPropertyType::Struct":
+        if p.struct_type:
+            struct = known_structs.get(p.struct_type)
+            if not struct:
+                raise CodegenError(f"unknown generated struct type {p.struct_type}")
+            return (
+                f'PROPERTY_STRUCT({p.name}, "{disp}", {cat}, '
+                f'&{struct.name}::DescribeProperties, {flags})'
+            )
         if not p.struct_func:
             raise CodegenError(f"struct property {p.name}: v1 requires StructFunc= attribute")
         return f'PROPERTY_STRUCT({p.name}, "{disp}", {cat}, {p.struct_func}, {flags})'
@@ -681,15 +869,17 @@ def main():
     headers = discover_headers()
     check_collisions(headers)
     known_enums = build_enum_registry(headers)
+    known_structs = build_struct_registry(headers, known_enums)
 
     written = 0
     for h in headers:
         enums = parse_enums(h)
-        classes = parse_header(h, known_enums)
-        if not classes and not enums:
+        structs = parse_structs(h, known_enums, known_structs)
+        classes = parse_header(h, known_enums, known_structs)
+        if not classes and not enums and not structs:
             continue
 
-        gh_text = emit_generated_header(classes, enums)
+        gh_text = emit_generated_header(classes, enums, structs)
         if write_if_different(OUT_INC / f"{h.stem}.generated.h", gh_text):
             written += 1
             if args.verbose:
@@ -697,8 +887,14 @@ def main():
 
         # Enum-only headers don't need a .gen.cpp — the names table lives in
         # the .generated.h and there's no UClass static to define.
-        if classes:
-            cpp_text = emit_gen_cpp(make_include_path(h), classes, known_enums)
+        if classes or structs:
+            cpp_text = emit_gen_cpp(
+                make_include_path(h),
+                classes,
+                structs,
+                known_enums,
+                known_structs,
+            )
             if write_if_different(OUT_SRC / f"{h.stem}.gen.cpp", cpp_text):
                 written += 1
                 if args.verbose:

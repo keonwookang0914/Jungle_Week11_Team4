@@ -77,10 +77,10 @@ private:
 	UPROPERTY(Edit, Category="Movement", DisplayName="Control Points")
 	TArray<FVector>		ControlPoints;
 
-	UPROPERTY(Edit, Category= "Movement", DisplayName = "Interp Duration", Min = 0.1, Max = 2048.0, Speed = 0.1)
+	UPROPERTY(Edit, Category="Movement", DisplayName = "Interp Duration", Min = 0.1, Max = 2048.0, Speed = 0.1)
 	float				Duration = 5.0f;		// Does not store an "array" of duration
 
-	UPROPERTY(Edit, Category= "Movement", DisplayName = "Orient to Target Direction")
+	UPROPERTY(Edit, Category="Movement", DisplayName = "Orient to Target Direction")
 	bool				bFaceTargetDir = true;
 
 	uint32				CurrentPointID = 0;
