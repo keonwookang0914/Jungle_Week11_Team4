@@ -59,10 +59,12 @@ private:
 	// 공통 헬퍼
 	void EmitLineCommand(FLineGeometry& Lines, FShader* Shader, const FDrawCommandRenderState& RS);
 	void ApplyMaterialRenderState(FDrawCommandRenderState& OutState, const UMaterial* Mat, const FDrawCommandRenderState& BaseState);
-	FShader* SelectEffectiveShader(FShader* ProxyShader, EViewMode ViewMode);
+	FShader* SelectEffectiveShader(FShader* ProxyShader, EViewMode ViewMode, bool bSkeletal);
 
 	FConstantBuffer* GetPerObjectCBForProxy(FScene* Scene, const FPrimitiveSceneProxy& Proxy);
 	void EnsurePerObjectCBPoolCapacity(FScene* Scene, uint32 RequiredCount);
+	FConstantBuffer* GetSkinningParamCBForProxy(FScene* Scene, const FPrimitiveSceneProxy& Proxy);
+	void EnsureSkinningParamCBPoolCapacity(FScene* Scene, uint32 RequiredCount);
 
 	// 커맨드 버퍼
 	FDrawCommandList DrawCommandList;
@@ -70,6 +72,7 @@ private:
 	// Collect 페이즈 상태
 	const FPassRenderStateTable* PassRenderStateTable = nullptr;
 	EViewMode CollectViewMode = EViewMode::Lit_Phong;
+	FViewportRenderOptions CollectRenderOptions;
 	bool bHasSelectionMaskCommands = false;
 
 	// 동적 지오메트리
@@ -80,6 +83,7 @@ private:
 
 	// PerObject CB 풀
 	TMap<FScene*, TArray<FConstantBuffer>> PerSceneObjectCBPool;
+	TMap<FScene*, TArray<FConstantBuffer>> PerSceneSkinningParamCBPool;
 
 	// PostProcess CBs (Fog, Outline, SceneDepth, FXAA)
 	FConstantBuffer FogCB;

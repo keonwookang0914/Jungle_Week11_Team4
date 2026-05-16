@@ -24,6 +24,16 @@ cbuffer PerObjectBuffer : register(b1)
     float4 PrimitiveColor;
 };
 
+// b6: SkeletalMesh skinning / bone weight heatmap용 작은 파라미터.
+// TODO: GPU Skinning의 bone matrix 배열은 cbuffer가 아니라 StructuredBuffer SRV로 분리한다.
+cbuffer SkinningParamBuffer : register(b6)
+{
+    int SelectedBoneIndex;
+    int bBoneWeightHeatmap;
+    int bGPUSkinning;
+    int BoneCount;
+};
+
 // 시스템 샘플러 (s0~s4)
 #include "Common/SystemSamplers.hlsli"
 

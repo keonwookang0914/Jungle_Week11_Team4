@@ -49,13 +49,26 @@ void UAnimSingleNodeInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CurrentTime += DeltaSeconds * PlayRate;
 
 	float Length = Sequence->GetPlayLength();
+	if (Length <= 0.0f)
+	{
+		CurrentTime = 0.0f;
+		bPlaying = false;
+		return;
+	}
+
 	if (bLooping)
 	{
 		while (CurrentTime >= Length) CurrentTime -= Length;
+		while (CurrentTime < 0.0f) CurrentTime += Length;
 	}
 	else if (CurrentTime >= Length)
 	{
 		CurrentTime = Length;
+		bPlaying = false;
+	}
+	else if (CurrentTime <= 0.0f)
+	{
+		CurrentTime = 0.0f;
 		bPlaying = false;
 	}
 

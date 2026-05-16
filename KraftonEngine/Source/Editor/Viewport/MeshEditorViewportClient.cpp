@@ -164,12 +164,16 @@ void FMeshEditorViewportClient::Tick(float DeltaTime)
 	TickShortcuts();
 	TickInput(DeltaTime);
 	TickInteraction(DeltaTime);
+
+	// 선택 bone 변경 경로가 UI/viewport 입력으로 나뉘어도 heatmap 파라미터는 매 tick 동일하게 맞춘다.
+	RenderOptions.BoneWeightHeatmapBoneIndex = SelectedBoneIndex;
 }
 
 void FMeshEditorViewportClient::SetSelectedBone(USkeletalMesh* Mesh, int32 BoneIndex)
 {
 	SelectedMesh = Mesh;
 	SelectedBoneIndex = BoneIndex;
+	RenderOptions.BoneWeightHeatmapBoneIndex = BoneIndex;
 
 	if (Gizmo && PreviewMeshComponent && BoneIndex >= 0)
 	{

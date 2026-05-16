@@ -20,6 +20,7 @@ struct FStateCache
 	FDrawCommandRenderState  RenderState = {};
 	FDrawCommandBuffer       Buffer;
 	FConstantBuffer*         PerObjectCB = nullptr;
+	FConstantBuffer*         SkinningParamCB = nullptr;
 	FDrawCommandBindings     Bindings;
 
 

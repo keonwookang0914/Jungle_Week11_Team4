@@ -20,6 +20,7 @@ void FStateCache::Reset()
 	RenderState = {};
 	Buffer      = {};
 	PerObjectCB = nullptr;
+	SkinningParamCB = nullptr;
 	Bindings    = {};
 
 	RTV = nullptr;
@@ -203,6 +204,18 @@ void FDrawCommandList::SubmitCommand(const FDrawCommand& Cmd,
 			Ctx->VSSetConstantBuffers(ECBSlot::PerObject, 1, &RawCB);
 		}
 		Cache.PerObjectCB = Cmd.PerObjectCB;
+	}
+
+	// --- Skinning Param CB (b6) ---
+	// SkeletalMesh 전용 파라미터. StaticMesh에서는 nullptr로 언바인딩해 이전 상태가 새지 않게 한다.
+	if (bForce || Cmd.SkinningParamCB != Cache.SkinningParamCB)
+	{
+		ID3D11Buffer* RawCB = Cmd.SkinningParamCB ? Cmd.SkinningParamCB->GetBuffer() : nullptr;
+
+		Ctx->VSSetConstantBuffers(ECBSlot::Skinning, 1, &RawCB);
+		Ctx->PSSetConstantBuffers(ECBSlot::Skinning, 1, &RawCB);
+
+		Cache.SkinningParamCB = Cmd.SkinningParamCB;
 	}
 
 	// --- PerShader CBs (b2, b3) ---

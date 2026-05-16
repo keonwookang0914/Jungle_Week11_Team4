@@ -24,6 +24,18 @@
 
 namespace
 {
+	// Timeline transport 버튼은 텍스트 대신 아이콘을 직접 그려 좁은 패널에서도 일정한 폭을 유지한다.
+	enum class ETimelineTransportIcon
+	{
+		Pause,
+		ForwardPlay,
+		ReversePlay,
+		PreviousFrame,
+		NextFrame,
+		FirstFrame,
+		LastFrame
+	};
+
 	// Value값을 String으로 포매팅 + 3자리 마다 ,로 구분시키는 hepler
 	FString FormatAnimSequenceStatCount(size_t Value)
 	{
@@ -33,6 +45,104 @@ namespace
 			Result.insert(static_cast<size_t>(InsertPos), ",");
 		}
 		return Result;
+	}
+
+	void DrawTimelineTransportIcon(ImDrawList* DrawList, const ImVec2& Min, const ImVec2& Max, ETimelineTransportIcon Icon, ImU32 Color)
+	{
+		if (!DrawList) return;
+
+		const ImVec2 Center((Min.x + Max.x) * 0.5f, (Min.y + Max.y) * 0.5f);
+		const float W = Max.x - Min.x;
+		const float H = Max.y - Min.y;
+		const float R = std::min(W, H) * 0.34f;
+		const float BarW = 2.2f;
+		const float Gap = 2.0f;
+
+		auto AddRightTriangle = [&](float OffsetX, float Scale)
+		{
+			const float HalfH = R * Scale;
+			const float HalfW = R * Scale * 0.85f;
+			const ImVec2 P0(Center.x - HalfW + OffsetX, Center.y - HalfH);
+			const ImVec2 P1(Center.x - HalfW + OffsetX, Center.y + HalfH);
+			const ImVec2 P2(Center.x + HalfW + OffsetX, Center.y);
+			DrawList->AddTriangleFilled(P0, P1, P2, Color);
+		};
+
+		auto AddLeftTriangle = [&](float OffsetX, float Scale)
+		{
+			const float HalfH = R * Scale;
+			const float HalfW = R * Scale * 0.85f;
+			const ImVec2 P0(Center.x + HalfW + OffsetX, Center.y - HalfH);
+			const ImVec2 P1(Center.x + HalfW + OffsetX, Center.y + HalfH);
+			const ImVec2 P2(Center.x - HalfW + OffsetX, Center.y);
+			DrawList->AddTriangleFilled(P0, P1, P2, Color);
+		};
+
+		auto AddBar = [&](float X)
+		{
+			DrawList->AddRectFilled(
+				ImVec2(X - BarW * 0.5f, Center.y - R),
+				ImVec2(X + BarW * 0.5f, Center.y + R),
+				Color);
+		};
+
+		switch (Icon)
+		{
+		case ETimelineTransportIcon::Pause:
+			AddBar(Center.x - R * 0.32f);
+			AddBar(Center.x + R * 0.32f);
+			break;
+		case ETimelineTransportIcon::ForwardPlay:
+			AddRightTriangle(0.0f, 1.0f);
+			break;
+		case ETimelineTransportIcon::ReversePlay:
+			AddLeftTriangle(0.0f, 1.0f);
+			break;
+		case ETimelineTransportIcon::PreviousFrame:
+			AddLeftTriangle(0.0f, 0.9f);
+			AddBar(Center.x + R + Gap);
+			break;
+		case ETimelineTransportIcon::NextFrame:
+			AddBar(Center.x - R - Gap);
+			AddRightTriangle(0.0f, 0.9f);
+			break;
+		case ETimelineTransportIcon::FirstFrame:
+			AddBar(Center.x - R - Gap * 1.2f);
+			AddLeftTriangle(-R * 0.18f, 0.78f);
+			AddLeftTriangle(R * 0.36f, 0.78f);
+			break;
+		case ETimelineTransportIcon::LastFrame:
+			AddRightTriangle(-R * 0.36f, 0.78f);
+			AddRightTriangle(R * 0.18f, 0.78f);
+			AddBar(Center.x + R + Gap * 1.2f);
+			break;
+		}
+	}
+
+	bool DrawTimelineTransportButton(const char* Id, ETimelineTransportIcon Icon, const char* Tooltip, bool bActive = false)
+	{
+		const ImVec2 Size(24.0f, 22.0f);
+		if (bActive)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.22f, 0.28f, 0.36f, 1.0f));
+		}
+
+		const bool bClicked = ImGui::Button(Id, Size);
+
+		if (bActive)
+		{
+			ImGui::PopStyleColor();
+		}
+
+		const ImU32 IconColor = ImGui::GetColorU32(ImGui::IsItemHovered() ? ImGuiCol_Text : ImGuiCol_TextDisabled);
+		DrawTimelineTransportIcon(ImGui::GetWindowDrawList(), ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), Icon, IconColor);
+
+		if (Tooltip && ImGui::IsItemHovered())
+		{
+			ImGui::SetTooltip("%s", Tooltip);
+		}
+
+		return bClicked;
 	}
 }
 
@@ -148,6 +258,7 @@ void FAnimSequenceEditorWidget::InitializeFromAnimSequence()
 	// 이전 asset에서 쓰던 재생 시간/드래그 상태가 남으면 새 sequence가 열릴 때 out-of-range pose 평가가 발생할 수 있습니다.
 	CurrentTime = 0.0f;
 	PreviousTime = 0.0f;
+	TimelinePlayRate = 1.0f;
 	bPlaying = false;
 	bLooping = AnimSequence ? AnimSequence->IsLooping() : true;
 
@@ -416,6 +527,7 @@ void FAnimSequenceEditorWidget::Close()
 	EvaluatedLocalPose.clear();
 	bLastPoseEvaluationSucceeded = false;
 	SelectedBoneIndex = -1;
+	TimelinePlayRate = 1.0f;
 	EditorBoneOverrides.clear();
 	PreviewNotifyMarkers.clear();
 }
@@ -761,6 +873,19 @@ void FAnimSequenceEditorWidget::RenderViewportPanel(float Deltatime)
 			{
 				ViewportClient.SetBoneDebugDrawMode(static_cast<EBoneDebugDrawMode>(BoneDrawMode));
 			}
+
+			ImGui::Separator();
+
+			FViewportRenderOptions& Options = ViewportClient.GetRenderOptions();
+			Options.BoneWeightHeatmapBoneIndex = SelectedBoneIndex;
+
+			ImGui::Text("Bone Weight Heatmap");
+			ImGui::Checkbox("Enable Bone Weight Heatmap", &Options.bBoneWeightHeatmap);
+
+			if (SelectedBoneIndex < 0)
+			{
+				ImGui::TextDisabled("Select a bone to visualize weights.");
+			}
 		};
 
 		FViewportToolbar::Render(Context);
@@ -883,6 +1008,86 @@ void FAnimSequenceEditorWidget::RenderStatsOverlay(ImDrawList* DrawList, const I
 	DrawList->AddText(TextPos, IM_COL32(235, 238, 242, 255), Text.c_str());
 }
 
+void FAnimSequenceEditorWidget::PlayTimeline(float InPlayRate)
+{
+	if (PlayLength <= 0.0f)
+	{
+		return;
+	}
+
+	TimelinePlayRate = (InPlayRate < 0.0f) ? -1.0f : 1.0f;
+
+	if (SingleNodeInstance)
+	{
+		SingleNodeInstance->SetPlayRate(TimelinePlayRate);
+		SingleNodeInstance->Play(bLooping);
+		CurrentTime = SingleNodeInstance->GetCurrentTickTime();
+		return;
+	}
+
+	bPlaying = true;
+}
+
+void FAnimSequenceEditorWidget::StopTimeline(bool bResetToStart)
+{
+	if (SingleNodeInstance)
+	{
+		SingleNodeInstance->Stop();
+		if (bResetToStart)
+		{
+			SingleNodeInstance->SetCurrentTime(0.0f);
+		}
+		CurrentTime = SingleNodeInstance->GetCurrentTickTime();
+		return;
+	}
+
+	bPlaying = false;
+	if (bResetToStart)
+	{
+		PreviousTime = CurrentTime;
+		CurrentTime = 0.0f;
+	}
+}
+
+void FAnimSequenceEditorWidget::SetTimelineTime(float NewTime, bool bStopPlayback)
+{
+	const float ClampedTime = std::clamp(NewTime, 0.0f, std::max(0.0f, PlayLength));
+
+	if (SingleNodeInstance)
+	{
+		if (bStopPlayback)
+		{
+			SingleNodeInstance->Stop();
+		}
+		SingleNodeInstance->SetCurrentTime(ClampedTime);
+		CurrentTime = SingleNodeInstance->GetCurrentTickTime();
+		return;
+	}
+
+	if (bStopPlayback)
+	{
+		bPlaying = false;
+	}
+	PreviousTime = CurrentTime;
+	CurrentTime = ClampedTime;
+}
+
+void FAnimSequenceEditorWidget::StepTimeline(int32 FrameDelta)
+{
+	if (FrameDelta == 0)
+	{
+		return;
+	}
+
+	SetTimelineTime(CurrentTime + GetTimelineFrameStep() * static_cast<float>(FrameDelta), true);
+}
+
+float FAnimSequenceEditorWidget::GetTimelineFrameStep() const
+{
+	const float FrameRate = AnimSequence ? AnimSequence->GetSamplingFrameRate() : 0.0f;
+	return (FrameRate > 0.0f) ? (1.0f / FrameRate) : (1.0f / 30.0f);
+}
+
 // ----- Timeline 관련 계산 기능 ----------
 void FAnimSequenceEditorWidget::TickTimeline(float DeltaTime)
 {
@@ -896,20 +1101,25 @@ void FAnimSequenceEditorWidget::TickTimeline(float DeltaTime)
 
 	// Tick에서는 Timeline 시간이 먼저 진행되고, 그 다음 단계에서 CurrentTime 기준 pose가 평가됩니다.
 	// 이렇게 순서를 고정해야 UI의 playhead, Notify marker trigger 판단, PreviewComponent pose가 같은 시간을 보게 됩니다.
-	CurrentTime += DeltaTime;
+	CurrentTime += DeltaTime * TimelinePlayRate;
 
 	if (bLooping)
 	{
-		while (CurrentTime > PlayLength)
+		while (CurrentTime >= PlayLength)
 		{
 			CurrentTime -= PlayLength;
+		}
+		while (CurrentTime < 0.0f)
+		{
+			CurrentTime += PlayLength;
 		}
 	}
 	else
 	{
 		CurrentTime = std::clamp(CurrentTime, 0.0f, PlayLength);
 
-		if (CurrentTime >= PlayLength)
+		if ((TimelinePlayRate >= 0.0f && CurrentTime >= PlayLength) ||
+			(TimelinePlayRate < 0.0f && CurrentTime <= 0.0f))
 		{
 			bPlaying = false;
 		}
@@ -934,79 +1144,81 @@ void FAnimSequenceEditorWidget::RenderTimelinePanel()
 	// Timeline은 AnimSequence editor의 핵심 상태 표시 영역이므로 PlayLength가 0이어도 숨기지 않습니다.
 	// 길이가 0인 asset은 컨트롤만 비활성화하고, 아래 ruler를 0초 기준으로 그려 metadata 문제를 바로 확인할 수 있게 합니다.
 	const bool bCurrentlyPlaying = SingleNodeInstance ? SingleNodeInstance->IsPlaying() : bPlaying;
+	const bool bPlayingReverse = bCurrentlyPlaying && TimelinePlayRate < 0.0f;
+	const bool bPlayingForward = bCurrentlyPlaying && TimelinePlayRate >= 0.0f;
 
 	ImGui::BeginDisabled(!bHasTimelineLength);
-	if (ImGui::Button(bCurrentlyPlaying ? "Pause" : "Play"))
+	if (DrawTimelineTransportButton(
+		"##AnimSequenceTimelineFirstFrame",
+		ETimelineTransportIcon::FirstFrame,
+		"맨 처음으로 가기"))
 	{
-		if (SingleNodeInstance)
+		SetTimelineTime(0.0f, true);
+	}
+
+	ImGui::SameLine();
+	if (DrawTimelineTransportButton(
+		"##AnimSequenceTimelinePreviousFrame",
+		ETimelineTransportIcon::PreviousFrame,
+		"1프레임 뒤"))
+	{
+		StepTimeline(-1);
+	}
+
+	ImGui::SameLine();
+	if (DrawTimelineTransportButton(
+		"##AnimSequenceTimelineReversePlayOrPause",
+		bPlayingReverse ? ETimelineTransportIcon::Pause : ETimelineTransportIcon::ReversePlay,
+		bPlayingReverse ? "일시정지" : "역재생",
+		bPlayingReverse))
+	{
+		// 역재생 버튼 자리는 역재생 중 pause 버튼으로 바뀐다.
+		if (bPlayingReverse)
 		{
-			if (bCurrentlyPlaying)
-				SingleNodeInstance->Stop();
-			else
-				SingleNodeInstance->Play(bLooping);
+			StopTimeline(false);
 		}
 		else
 		{
-			bPlaying = !bPlaying;
+			PlayTimeline(-1.0f);
 		}
+	}
+
+	ImGui::SameLine();
+	if (DrawTimelineTransportButton(
+		"##AnimSequenceTimelineForwardPlayOrPause",
+		bPlayingForward ? ETimelineTransportIcon::Pause : ETimelineTransportIcon::ForwardPlay,
+		bPlayingForward ? "일시정지" : "정재생",
+		bPlayingForward))
+	{
+		// 정재생 버튼 자리는 재생 중 pause 버튼으로 바뀐다.
+		if (bPlayingForward)
+		{
+			StopTimeline(false);
+		}
+		else
+		{
+			PlayTimeline(1.0f);
+		}
+	}
+
+	ImGui::SameLine();
+	if (DrawTimelineTransportButton(
+		"##AnimSequenceTimelineNextFrame",
+		ETimelineTransportIcon::NextFrame,
+		"1프레임 앞"))
+	{
+		StepTimeline(1);
+	}
+
+	ImGui::SameLine();
+	if (DrawTimelineTransportButton(
+		"##AnimSequenceTimelineLastFrame",
+		ETimelineTransportIcon::LastFrame,
+		"맨 뒤로 가기"))
+	{
+		SetTimelineTime(PlayLength, true);
 	}
 	ImGui::EndDisabled();
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("First"))
-	{
-		if (SingleNodeInstance)
-		{
-			SingleNodeInstance->Stop();
-			SingleNodeInstance->SetCurrentTime(0.0f);
-			CurrentTime = 0.0f;
-		}
-		else
-		{
-			bPlaying = false;
-			PreviousTime = CurrentTime;
-			CurrentTime = 0.0f;
-		}
-	}
-
-	ImGui::SameLine();
-
-	ImGui::BeginDisabled(!bHasTimelineLength);
-	if (ImGui::Button("Last"))
-	{
-		if (SingleNodeInstance)
-		{
-			SingleNodeInstance->Stop();
-			SingleNodeInstance->SetCurrentTime(PlayLength);
-			CurrentTime = PlayLength;
-		}
-		else
-		{
-			bPlaying = false;
-			PreviousTime = CurrentTime;
-			CurrentTime = PlayLength;
-		}
-	}
-	ImGui::EndDisabled();
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("Stop"))
-	{
-		if (SingleNodeInstance)
-		{
-			SingleNodeInstance->Stop();
-			SingleNodeInstance->SetCurrentTime(0.0f);
-			CurrentTime = 0.0f;
-		}
-		else
-		{
-			bPlaying = false;
-			PreviousTime = CurrentTime;
-			CurrentTime = 0.0f;
-		}
-	}
 
 	ImGui::SameLine();
 	if (ImGui::Checkbox("Loop", &bLooping))
@@ -1022,18 +1234,7 @@ void FAnimSequenceEditorWidget::RenderTimelinePanel()
 	ImGui::BeginDisabled(!bHasTimelineLength);
 	if (ImGui::DragFloat("Time", &TimeInput, 0.01f, 0.0f, PlayLength, "%.3f"))
 	{
-		if (SingleNodeInstance)
-		{
-			SingleNodeInstance->Stop();
-			SingleNodeInstance->SetCurrentTime(TimeInput);
-			CurrentTime = SingleNodeInstance->GetCurrentTickTime();
-		}
-		else
-		{
-			bPlaying = false;
-			PreviousTime = CurrentTime;
-			CurrentTime = std::clamp(TimeInput, 0.0f, PlayLength);
-		}
+		SetTimelineTime(TimeInput, true);
 	}
 	ImGui::EndDisabled();
 
@@ -1166,19 +1367,8 @@ void FAnimSequenceEditorWidget::RenderTimelinePanel()
 
 	if (bMouseInRuler && ImGui::IsMouseDown(ImGuiMouseButton_Left))
 	{
-		float NewTime = std::clamp(XToTime(Mouse.x, TimelineX, TimelineWidth, VisibleRange), 0.0f, PlayLength);
-		if (SingleNodeInstance)
-		{
-			SingleNodeInstance->Stop();
-			SingleNodeInstance->SetCurrentTime(NewTime);
-			CurrentTime = SingleNodeInstance->GetCurrentTickTime();
-		}
-		else
-		{
-			bPlaying = false;
-			PreviousTime = CurrentTime;
-			CurrentTime = NewTime;
-		}
+		const float NewTime = XToTime(Mouse.x, TimelineX, TimelineWidth, VisibleRange);
+		SetTimelineTime(NewTime, true);
 	}
 
 	const ImU32 GridColor = IM_COL32(160, 160, 160, 80);

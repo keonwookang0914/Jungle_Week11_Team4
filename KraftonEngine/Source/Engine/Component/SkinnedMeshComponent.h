@@ -60,7 +60,7 @@ public:
 
 	void GetCurrentBoneGlobalTransforms(TArray<FTransform>& OutGlobals) const;
 	void GetCurrentBoneGlobalMatrices(TArray<FMatrix>& OutGlobals) const;
-	const TArray<FVertexPNCTT>& GetSkinnedVertices() const { return SkinnedVertices; }
+	const TArray<FVertexPNCTBW>& GetSkinnedVertices() const { return SkinnedVertices; }
 	uint64 GetSkinnedRevision() const { return SkinnedRevision; }
 	FMeshBuffer* GetMeshBuffer() const override;
 	FMeshDataView GetMeshDataView() const override;
@@ -86,6 +86,6 @@ protected:
 	bool bUseBoneEditPose = false;
 
 	// SceneProxy는 이 결과와 revision만 보고 dynamic vertex buffer를 갱신한다.
-	TArray<FVertexPNCTT> SkinnedVertices;
+	TArray<FVertexPNCTBW> SkinnedVertices;
 	uint64 SkinnedRevision = 0;
 };

@@ -85,4 +85,8 @@ struct FViewportRenderOptions
 	ELightCullingMode LightCullingMode = ELightCullingMode::Cluster;
 	float HeatMapMax = 20.0f;
 	bool Enable25DCulling = true;
+
+	// Bone Weight Heatmap은 MeshEditor viewport에서만 켜는 skeletal debug visualization이다.
+	bool bBoneWeightHeatmap = false;
+	int32 BoneWeightHeatmapBoneIndex = -1;
 };

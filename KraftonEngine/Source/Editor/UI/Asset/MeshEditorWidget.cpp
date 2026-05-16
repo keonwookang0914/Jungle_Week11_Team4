@@ -309,6 +309,20 @@ void FMeshEditorWidget::Render(float DeltaTime)
 				{
 					ViewportClient.SetBoneDebugDrawMode(static_cast<EBoneDebugDrawMode>(BoneDrawMode));
 				}
+
+				ImGui::Separator();
+
+				FViewportRenderOptions& Options = ViewportClient.GetRenderOptions();
+				const int32 SelectedBoneIndex = ViewportClient.GetSelectedBoneIndex();
+				Options.BoneWeightHeatmapBoneIndex = SelectedBoneIndex;
+
+				ImGui::Text("Bone Weight Heatmap");
+				ImGui::Checkbox("Enable Bone Weight Heatmap", &Options.bBoneWeightHeatmap);
+
+				if (SelectedBoneIndex < 0)
+				{
+					ImGui::TextDisabled("Select a bone to visualize weights.");
+				}
 			};
 
 			FViewportToolbar::Render(Context);

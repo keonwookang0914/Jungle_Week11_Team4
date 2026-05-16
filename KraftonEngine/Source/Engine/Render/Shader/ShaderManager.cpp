@@ -57,6 +57,11 @@ void FShaderManager::Initialize(ID3D11Device* InDevice)
 	PreCompile(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Gouraud), EUberLitDefines::Gouraud, StartupError);
 	PreCompile(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Lambert), EUberLitDefines::Lambert, StartupError);
 	PreCompile(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Phong),   EUberLitDefines::Phong,   StartupError);
+	// SkeletalMesh는 같은 UberLit PS를 공유하지만 PNCTBW 입력용 SkeletalVS entry를 별도 캐시로 가진다.
+	PreCompile(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Unlit,   "SkeletalVS", "PS"), EUberLitDefines::Unlit,   StartupError);
+	PreCompile(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Gouraud, "SkeletalVS", "PS"), EUberLitDefines::Gouraud, StartupError);
+	PreCompile(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Lambert, "SkeletalVS", "PS"), EUberLitDefines::Lambert, StartupError);
+	PreCompile(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Phong,   "SkeletalVS", "PS"), EUberLitDefines::Phong,   StartupError);
 
 	// include 역매핑 구축
 	RebuildIncludeDependents();
@@ -115,7 +120,7 @@ FShader* FShaderManager::GetOrCreate(const FShaderKey& Key, EShaderErrorMode Err
 	{
 		const bool bIsUberLit = (Key.Path == EShaderPath::UberLit);
 		const D3D_SHADER_MACRO* Defines = bIsUberLit ? EUberLitDefines::Default : nullptr;
-		CacheEntry.Shader->Create(CachedDevice, WidePath.c_str(), "VS", "PS", Defines, &CacheEntry.Includes, ErrorMode);
+		CacheEntry.Shader->Create(CachedDevice, WidePath.c_str(), Key.VSEntry.c_str(), Key.PSEntry.c_str(), Defines, &CacheEntry.Includes, ErrorMode);
 		CacheEntry.StoredDefines = CopyDefines(Defines);
 	}
 	else
@@ -145,7 +150,7 @@ FShader* FShaderManager::PreCompile(const FShaderKey& Key, const D3D_SHADER_MACR
 	FShaderCacheEntry CacheEntry;
 	CacheEntry.Shader = std::make_unique<FShader>();
 	std::wstring WidePath = FPaths::ToWide(Key.Path);
-	CacheEntry.Shader->Create(CachedDevice, WidePath.c_str(), "VS", "PS", Defines, &CacheEntry.Includes, ErrorMode);
+	CacheEntry.Shader->Create(CachedDevice, WidePath.c_str(), Key.VSEntry.c_str(), Key.PSEntry.c_str(), Defines, &CacheEntry.Includes, ErrorMode);
 	CacheEntry.StoredDefines = CopyDefines(Defines);
 
 	auto* RawPtr = CacheEntry.Shader.get();
@@ -284,7 +289,7 @@ void FShaderManager::OnShadersChanged(const TSet<FString>& ChangedFiles)
 		auto NewShader = std::make_unique<FShader>();
 		TArray<FString> NewIncludes;
 		const D3D_SHADER_MACRO* Defines = Entry.StoredDefines.empty() ? nullptr : Entry.StoredDefines.data();
-		NewShader->Create(CachedDevice, WidePath.c_str(), "VS", "PS", Defines, &NewIncludes);
+		NewShader->Create(CachedDevice, WidePath.c_str(), Key.VSEntry.c_str(), Key.PSEntry.c_str(), Defines, &NewIncludes);
 
 		if (NewShader->IsValid())
 		{

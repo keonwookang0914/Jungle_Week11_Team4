@@ -46,6 +46,11 @@ private:
 	void RenderTimelinePanel();
 
 	void SetSelectedBones(int32 BoneIndex);
+	void PlayTimeline(float InPlayRate);
+	void StopTimeline(bool bResetToStart);
+	void SetTimelineTime(float NewTime, bool bStopPlayback);
+	void StepTimeline(int32 FrameDelta);
+	float GetTimelineFrameStep() const;
 	void InitializeFromAnimSequence();
 	USkeletalMesh* FindPreviewSkeletalMesh();
 	void InitializePreviewWorld();
@@ -106,6 +111,7 @@ private:
 	float CurrentTime = 0.0f;
 	float PreviousTime = 0.0f;
 	float PlayLength = 0.0f;
+	float TimelinePlayRate = 1.0f;
 	bool bPlaying = false;
 	bool bLooping = true;
 

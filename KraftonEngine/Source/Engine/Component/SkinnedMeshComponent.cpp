@@ -160,7 +160,7 @@ void USkinnedMeshComponent::UpdateWorldAABB() const
 	FVector WorldMin = WorldMatrix.TransformPositionWithW(SkinnedVertices[0].Position);
 	FVector WorldMax = WorldMin;
 
-	for (const FVertexPNCTT& Vertex : SkinnedVertices)
+	for (const FVertexPNCTBW& Vertex : SkinnedVertices)
 	{
 		const FVector WorldPos = WorldMatrix.TransformPositionWithW(Vertex.Position);
 
@@ -537,7 +537,7 @@ void USkinnedMeshComponent::InitSkinningCache()
 	SkinnedVertices.resize(Asset->Vertices.size());
 }
 
-// CPU skinning은 현재 renderer가 DynamicVertexBuffer에 올릴 FVertexPNCTT 배열을 만드는 단일 경로다.
+// CPU skinning은 현재 renderer가 DynamicVertexBuffer에 올릴 FVertexPNCTBW 배열을 만드는 단일 경로다.
 void USkinnedMeshComponent::UpdateCPUSkinning()
 {
 	USkeletalMesh* Mesh = GetSkeletalMesh();
@@ -580,7 +580,7 @@ void USkinnedMeshComponent::UpdateCPUSkinning()
 	for (uint32 i = 0; i < (uint32)Asset->Vertices.size(); ++i)
 	{
 		const FVertexPNCTBW& Src = Asset->Vertices[i];
-		FVertexPNCTT& Dst = SkinnedVertices[i];
+		FVertexPNCTBW& Dst = SkinnedVertices[i];
 
 		FVector SkinnedPos = FVector::ZeroVector;
 		FVector SkinnedNormal = FVector::ZeroVector;
@@ -632,6 +632,13 @@ void USkinnedMeshComponent::UpdateCPUSkinning()
 		Dst.Color = Src.Color;
 		Dst.UV = Src.UV;
 		Dst.Tangent = FVector4(SkinnedTangent, Src.Tangent.W);
+
+		// CPU Skinning 결과 버퍼에서도 Bone Weight Heatmap을 사용할 수 있도록 원본 bone 정보를 유지한다.
+		for (int32 k = 0; k < 4; ++k)
+		{
+			Dst.BoneIndices[k] = Src.BoneIndices[k];
+			Dst.BoneWeights[k] = Src.BoneWeights[k];
+		}
 	}
 
 	// SceneProxy는 revision 차이만 보고 dynamic vertex buffer upload 여부를 결정한다.
@@ -829,7 +836,7 @@ bool USkinnedMeshComponent::LineTraceComponent(const FRay& Ray, FHitResult& OutH
 		WorldMatrix,
 		WorldInverse,
 		SkinnedVertices.data(),
-		sizeof(FVertexPNCTT),
+		sizeof(FVertexPNCTBW),
 		Asset->Indices.data(),
 		static_cast<uint32>(Asset->Indices.size()),
 		OutHitResult);

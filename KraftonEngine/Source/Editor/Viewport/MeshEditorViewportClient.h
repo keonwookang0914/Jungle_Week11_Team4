@@ -54,6 +54,7 @@ public:
 
 	void SetSelectedBone(USkeletalMesh* Mesh, int32 BoneIndex);
 	const FBone* GetSelectedBone() const;
+	int32 GetSelectedBoneIndex() const { return SelectedBoneIndex; }
 
 	EBoneDebugDrawMode GetBoneDebugDrawMode() const;
 	void SetBoneDebugDrawMode(EBoneDebugDrawMode InDrawMode);

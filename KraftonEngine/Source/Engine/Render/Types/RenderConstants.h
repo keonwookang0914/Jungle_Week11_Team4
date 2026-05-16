@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Render/Types/RenderTypes.h"
 #include "Render/Resource/Buffer.h"
 #include "Render/Device/D3DDevice.h"
@@ -25,6 +25,7 @@ namespace ECBSlot
 	constexpr uint32 PerShader1 = 3; // b3: 셰이더별 여분 슬롯 #1 (PerShader2 예약)
 	constexpr uint32 Lighting = 4;   // b4: LightingBuffer (Ambient + Directional + 메타)
 	constexpr uint32 Shadow = 5;     // b5: ShadowBuffer (Shadow 행렬 + 파라미터)
+	constexpr uint32 Skinning = 6;   // b6: Skeletal skinning / bone weight heatmap parameter
 }
 
 // HLSL 라이팅 SRV 슬롯 — 프레임에 1회 바인딩 (Forward Shading)
@@ -96,6 +97,17 @@ struct FPerObjectConstants
 		return Result;
 	}
 };
+
+// SkeletalMesh 전용 작은 파라미터 CB (b6).
+// Bone matrix 배열은 GPU Skinning 단계에서 StructuredBuffer SRV로 분리한다.
+struct FSkinningConstants
+{
+	int32 SelectedBoneIndex = -1;
+	int32 bBoneWeightHeatmap = 0;
+	int32 bGPUSkinning = 0;
+	int32 BoneCount = 0;
+};
+static_assert(sizeof(FSkinningConstants) % 16 == 0, "FSkinningConstants must be 16-byte aligned");
 
 // =============================================================================
 // Shadow 상수

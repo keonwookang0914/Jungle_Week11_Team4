@@ -62,6 +62,7 @@ struct FDrawCommand
 
 	// ===== Bindings =====
 	FConstantBuffer*    PerObjectCB = nullptr;        // b1: Model + Color (per-proxy)
+	FConstantBuffer*    SkinningParamCB = nullptr;    // b6: Skeletal skinning / bone heatmap parameter
 	FDrawCommandBindings Bindings;                    // PerShaderCB + SRVs (per-material)
 
 	// ===== Sort =====

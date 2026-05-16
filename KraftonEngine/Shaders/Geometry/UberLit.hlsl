@@ -53,6 +53,7 @@ struct UberVS_Output
     float2 texcoord : TEXCOORD0;
     float3 worldPos : TEXCOORD1;
     float4 tangent : TANGENT;
+    float selectedBoneWeight : TEXCOORD4;
 #if defined(LIGHTING_MODEL_GOURAUD) && LIGHTING_MODEL_GOURAUD
     float3 litDiffuse  : TEXCOORD2;
     float3 litSpecular : TEXCOORD3;
@@ -63,32 +64,39 @@ struct UberVS_Output
 // =============================================================================
 // Vertex Shader
 // =============================================================================
-UberVS_Output VS(VS_Input_PNCTT input)
+UberVS_Output BuildUberVSOutput(
+    float3 position,
+    float3 normal,
+    float4 color,
+    float2 texcoord,
+    float4 tangent,
+    float selectedBoneWeight)
 {
     UberVS_Output output;
     
     float3x3 M = (float3x3) Model;
 
-    float4 worldPos4 = mul(float4(input.position, 1.0f), Model);
+    float4 worldPos4 = mul(float4(position, 1.0f), Model);
     output.worldPos = worldPos4.xyz;
     output.position = mul(mul(worldPos4, View), Projection);
-    output.normal = normalize(mul(input.normal, (float3x3) NormalMatrix));
-    output.color = input.color * SectionColor;
-    output.texcoord = input.texcoord;
+    output.normal = normalize(mul(normal, (float3x3) NormalMatrix));
+    output.color = color * SectionColor;
+    output.texcoord = texcoord;
+    output.selectedBoneWeight = selectedBoneWeight;
 
-    float3 T = normalize(mul(input.tangent.xyz, M));
+    float3 T = normalize(mul(tangent.xyz, M));
     T = normalize(T - output.normal * dot(output.normal, T));
-    output.tangent = float4(T, input.tangent.w);
+    output.tangent = float4(T, tangent.w);
 
 #if defined(LIGHTING_MODEL_GOURAUD) && LIGHTING_MODEL_GOURAUD
     float3 N =  output.normal;
 
     if (HasNormalMap > 0.5f)
     {
-        float3 B = normalize(cross(N, T) * input.tangent.w);
+        float3 B = normalize(cross(N, T) * tangent.w);
         float3x3 TBN = float3x3(T, B, N);
 
-        float3 tangentNormal = NormalTexture.SampleLevel(LinearWrapSampler, input.texcoord, 0).xyz * 2.0f - 1.0f;
+        float3 tangentNormal = NormalTexture.SampleLevel(LinearWrapSampler, texcoord, 0).xyz * 2.0f - 1.0f;
 
         N = normalize(mul(tangentNormal, TBN));
     }
@@ -102,6 +110,29 @@ UberVS_Output VS(VS_Input_PNCTT input)
     return output;
 }
 
+UberVS_Output VS(VS_Input_PNCTT input)
+{
+    return BuildUberVSOutput(input.position, input.normal, input.color, input.texcoord, input.tangent, 0.0f);
+}
+
+UberVS_Output SkeletalVS(VS_Input_PNCTBW input)
+{
+    float selectedWeight = 0.0f;
+
+    // CPU skinning 결과는 이미 position/normal/tangent에 반영되어 있으므로 여기서는 선택 bone weight만 전달한다.
+    // TODO: GPU Skinning 단계에서 bGPUSkinning이 켜지면 StructuredBuffer bone matrix로 vertex skinning을 수행한다.
+    [unroll]
+    for (int i = 0; i < 4; ++i)
+    {
+        if (input.boneIndices[i] == SelectedBoneIndex)
+        {
+            selectedWeight = input.boneWeights[i];
+        }
+    }
+
+    return BuildUberVSOutput(input.position, input.normal, input.color, input.texcoord, input.tangent, selectedWeight);
+}
+
 // =============================================================================
 // MRT 출력 구조체
 // =============================================================================
@@ -112,12 +143,66 @@ struct UberPS_Output
     float4 Culling : SV_TARGET2; // Tile Culling Heatmap
 };
 
+float3 GetBoneWeightHeatmapColor(float Weight)
+{
+    // Unreal weight paint에 가까운 heat ramp. 0 weight 색은 눈부심을 줄이기 위해 핫핑크보다 어둡게 둔다.
+    float w = saturate(Weight);
+
+    float3 c0 = float3(0.55f, 0.00f, 0.72f); // 영향 없음: 어두운 핑크/보라
+    float3 c1 = float3(0.00f, 0.00f, 1.00f); // 낮음: 파랑
+    float3 c2 = float3(0.00f, 0.85f, 1.00f); // 청록
+    float3 c3 = float3(0.00f, 1.00f, 0.00f); // 초록
+    float3 c4 = float3(1.00f, 1.00f, 0.00f); // 노랑
+    float3 c5 = float3(1.00f, 0.45f, 0.00f); // 주황
+    float3 c6 = float3(1.00f, 0.00f, 0.00f); // 높음: 빨강
+
+    if (w < 0.10f)
+    {
+        return lerp(c0, c1, smoothstep(0.00f, 0.10f, w));
+    }
+    if (w < 0.28f)
+    {
+        return lerp(c1, c2, smoothstep(0.10f, 0.28f, w));
+    }
+    if (w < 0.45f)
+    {
+        return lerp(c2, c3, smoothstep(0.28f, 0.45f, w));
+    }
+    if (w < 0.62f)
+    {
+        return lerp(c3, c4, smoothstep(0.45f, 0.62f, w));
+    }
+    if (w < 0.78f)
+    {
+        return lerp(c4, c5, smoothstep(0.62f, 0.78f, w));
+    }
+
+    return lerp(c5, c6, smoothstep(0.78f, 1.00f, w));
+}
+
 // =============================================================================
 // Pixel Shader
 // =============================================================================
 UberPS_Output PS(UberVS_Output input)
 {
     UberPS_Output output;
+
+    // Bone Weight Heatmap은 viewport debug 출력이므로 material/lighting/shadow 계산보다 먼저 반환한다.
+    if (bBoneWeightHeatmap != 0)
+    {
+        // 선택 bone이 없으면 전체를 0 weight 색으로 보여 선택 상태가 비어 있음을 명확히 한다.
+        float3 heatColor = GetBoneWeightHeatmapColor(0.0f);
+
+        if (SelectedBoneIndex >= 0)
+        {
+            heatColor = GetBoneWeightHeatmapColor(input.selectedBoneWeight);
+        }
+
+        output.Color = float4(heatColor, 1.0f);
+        output.Normal = float4(normalize(input.normal), 1.0f);
+        output.Culling = float4(0, 0, 0, 0);
+        return output;
+    }
 
     float4 texColor = DiffuseTexture.Sample(LinearWrapSampler, input.texcoord);
     if (texColor.a < 0.001f)

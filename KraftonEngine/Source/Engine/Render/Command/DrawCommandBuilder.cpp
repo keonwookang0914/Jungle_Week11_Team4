@@ -62,6 +62,16 @@ void FDrawCommandBuilder::Release()
 	}
 	PerSceneObjectCBPool.clear();
 
+	for (auto& Pair : PerSceneSkinningParamCBPool)
+	{
+		for (FConstantBuffer& CB : Pair.second)
+		{
+			CB.Release();
+		}
+		Pair.second.clear();
+	}
+	PerSceneSkinningParamCBPool.clear();
+
 	FogCB.Release();
 	OutlineCB.Release();
 	SceneDepthCB.Release();
@@ -80,6 +90,7 @@ void FDrawCommandBuilder::BeginCollect(const FFrameContext& Frame)
 {
 	DrawCommandList.Reset();
 	CollectViewMode = Frame.RenderOptions.ViewMode;
+	CollectRenderOptions = Frame.RenderOptions;
 	bHasSelectionMaskCommands = false;
 
 	// 동적 지오메트리 초기화
@@ -94,21 +105,33 @@ void FDrawCommandBuilder::BeginCollect(const FFrameContext& Frame)
 }
 
 // ============================================================
-// SelectEffectiveShader — ViewMode에 따른 UberLit 셰이더 변형 선택
+// SelectEffectiveShader — ViewMode와 SkeletalMesh 여부에 따른 UberLit 셰이더 변형 선택
 // ============================================================
-FShader* FDrawCommandBuilder::SelectEffectiveShader(FShader* ProxyShader, EViewMode ViewMode)
+FShader* FDrawCommandBuilder::SelectEffectiveShader(FShader* ProxyShader, EViewMode ViewMode, bool bSkeletal)
 {
 	if (ProxyShader != FShaderManager::Get().GetOrCreate(EShaderPath::UberLit))
 		return ProxyShader;
 
+	const FString VSEntry = bSkeletal ? "SkeletalVS" : "VS";
+
 	switch (ViewMode)
 	{
-	case EViewMode::Unlit:        return FShaderManager::Get().GetOrCreate(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Unlit));
-	case EViewMode::Lit_Gouraud:  return FShaderManager::Get().GetOrCreate(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Gouraud));
-	case EViewMode::Lit_Lambert:  return FShaderManager::Get().GetOrCreate(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Lambert));
-	case EViewMode::Lit_Phong:    return FShaderManager::Get().GetOrCreate(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Phong));
-	case EViewMode::LightCulling: return FShaderManager::Get().GetOrCreate(FShaderKey(EShaderPath::UberLit, EUberLitDefines::Phong));
-	default:                      return ProxyShader;
+	case EViewMode::Unlit:
+		return FShaderManager::Get().GetOrCreate(
+			FShaderKey(EShaderPath::UberLit, EUberLitDefines::Unlit, VSEntry, "PS"));
+	case EViewMode::Lit_Gouraud:
+		return FShaderManager::Get().GetOrCreate(
+			FShaderKey(EShaderPath::UberLit, EUberLitDefines::Gouraud, VSEntry, "PS"));
+	case EViewMode::Lit_Lambert:
+		return FShaderManager::Get().GetOrCreate(
+			FShaderKey(EShaderPath::UberLit, EUberLitDefines::Lambert, VSEntry, "PS"));
+	case EViewMode::Lit_Phong:
+	case EViewMode::LightCulling:
+		return FShaderManager::Get().GetOrCreate(
+			FShaderKey(EShaderPath::UberLit, EUberLitDefines::Phong, VSEntry, "PS"));
+	default:
+		return FShaderManager::Get().GetOrCreate(
+			FShaderKey(EShaderPath::UberLit, EUberLitDefines::Phong, VSEntry, "PS"));
 	}
 }
 
@@ -146,6 +169,25 @@ void FDrawCommandBuilder::BuildCommandForProxy(FScene& Scene, const FPrimitiveSc
 		Proxy.ClearPerObjectCBDirty();
 	}
 
+	const bool bSkeletal = Proxy.HasProxyFlag(EPrimitiveProxyFlags::SkeletalMesh);
+	FConstantBuffer* SkinningParamCB = nullptr;
+	if (bSkeletal)
+	{
+		SkinningParamCB = GetSkinningParamCBForProxy(&Scene, Proxy);
+
+		// Bone Weight Heatmap은 material이 아닌 viewport debug option에서만 온다.
+		FSkinningConstants Data;
+		Data.SelectedBoneIndex = CollectRenderOptions.BoneWeightHeatmapBoneIndex;
+		Data.bBoneWeightHeatmap = CollectRenderOptions.bBoneWeightHeatmap ? 1 : 0;
+		Data.bGPUSkinning = 0;
+		Data.BoneCount = 0; // TODO: GPU Skinning 단계에서 실제 bone count와 StructuredBuffer SRV를 연결한다.
+
+		if (SkinningParamCB)
+		{
+			SkinningParamCB->Update(Ctx, &Data, sizeof(FSkinningConstants));
+		}
+	}
+
 	// SelectionMask 커맨드 존재 추적
 	if (Pass == ERenderPass::SelectionMask)
 		bHasSelectionMaskCommands = true;
@@ -162,7 +204,7 @@ void FDrawCommandBuilder::BuildCommandForProxy(FScene& Scene, const FPrimitiveSc
 		FShader* SectionShader = (Section.Material && Section.Material->GetShader())
 			? Section.Material->GetShader()
 			: Proxy.GetShader();
-		FShader* EffectiveShader = SelectEffectiveShader(SectionShader, CollectViewMode);
+		FShader* EffectiveShader = SelectEffectiveShader(SectionShader, CollectViewMode, bSkeletal);
 
 		FDrawCommand& Cmd = DrawCommandList.AddCommand();
 		Cmd.Pass = Pass;
@@ -170,6 +212,7 @@ void FDrawCommandBuilder::BuildCommandForProxy(FScene& Scene, const FPrimitiveSc
 		Cmd.RenderState = BaseRenderState;
 		Cmd.Buffer = ProxyBuffer;
 		Cmd.PerObjectCB = PerObjCB;
+		Cmd.SkinningParamCB = SkinningParamCB;
 		Cmd.Buffer.FirstIndex = Section.FirstIndex;
 		Cmd.Buffer.IndexCount = Section.IndexCount;
 
@@ -289,6 +332,7 @@ void FDrawCommandBuilder::BuildCommands(const FFrameContext& Frame, FScene* Scen
 	if (Scene)
 	{
 		EnsurePerObjectCBPoolCapacity(Scene, Scene->GetProxyCount());
+		EnsureSkinningParamCBPoolCapacity(Scene, Scene->GetProxyCount());
 		BuildProxyCommands(Frame, *Scene, Output);
 	}
 
@@ -749,4 +793,29 @@ FConstantBuffer* FDrawCommandBuilder::GetPerObjectCBForProxy(FScene* Scene, cons
 
 	EnsurePerObjectCBPoolCapacity(Scene, Proxy.GetProxyId() + 1);
 	return &PerSceneObjectCBPool[Scene][Proxy.GetProxyId()];
+}
+
+void FDrawCommandBuilder::EnsureSkinningParamCBPoolCapacity(FScene* Scene, uint32 RequiredCount)
+{
+	if (!Scene) return;
+
+	TArray<FConstantBuffer>& Pool = PerSceneSkinningParamCBPool[Scene];
+
+	if (Pool.size() >= RequiredCount) return;
+
+	const size_t OldCount = Pool.size();
+	Pool.resize(RequiredCount);
+
+	for (size_t Index = OldCount; Index < Pool.size(); ++Index)
+	{
+		Pool[Index].Create(CachedDevice, sizeof(FSkinningConstants), "SkinningParamCB");
+	}
+}
+
+FConstantBuffer* FDrawCommandBuilder::GetSkinningParamCBForProxy(FScene* Scene, const FPrimitiveSceneProxy& Proxy)
+{
+	if (!Scene || Proxy.GetProxyId() == UINT32_MAX) return nullptr;
+
+	EnsureSkinningParamCBPoolCapacity(Scene, Proxy.GetProxyId() + 1);
+	return &PerSceneSkinningParamCBPool[Scene][Proxy.GetProxyId()];
 }
