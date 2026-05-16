@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Math/Vector.h"
 #include "Core/CoreTypes.h"
 #include "Core/PropertyTypes.h"
@@ -9,6 +9,7 @@ class UPrimitiveComponent;
 // ============================================================
 // ECollisionChannel — 충돌 채널 (오브젝트 분류용)
 // ============================================================
+UENUM()
 enum class ECollisionChannel : uint8
 {
 	WorldStatic = 0,
@@ -38,6 +39,7 @@ inline const char* GCollisionChannelNames[] =
 // ============================================================
 // ECollisionResponse — 채널 간 응답 방식
 // ============================================================
+UENUM()
 enum class ECollisionResponse : uint8
 {
 	Ignore = 0,
@@ -57,6 +59,7 @@ inline const char* GCollisionResponseNames[] =
 // ============================================================
 // ECollisionEnabled — 충돌 활성화 모드
 // ============================================================
+UENUM()
 enum class ECollisionEnabled : uint8
 {
 	NoCollision = 0,
@@ -78,8 +81,12 @@ inline const char* GCollisionEnabledNames[] =
 // ============================================================
 // FCollisionResponseContainer — 채널별 응답 테이블
 // ============================================================
+USTRUCT()
 struct FCollisionResponseContainer
 {
+	GENERATED_BODY(FCollisionResponseContainer)
+
+	UPROPERTY(Edit, Category="Collision", DisplayName="Collision Response")
 	ECollisionResponse Responses[static_cast<int32>(ECollisionChannel::MAX)];
 
 	FCollisionResponseContainer()

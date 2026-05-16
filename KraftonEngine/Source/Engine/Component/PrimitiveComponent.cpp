@@ -34,7 +34,6 @@ namespace
 	}
 }
 
-IMPLEMENT_CLASS(UPrimitiveComponent, USceneComponent)
 HIDE_FROM_COMPONENT_LIST(UPrimitiveComponent)
 
 BEGIN_CLASS_PROPERTIES(UPrimitiveComponent)
