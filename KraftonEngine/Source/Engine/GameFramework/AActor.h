@@ -125,9 +125,6 @@ protected:
 
 	USceneComponent* RootComponent = nullptr;
 
-	FVector PendingActorLocation = FVector(0, 0, 0);
-	FRotator PendingActorRotation = FRotator(0, 0, 0);
-	FVector PendingActorScale = FVector(1, 1, 1);
 	bool PendingActorVisible = true;
 
 	bool bVisible = true;

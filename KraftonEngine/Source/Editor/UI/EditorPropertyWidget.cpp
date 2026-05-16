@@ -424,16 +424,14 @@ void FEditorPropertyWidget::RenderDetails(AActor* PrimaryActor, const TArray<AAc
 
 void FEditorPropertyWidget::RenderActorProperties(AActor* PrimaryActor, const TArray<AActor*>& SelectedActors)
 {
-	if (PrimaryActor->GetRootComponent())
+	auto RenderPropertyTable = [&](const char* TableId, TArray<FProperty>& Props, auto&& OnChanged)
 	{
-		ImGui::Separator();
-		ImGui::Text("Transform");
-		ImGui::Spacing();
+		if (Props.empty())
+		{
+			return;
+		}
 
-		TArray<FProperty> Props;
-		PrimaryActor->GetEditableProperties(Props);
-
-		if (ImGui::BeginTable("##ActorPropertyTable", 2,
+		if (ImGui::BeginTable(TableId, 2,
 			ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg))
 		{
 			ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 150.0f);
@@ -463,7 +461,7 @@ void FEditorPropertyWidget::RenderActorProperties(AActor* PrimaryActor, const TA
 
 				if (bChanged)
 				{
-					PrimaryActor->PostEditProperty(Props[i].Name.c_str());
+					OnChanged(Props[i]);
 				}
 				ImGui::PopID();
 			}
@@ -471,6 +469,89 @@ void FEditorPropertyWidget::RenderActorProperties(AActor* PrimaryActor, const TA
 			ImGui::EndTable();
 			ImGui::PopStyleColor(2);
 		}
+	};
+
+	if (USceneComponent* RootComponent = PrimaryActor->GetRootComponent())
+	{
+		TArray<FProperty> RootProps;
+		RootComponent->GetEditableProperties(RootProps);
+
+		TArray<FProperty> TransformProps;
+		for (const auto& Prop : RootProps)
+		{
+			if (Prop.Category == "Transform")
+			{
+				TransformProps.push_back(Prop);
+			}
+		}
+
+		if (!TransformProps.empty())
+		{
+			ImGui::Separator();
+			ImGui::Text("Transform");
+			ImGui::Spacing();
+
+			RenderPropertyTable("##ActorRootTransformTable", TransformProps,
+				[RootComponent](const FProperty& Prop)
+				{
+					RootComponent->PostEditProperty(Prop.Name.c_str());
+				});
+		}
+	}
+
+	TArray<FProperty> ActorProps;
+	PrimaryActor->GetEditableProperties(ActorProps);
+	if (ActorProps.empty())
+	{
+		return;
+	}
+
+	TArray<std::string> CategoryOrder;
+	for (const auto& Prop : ActorProps)
+	{
+		bool bFound = false;
+		for (const auto& Category : CategoryOrder)
+		{
+			if (Category == Prop.Category)
+			{
+				bFound = true;
+				break;
+			}
+		}
+		if (!bFound)
+		{
+			CategoryOrder.push_back(Prop.Category);
+		}
+	}
+
+	for (const auto& Category : CategoryOrder)
+	{
+		TArray<FProperty> CategoryProps;
+		for (const auto& Prop : ActorProps)
+		{
+			if (Prop.Category == Category)
+			{
+				CategoryProps.push_back(Prop);
+			}
+		}
+
+		if (CategoryProps.empty())
+		{
+			continue;
+		}
+
+		ImGui::Separator();
+		if (!Category.empty())
+		{
+			ImGui::TextUnformatted(Category.c_str());
+			ImGui::Spacing();
+		}
+
+		RenderPropertyTable(("##ActorPropertyTable_" + Category).c_str(), CategoryProps,
+			[PrimaryActor](const FProperty& Prop)
+			{
+				PrimaryActor->PostEditProperty(Prop.Name.c_str());
+			});
 	}
 }
 

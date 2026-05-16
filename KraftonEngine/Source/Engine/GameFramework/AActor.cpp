@@ -162,8 +162,6 @@ FVector AActor::GetActorLocation() const
 
 void AActor::SetActorLocation(const FVector& NewLocation)
 {
-	PendingActorLocation = NewLocation;
-
 	if (RootComponent)
 	{
 		RootComponent->SetWorldLocation(NewLocation);
@@ -232,7 +230,6 @@ FRotator AActor::GetActorRotation() const
 
 void AActor::SetActorRotation(const FRotator& NewRotation)
 {
-	PendingActorRotation = NewRotation;
 	if (RootComponent)
 	{
 		RootComponent->SetRelativeRotation(NewRotation);
@@ -241,7 +238,6 @@ void AActor::SetActorRotation(const FRotator& NewRotation)
 
 void AActor::SetActorRotation(const FVector& EulerRotation)
 {
-	PendingActorRotation = FRotator(EulerRotation);
 	if (RootComponent)
 	{
 		RootComponent->SetRelativeRotation(EulerRotation);
@@ -443,14 +439,7 @@ void AActor::GetEditableProperties(TArray<FProperty>& OutProps)
 {
 	UObject::GetEditableProperties(OutProps);
 
-	PendingActorLocation = GetActorLocation();
-	PendingActorRotation = GetActorRotation();
-	PendingActorScale = GetActorScale();
 	PendingActorVisible = bVisible;
-
-	OutProps.push_back({ "Location", EPropertyType::Vec3, "Transform", &PendingActorLocation });
-	OutProps.push_back({ "Rotation", EPropertyType::Rotator, "Transform", &PendingActorRotation });
-	OutProps.push_back({ "Scale", EPropertyType::Vec3, "Transform", &PendingActorScale });
 	OutProps.push_back({ "Visible", EPropertyType::Bool, "Actor", &PendingActorVisible });
 
 	// Tags — 콤마 구분 단일 문자열로 편집. PostEditProperty 가 다시 split 해서 Tags 갱신.
@@ -461,19 +450,7 @@ void AActor::GetEditableProperties(TArray<FProperty>& OutProps)
 void AActor::PostEditProperty(const char* PropertyName)
 {
 	UObject::PostEditProperty(PropertyName);
-	if (strcmp(PropertyName, "Location") == 0)
-	{
-		SetActorLocation(PendingActorLocation);
-	}
-	else if (strcmp(PropertyName, "Rotation") == 0)
-	{
-		SetActorRotation(PendingActorRotation);
-	}
-	else if (strcmp(PropertyName, "Scale") == 0)
-	{
-		SetActorScale(PendingActorScale);
-	}
-	else if (strcmp(PropertyName, "Visible") == 0)
+	if (strcmp(PropertyName, "Visible") == 0)
 	{
 		SetVisible(PendingActorVisible);
 	}
