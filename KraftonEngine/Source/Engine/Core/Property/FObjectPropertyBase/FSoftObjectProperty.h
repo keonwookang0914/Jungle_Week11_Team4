@@ -15,7 +15,7 @@ public:
 	FSoftObjectProperty(const FString& InName, const FString& InCategory,  
 		uint32 InFlag, uint32 InOffset, uint32 InSize,  
 		UClass* InPropertyClass)  
-		: FObjectPropertyBase(InName, InCategory, InFlag, InOffset, InSize, InPropertyClass) // Explicitly call the default constructor of the base class  
+		: FObjectPropertyBase(InName, InCategory, InFlag, InOffset, InSize, InPropertyClass) 
 	{  
 		Name = InName; Category = InCategory; PropertyFlag = InFlag;  
 		Offset_Internal = InOffset; ElementSize = InSize;  
