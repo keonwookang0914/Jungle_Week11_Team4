@@ -767,6 +767,9 @@
     <ClCompile Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.cpp">
       <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Core\UObject\FSoftObjectPath.cpp">
+      <Filter>Source\Engine\Core\UObject</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Debug\DebugDrawQueue.cpp">
       <Filter>Source\Engine\Debug</Filter>
     </ClCompile>

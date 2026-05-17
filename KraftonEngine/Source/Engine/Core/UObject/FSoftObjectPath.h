@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Core/ClassTypes.h"
 
+class FArchive;
+
 struct FSoftObjectPath
 {
 private:
@@ -33,3 +35,5 @@ public:
 		AssetPathName = InPath.empty() ? "None" : InPath;
 	}
 };
+
+FArchive& operator<<(FArchive& Ar, FSoftObjectPath& Path);
