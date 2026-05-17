@@ -138,7 +138,11 @@ public:
 	virtual void PostEditProperty(const char* PropertyName);
 	virtual void GetNonTransientProperties(TArray<const FProperty*>& OutProps);
 
-	virtual const FString& GetAssetPathFileName() const { return "None"; }
+	virtual const FString& GetAssetPathFileName() const
+	{
+		static const FString Empty("None");
+		return Empty;
+	}
 
 	static void* operator new(size_t Size)
 	{
