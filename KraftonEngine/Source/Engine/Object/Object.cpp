@@ -60,35 +60,18 @@ void UObject::Serialize(FArchive& Ar)
 	Ar << ObjectName;
 }
 
-void UObject::GetAllProperties(TArray<FProperty>& OutProps)
+void UObject::GetAllProperties(TArray<const FProperty*>& OutProps)
 {
 	UClass* Cls = GetClass();
 	if (!Cls) return;
-
-	const size_t Start = OutProps.size();
 	Cls->GetAllProperties(OutProps);
-
-	uint8_t* Base = reinterpret_cast<uint8_t*>(this);
-	for (size_t i = Start; i < OutProps.size(); ++i)
-	{
-		OutProps[i].ValuePtr = Base + OutProps[i].Offset_Internal;
-	}
 }
 
-void UObject::GetEditableProperties(TArray<FProperty>& OutProps)
+void UObject::GetEditableProperties(TArray<const FProperty*>& OutProps)
 {
-
 	UClass* Cls = GetClass();
 	if (!Cls) return;
-
-	const size_t Start = OutProps.size();
 	Cls->GetEditableProperties(OutProps);
-
-	uint8_t* Base = reinterpret_cast<uint8_t*>(this);
-	for (size_t i = Start; i < OutProps.size(); ++i)
-	{
-		OutProps[i].ValuePtr = Base + OutProps[i].Offset_Internal;
-	}
 }
 
 void UObject::PostEditProperty(const char* /*PropertyName*/)
@@ -96,19 +79,11 @@ void UObject::PostEditProperty(const char* /*PropertyName*/)
 	// 기본 UObject는 편집 후 추가 작업 없음.
 }
 
-void UObject::GetNonTransientProperties(TArray<FProperty>& OutProps)
+void UObject::GetNonTransientProperties(TArray<const FProperty*>& OutProps)
 {
 	UClass* Cls = GetClass();
 	if (!Cls) return;
-
-	const size_t Start = OutProps.size();
 	Cls->GetNonTransientProperties(OutProps);
-
-	uint8_t* Base = reinterpret_cast<uint8_t*>(this);
-	for (size_t i = Start; i < OutProps.size(); ++i)
-	{
-		OutProps[i].ValuePtr = Base + OutProps[i].Offset_Internal;
-	}
 }
 
 UClass UObject::StaticClassInstance("UObject", nullptr, sizeof(UObject), CF_None);

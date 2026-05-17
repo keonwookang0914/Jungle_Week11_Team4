@@ -27,13 +27,9 @@ public:
 
 	~UClass()
 	{
-		for (uint32 i = 0; i < Properties.size(); i++)
+		for (FProperty* Property : Properties)
 		{
-			if (Properties[i])
-			{
-				delete Properties[i];
-				Properties[i] = nullptr;
-			}
+			delete Property;
 		}
 		Properties.clear();
 	}
@@ -52,20 +48,18 @@ public:
 	void		 HideInheritedProperty(FString InName);
 	bool		 IsPropertyHidden(FString InName) const;
 
-	// 베이스 → 파생 순서로 모든 프로퍼티 템플릿을 OutProps 에 복사.
-	// 기존 GetEditableProperties 구현이 Super 를 먼저 호출하던 순서와 동일하다.
-	// 복사본을 돌려주므로 호출자가 ValuePtr 을 인스턴스 주소로 패치해도 템플릿은 안전.
-	void GetAllProperties(TArray<FProperty>& OutProps) const
+	// Base-to-derived order, matching the previous enumeration behavior.
+	void GetAllProperties(TArray<const FProperty*>& OutProps) const
 	{
 		if (SuperClass) SuperClass->GetAllProperties(OutProps);
 		for (const FProperty* P : Properties)
 		{
-			if (P) OutProps.push_back(*P);
+			if (P) OutProps.push_back(P);
 		}
 	}
 
-	void GetEditableProperties(TArray<FProperty>& OutProps) const;
-	void GetNonTransientProperties(TArray<FProperty>& OutProps) const;
+	void GetEditableProperties(TArray<const FProperty*>& OutProps) const;
+	void GetNonTransientProperties(TArray<const FProperty*>& OutProps) const;
 
 	// 이름으로 프로퍼티 룩업. 자기 클래스 → 베이스 순서로 검색.
 	const FProperty* FindPropertyByName(const char* InName) const
@@ -114,8 +108,8 @@ public:
 	}
 
 private:
-	void GetEditablePropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const;
-	void GetNonTransientPropertiesFor(TArray<FProperty>& OutProps, const UClass* TargetClass) const;
+	void GetEditablePropertiesFor(TArray<const FProperty*>& OutProps, const UClass* TargetClass) const;
+	void GetNonTransientPropertiesFor(TArray<const FProperty*>& OutProps, const UClass* TargetClass) const;
 
 private:
 	const char* Name        = nullptr;

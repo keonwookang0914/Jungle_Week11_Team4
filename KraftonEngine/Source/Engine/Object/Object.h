@@ -41,9 +41,7 @@ class FArchive;
 // inlined into the generated .gen.cpp, no macro indirection. The BEGIN/END
 // scaffold and the *_OFFSET helpers below remain for the case the generator
 // cannot express: properties whose address can't be reached with
-// offsetof(ThisClass, X) (e.g. nested members). Instance binding
-// (ValuePtr = this + Offset) is still performed by
-// UObject::GetEditableProperties.
+// offsetof(ThisClass, X) (e.g. nested members).
 // ---------------------------------------------------------------------------
 
 #define BEGIN_CLASS_PROPERTIES(ClassName)                                   \
@@ -135,10 +133,10 @@ public:
 	virtual void Serialize(FArchive& Ar);
 	virtual void PostDuplicate() {}
 
-	virtual void GetAllProperties(TArray<FProperty>& OutProps);
-	virtual void GetEditableProperties(TArray<FProperty>& OutProps);
+	virtual void GetAllProperties(TArray<const FProperty*>& OutProps);
+	virtual void GetEditableProperties(TArray<const FProperty*>& OutProps);
 	virtual void PostEditProperty(const char* PropertyName);
-	virtual void GetNonTransientProperties(TArray<FProperty>& OutProps);
+	virtual void GetNonTransientProperties(TArray<const FProperty*>& OutProps);
 
 	static void* operator new(size_t Size)
 	{

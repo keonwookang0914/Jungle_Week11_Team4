@@ -224,9 +224,8 @@ shippable increments.
 ### Phase 1 — Hierarchy in place (foundation)
 1. Add `virtual ~FProperty()`, `GetType()`, `ContainerPtrToValuePtr`,
    delete copy ctor in [PropertyTypes.h](../KraftonEngine/Source/Engine/Core/Property/PropertyTypes.h).
-2. Define all concrete subclasses in the same header.
-3. Update `FStructPropertySchemaFn` typedef.
-4. Strip the value-copy comment block at lines 80-84; replace with the
+2. Update `FStructPropertySchemaFn` typedef.
+3. Strip the value-copy comment block at lines 80-84; replace with the
    schema/instance one-liner.
 
 ### Phase 2 — `UClass` and `UObject` move to pointer arrays
