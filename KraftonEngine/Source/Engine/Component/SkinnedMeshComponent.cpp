@@ -98,7 +98,7 @@ void USkinnedMeshComponent::SetSkeletalMesh(USkeletalMesh* InMesh)
 	}
 	else
 	{
-		SkeletalMeshPath = "None";
+		SkeletalMeshPath.Reset();
 		OverrideMaterials.clear();
 		MaterialSlots.clear();
 	}
@@ -668,10 +668,10 @@ void USkinnedMeshComponent::PostDuplicate()
 {
 	UMeshComponent::PostDuplicate();
 
-	if (!SkeletalMeshPath.empty() && SkeletalMeshPath != "None")
+	if (!SkeletalMeshPath.IsNull())
 	{
 		ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-		USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMeshPath, Device);
+		USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMeshPath.ToString(), Device);
 		if (Loaded)
 		{
 			TArray<FMaterialSlot> SavedSlots = MaterialSlots;
@@ -709,10 +709,10 @@ void USkinnedMeshComponent::PostEditProperty(const char* PropertyName)
 	if (strcmp(PropertyName, "Skeletal Mesh") == 0)
 	{
 		// mesh path 변경도 코드 경로와 같은 SetSkeletalMesh를 통과시켜 skinning과 dirty 처리를 통일한다.
-		if (!SkeletalMeshPath.empty() && SkeletalMeshPath != "None")
+		if (!SkeletalMeshPath.IsNull())
 		{
 			ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-			USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMeshPath, Device);
+			USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMeshPath.ToString(), Device);
 
 			SetSkeletalMesh(Loaded);
 		}

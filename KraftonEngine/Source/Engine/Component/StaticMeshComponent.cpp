@@ -43,7 +43,7 @@ void UStaticMeshComponent::SetStaticMesh(UStaticMesh* InMesh)
 	}
 	else
 	{
-		StaticMeshPath = "None";
+		StaticMeshPath.Reset();
 		OverrideMaterials.clear();
 		MaterialSlots.clear();
 	}
@@ -226,10 +226,10 @@ void UStaticMeshComponent::PostDuplicate()
 	UMeshComponent::PostDuplicate();
 
 	// 메시 에셋 재로딩
-	if (!StaticMeshPath.empty() && StaticMeshPath != "None")
+	if (!StaticMeshPath.IsNull())
 	{
 		ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-		UStaticMesh* Loaded = FMeshManager::LoadStaticMesh(StaticMeshPath, Device);
+		UStaticMesh* Loaded = FMeshManager::LoadStaticMesh(StaticMeshPath.ToString(), Device);
 		if (Loaded)
 		{
 			// SetStaticMesh는 MaterialSlots를 덮어쓰므로, 직렬화된 슬롯 정보를 백업·복원한다.
@@ -265,14 +265,14 @@ void UStaticMeshComponent::PostEditProperty(const char* PropertyName)
 
 	if (strcmp(PropertyName, "Static Mesh") == 0)
 	{
-		if (StaticMeshPath.empty() || StaticMeshPath == "None")
+		if (StaticMeshPath.IsNull())
 		{
 			StaticMesh = nullptr;
 		}
 		else
 		{
 			ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-			UStaticMesh* Loaded = FMeshManager::LoadStaticMesh(StaticMeshPath, Device);
+			UStaticMesh* Loaded = FMeshManager::LoadStaticMesh(StaticMeshPath.ToString(), Device);
 			SetStaticMesh(Loaded);
 		}
 		CacheLocalBounds();
