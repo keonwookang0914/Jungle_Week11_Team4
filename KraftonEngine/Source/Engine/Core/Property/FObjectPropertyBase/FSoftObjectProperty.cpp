@@ -1,95 +1,36 @@
 ﻿#include "FSoftObjectProperty.h"
-#include "Mesh/StaticMesh.h"
-#include "Mesh/SkeletalMesh.h"
-#include "Mesh/MeshManager.h"
-#include "Core/UObject/TSoftObjectPtr.h"
-
-namespace
-{
-	const FSoftObjectPath* GetSoftObjectPath(const void* Addr, const UClass* PropertyClass)
-	{
-		if (PropertyClass == UStaticMesh::StaticClass())
-		{
-			return &static_cast<const TSoftObjectPtr<UStaticMesh>*>(Addr)->GetPath();
-		}
-		if (PropertyClass == USkeletalMesh::StaticClass())
-		{
-			return &static_cast<const TSoftObjectPtr<USkeletalMesh>*>(Addr)->GetPath();
-		}
-		return nullptr;
-	}
-
-	void SetSoftObjectPath(void* Addr, const UClass* PropertyClass, const FString& Path)
-	{
-		if (PropertyClass == UStaticMesh::StaticClass())
-		{
-			static_cast<TSoftObjectPtr<UStaticMesh>*>(Addr)->SetPath(Path);
-			return;
-		}
-		if (PropertyClass == USkeletalMesh::StaticClass())
-		{
-			static_cast<TSoftObjectPtr<USkeletalMesh>*>(Addr)->SetPath(Path);
-		}
-	}
-}
+#include "Core/UObject/FSoftObjectPtr.h"
+#include "Object/Object.h"
+#include "SimpleJSON/json.hpp"
 
 UObject* FSoftObjectProperty::GetObjectPropertyValue(void* Addr) const
 {
-	//TSoftObjectPtr<T> &static_cast<const TSoftObjectPtr<UStaticMesh>*>(Addr)->GetPath();
-	const FSoftObjectPath* Path = GetSoftObjectPath(Addr, PropertyClass);
-	if (!Path || Path->IsNull()) return nullptr;
-	if (PropertyClass == UStaticMesh::StaticClass())
-	{
-		auto* Ptr = static_cast<TSoftObjectPtr<UStaticMesh>*>(Addr);
-		return Ptr->Get() ? Ptr->Get() : FMeshManager::FindStaticMesh(Path->ToString());
-	}
-	if (PropertyClass == USkeletalMesh::StaticClass())
-	{
-		auto* Ptr = static_cast<TSoftObjectPtr<USkeletalMesh>*>(Addr);
-		return Ptr->Get() ? Ptr->Get() : FMeshManager::FindSkeletalMesh(Path->ToString());
-	}
-	return nullptr;
+	return static_cast<FSoftObjectPtr*>(Addr)->Get();
 }
 
 void FSoftObjectProperty::SetObjectPropertyValue(void* Addr, UObject* Value) const
 {
-	if (!Value)
+	auto* Ptr = static_cast<FSoftObjectPtr*>(Addr);
+
+	// Type-safety check lives on the property (PropertyClass), per the UE doc:
+	// "Data is dumb. Metadata is smart."
+	if (!Value || (PropertyClass && !Value->IsA(PropertyClass)))
 	{
-		if (PropertyClass == UStaticMesh::StaticClass())
-		{
-			static_cast<TSoftObjectPtr<UStaticMesh>*>(Addr)->Reset();
-		}
-		else if (PropertyClass == USkeletalMesh::StaticClass())
-		{
-			static_cast<TSoftObjectPtr<USkeletalMesh>*>(Addr)->Reset();
-		}
+		Ptr->Reset();
 		return;
 	}
 
-	if (PropertyClass == UStaticMesh::StaticClass())
-	{
-		auto* Ptr = static_cast<TSoftObjectPtr<UStaticMesh>*>(Addr);
-		auto* Mesh = static_cast<UStaticMesh*>(Value);
-		Ptr->SetPath(Mesh->GetAssetPathFileName());
-		return;
-	}
-
-	if (PropertyClass == USkeletalMesh::StaticClass())
-	{
-		auto* Ptr = static_cast<TSoftObjectPtr<USkeletalMesh>*>(Addr);
-		auto* Mesh = static_cast<USkeletalMesh*>(Value);
-		Ptr->SetPath(Mesh->GetAssetPathFileName());
-		return;
-	}
+	Ptr->SetPath(Value->GetAssetPathFileName());
+	Ptr->SetCache(Value);
 }
 
 json::JSON FSoftObjectProperty::Serialize(const void* Instance) const
 {
-	const auto* Path = GetSoftObjectPath(ContainerPtrToValuePtr(Instance), PropertyClass);
-	return json::JSON(Path ? Path->ToString() : FString());
+	return json::JSON(
+		static_cast<const FSoftObjectPtr*>(ContainerPtrToValuePtr(Instance))->GetPath().ToString());
 }
 
 void FSoftObjectProperty::Deserialize(void* Instance, const json::JSON& Value) const
 {
-	SetSoftObjectPath(ContainerPtrToValuePtr(Instance), PropertyClass, Value.ToString());
+	static_cast<FSoftObjectPtr*>(ContainerPtrToValuePtr(Instance))->SetPath(Value.ToString());
 }
