@@ -1,6 +1,14 @@
 ﻿#pragma once  
 #include "FObjectPropertyBase.h"  
 
+// ---------------------------------------------------------------------------------------------------
+// About
+// 
+// FSoftObjectProperty is the reflection class responsible for managing Indirect References to assets.
+// Its primary purpose is to allow an Actor to “know about” an asset
+// (via a string path) without forcing that asset to be loaded into memory.
+// ---------------------------------------------------------------------------------------------------
+
 class FSoftObjectProperty final : public FObjectPropertyBase  
 {  
 public:  
