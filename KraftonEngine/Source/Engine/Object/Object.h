@@ -169,6 +169,7 @@ public:
 
 	template<typename T>
 	bool IsA() const { return GetClass()->IsA(T::StaticClass()); }
+	bool IsA(const UClass* Other) const { return Other && GetClass()->IsA(Other); }
 
 	static UClass StaticClassInstance;
 	static UClass* StaticClass() { return &StaticClassInstance; }
