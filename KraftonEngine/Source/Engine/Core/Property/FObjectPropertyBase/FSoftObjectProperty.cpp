@@ -8,7 +8,7 @@ UObject* FSoftObjectProperty::GetObjectPropertyValue(void* Addr) const
 	const FString& Path = *static_cast<const FString*>(Addr);
 	if (Path.empty() || Path == "None") return nullptr;
 	if (PropertyClass == UStaticMesh::StaticClass())
-		return FMeshManager::FindStaticMesh(Path);     // or whatever the API is
+		return FMeshManager::FindStaticMesh(Path);
 	if (PropertyClass == USkeletalMesh::StaticClass())
 		return FMeshManager::FindSkeletalMesh(Path);
 	return nullptr;
