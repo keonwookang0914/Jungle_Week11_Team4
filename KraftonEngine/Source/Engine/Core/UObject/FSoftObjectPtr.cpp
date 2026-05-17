@@ -1,16 +1,15 @@
 ﻿#include "FSoftObjectPtr.h"
 #include "Serialization/Archive.h"
 
+
 FArchive& operator<<(FArchive& Ar, FSoftObjectPtr& Ptr)
 {
-	FSoftObjectPath Path = Ptr.GetPath();
-	FString SerializedPath = Ar.IsSaving() ? Path.ToString() : FString();
-	Ar << SerializedPath;
-
+	FSoftObjectPath& Path = Ptr.GetMutablePath();
+	Ar << Path;
 	if (Ar.IsLoading())
 	{
-		Path.SetPath(SerializedPath);
+		// Path changed; force cache refresh on next Get().
+		Ptr.SetCache(nullptr);
 	}
-
 	return Ar;
 }
