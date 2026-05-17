@@ -469,6 +469,7 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Core\Property\PropertyTypes.cpp" />
     <ClCompile Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.cpp" />
     <ClCompile Include="Source\Engine\Core\UObject\FSoftObjectPath.cpp" />
+    <ClCompile Include="Source\Engine\Core\UObject\FSoftObjectPtr.cpp" />
     <ClCompile Include="Source\Engine\Core\UObject\TSoftObjectPtr.cpp" />
     <ClCompile Include="Source\Engine\Debug\DebugDrawQueue.cpp" />
     <ClCompile Include="Source\Engine\Debug\DrawDebugHelpers.cpp" />

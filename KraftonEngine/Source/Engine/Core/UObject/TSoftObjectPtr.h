@@ -1,9 +1,11 @@
 ﻿#pragma once
+#include "FSoftObjectPtr.h"
 #include "FSoftObjectPath.h"
 #include "Serialization/Archive.h"
 
+
 template <typename T>
-class TSoftObjectPtr
+class TSoftObjectPtr : public FSoftObjectPtr
 {
 public:
 	TSoftObjectPtr() = default;
