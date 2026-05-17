@@ -12,7 +12,10 @@ public:
 	void Reset() { Path.Reset(); CachedObject = nullptr; }
 
 	const FSoftObjectPath& GetPath() const { return Path; }
+	void SetPath(const FSoftObjectPath& InPath) { CachedObject = nullptr; Path = InPath; }
 
+	T* Get() const { return CachedObject; }
+	void Set(T* InObject) { CachedObject = InObject; } // Later: derive Path from object through a generic asset-path API
 
 private:
 	FSoftObjectPath Path;
