@@ -386,6 +386,23 @@ UStaticMesh* FMeshManager::LoadStaticMesh(const FString& PathFileName, ID3D11Dev
 	return StaticMesh;
 }
 
+UStaticMesh* FMeshManager::FindStaticMesh(const FString& PathFileName)
+{
+	if (PathFileName.empty() || !IsAssetPackagePath(PathFileName))
+	{
+		return nullptr;
+	}
+
+	const FString CacheKey = GetStaticMeshBinaryFilePath(PathFileName);
+	if (CacheKey.empty())
+	{
+		return nullptr;
+	}
+
+	auto It = StaticMeshCache.find(CacheKey);
+	return It != StaticMeshCache.end() ? It->second : nullptr;
+}
+
 void FMeshManager::ReleaseAllGPU()
 {
 	// Static Mesh
@@ -479,4 +496,21 @@ USkeletalMesh* FMeshManager::LoadSkeletalMesh(const FString& PathFileName, ID3D1
 	SkeletalMeshCache[CacheKey] = SkeletalMesh;
 
 	return SkeletalMesh;
+}
+
+USkeletalMesh* FMeshManager::FindSkeletalMesh(const FString& PathFileName)
+{
+	if (PathFileName.empty() || !IsAssetPackagePath(PathFileName))
+	{
+		return nullptr;
+	}
+
+	const FString CacheKey = GetSkeletalMeshBinaryFilePath(PathFileName);
+	if (CacheKey.empty())
+	{
+		return nullptr;
+	}
+
+	auto It = SkeletalMeshCache.find(CacheKey);
+	return It != SkeletalMeshCache.end() ? It->second : nullptr;
 }
