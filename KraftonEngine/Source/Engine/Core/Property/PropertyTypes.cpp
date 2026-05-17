@@ -1,4 +1,4 @@
-#include "Core/Property/PropertyTypes.h"
+﻿#include "Core/Property/PropertyTypes.h"
 
 #include <cstring>
 
@@ -20,6 +20,7 @@
 #include "Core/Property/FStructProperty.h"
 #include "Core/Property/FVec3Property.h"
 #include "Core/Property/FVec4Property.h"
+#include "Core/Property/FObjectPropertyBase/FSoftObjectProperty.h"
 #include "Object/FName.h"
 #include "SimpleJSON/json.hpp"
 
@@ -337,4 +338,13 @@ void FStructProperty::Deserialize(void* Instance, const json::JSON& Value) const
 		const json::JSON& ChildValue = Value.at(Child->Name.c_str());
 		Child->Deserialize(StructInstance, ChildValue);
 	}
+}
+
+json::JSON FSoftObjectProperty::Serialize(const void* Instance) const
+{
+
+}
+void FSoftObjectProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+
 }
