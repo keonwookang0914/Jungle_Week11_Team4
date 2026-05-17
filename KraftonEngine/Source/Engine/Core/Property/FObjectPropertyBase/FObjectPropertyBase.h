@@ -12,10 +12,6 @@ public:
 
 	// -----------------------------------------------------------------------------------------
 	// GetObjectPropertyValue()
-	// Purpose:	Reads the raw `UObject*` stored at that memory address.
-	// Usage:	Fast and direct, but only works if the property is a "hard" object pointer.
-	// _________________________________________________________________________________________
-	// 
 	// Returns the UObject currently represented by this property value.
 	// Hard object properties read the stored pointer directly.
 	// Soft object properties may resolve a loaded object from an indirect reference
@@ -39,12 +35,10 @@ public:
 protected:
 	FObjectPropertyBase(const FString& InName, const FString& InCategory,
 		uint32 InFlag, uint32 InOffset, uint32 InSize,
-		UClass* InPropertyClass) : FProperty(InName, InCategory, InFlag, InOffset, InSize) 
-	{
-		Name = InName; Category = InCategory; PropertyFlag = InFlag;
-		Offset_Internal = InOffset; ElementSize = InSize;
-		PropertyClass = InPropertyClass;
-	}
+		UClass* InPropertyClass)
+		: FProperty(InName, InCategory, InFlag, InOffset, InSize)
+		, PropertyClass(InPropertyClass)
+	{}
 
 	virtual ~FObjectPropertyBase() = default;
 };

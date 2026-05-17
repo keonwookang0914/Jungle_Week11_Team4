@@ -3,7 +3,7 @@
 #include "Object/ObjectFactory.h"
 #include "Core/Property/FArrayProperty.h"
 #include "Core/Property/FMaterialSlotProperty.h"
-#include "Core/Property/FSkeletalMeshRefProperty.h"
+#include "Core/Property/FObjectPropertyBase/FSoftObjectProperty.h"
 
 UClass USkinnedMeshComponent::StaticClassInstance(
     "USkinnedMeshComponent", &UMeshComponent::StaticClassInstance,
@@ -17,7 +17,7 @@ struct USkinnedMeshComponent_PropertyRegistrar {
         UClass* Cls = USkinnedMeshComponent::StaticClass();
         (void)Cls;
         {
-            Cls->AddProperty(new FSkeletalMeshRefProperty("Skeletal Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, SkeletalMeshPath)), static_cast<uint32>(sizeof(((ThisClass*)0)->SkeletalMeshPath))));
+            Cls->AddProperty(new FSoftObjectProperty("Skeletal Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, SkeletalMeshPath)), static_cast<uint32>(sizeof(((ThisClass*)0)->SkeletalMeshPath)), USkeletalMesh::StaticClass()));
         }
         {
             Cls->AddProperty(new FArrayProperty("Materials", "Materials", CPF_Edit | CPF_FixedSize, static_cast<uint32>(offsetof(ThisClass, MaterialSlots)), static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlots)),

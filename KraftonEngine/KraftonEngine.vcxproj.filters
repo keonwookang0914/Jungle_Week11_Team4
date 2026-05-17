@@ -1598,12 +1598,6 @@
     <ClInclude Include="Source\Engine\Core\Property\FScriptProperty.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FSkeletalMeshRefProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FStaticMeshRefProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Core\Property\FStringProperty.h">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>

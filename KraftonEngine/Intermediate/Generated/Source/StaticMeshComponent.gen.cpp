@@ -3,7 +3,7 @@
 #include "Object/ObjectFactory.h"
 #include "Core/Property/FArrayProperty.h"
 #include "Core/Property/FMaterialSlotProperty.h"
-#include "Core/Property/FStaticMeshRefProperty.h"
+#include "Core/Property/FObjectPropertyBase/FSoftObjectProperty.h"
 
 UClass UStaticMeshComponent::StaticClassInstance(
     "UStaticMeshComponent", &UMeshComponent::StaticClassInstance,
@@ -17,7 +17,7 @@ struct UStaticMeshComponent_PropertyRegistrar {
         UClass* Cls = UStaticMeshComponent::StaticClass();
         (void)Cls;
         {
-            Cls->AddProperty(new FStaticMeshRefProperty("Static Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, StaticMeshPath)), static_cast<uint32>(sizeof(((ThisClass*)0)->StaticMeshPath))));
+            Cls->AddProperty(new FSoftObjectProperty("Static Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, StaticMeshPath)), static_cast<uint32>(sizeof(((ThisClass*)0)->StaticMeshPath)), UStaticMesh::StaticClass()));
         }
         {
             Cls->AddProperty(new FArrayProperty("Materials", "Materials", CPF_Edit | CPF_FixedSize, static_cast<uint32>(offsetof(ThisClass, MaterialSlots)), static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlots)),

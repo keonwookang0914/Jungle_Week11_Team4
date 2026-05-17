@@ -14,8 +14,6 @@
 #include "Core/Property/FRotatorProperty.h"
 #include "Core/Property/FSceneComponentRefProperty.h"
 #include "Core/Property/FScriptProperty.h"
-#include "Core/Property/FSkeletalMeshRefProperty.h"
-#include "Core/Property/FStaticMeshRefProperty.h"
 #include "Core/Property/FStringProperty.h"
 #include "Core/Property/FStructProperty.h"
 #include "Core/Property/FVec3Property.h"
@@ -177,30 +175,6 @@ json::JSON FSceneComponentRefProperty::Serialize(const void* Instance) const
 }
 
 void FSceneComponentRefProperty::Deserialize(void* Instance, const json::JSON& Value) const
-{
-	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
-	*Target = Value.ToString();
-}
-
-json::JSON FStaticMeshRefProperty::Serialize(const void* Instance) const
-{
-	const auto* Value = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
-	return json::JSON(*Value);
-}
-
-void FStaticMeshRefProperty::Deserialize(void* Instance, const json::JSON& Value) const
-{
-	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
-	*Target = Value.ToString();
-}
-
-json::JSON FSkeletalMeshRefProperty::Serialize(const void* Instance) const
-{
-	const auto* Value = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
-	return json::JSON(*Value);
-}
-
-void FSkeletalMeshRefProperty::Deserialize(void* Instance, const json::JSON& Value) const
 {
 	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
 	*Target = Value.ToString();

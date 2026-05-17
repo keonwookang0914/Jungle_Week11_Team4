@@ -49,7 +49,7 @@ private:
 
 	UStaticMesh* StaticMesh = nullptr;
 
-	UPROPERTY(Edit, Category = "Mesh", DisplayName = "Static Mesh", Type = StaticMeshRef)
+	UPROPERTY(Edit, Category = "Mesh", DisplayName = "Static Mesh", Type = SoftObject, Class = UStaticMesh)
 	FString StaticMeshPath = "None";
 	TArray<UMaterial*> OverrideMaterials;
 

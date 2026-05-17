@@ -21,6 +21,7 @@
 #include "Core/Property/FArrayProperty.h"
 #include "Core/Property/FEnumProperty.h"
 #include "Core/Property/FNumericProperty/FNumericProperty.h"
+#include "Core/Property/FObjectPropertyBase/FSoftObjectProperty.h"
 #include "Core/Property/FStructProperty.h"
 #include "Core/Property/PropertyTypes.h"
 #include "Core/ClassTypes.h"
@@ -888,7 +889,7 @@ void FEditorPropertyWidget::RenderComponentProperties(AActor* Actor, const TArra
 	}
 
 	bool bAnyChanged = false;
-	// StaticMeshRef 변경은 SetStaticMesh를 통해 MaterialSlots를 resize 하므로
+	// Mesh soft-reference changes call Set*Mesh and can resize MaterialSlots, so
 	// Props에 들어있던 &MaterialSlots[i] 포인터가 모두 무효화된다. 이후 Materials
 	// 카테고리 등을 더 렌더링하면 dangling pointer 접근 → bad_alloc.
 	// 변경이 발생하면 즉시 외부 루프까지 빠져나와 다음 프레임에 Props를 새로 수집해 렌더한다.
@@ -951,7 +952,7 @@ void FEditorPropertyWidget::RenderComponentProperties(AActor* Actor, const TArra
 					bAnyChanged = true;
 					PropagatePropertyChange(Props[i]->Name, SelectedActors);
 
-					if (Props[i]->GetType() == EPropertyType::StaticMeshRef || Props[i]->GetType() == EPropertyType::SkeletalMeshRef)
+					if (Props[i]->GetType() == EPropertyType::SoftObject)
 					{
 						bPropsInvalidated = true;
 						ImGui::PopID();
@@ -1022,8 +1023,7 @@ void FEditorPropertyWidget::PropagatePropertyChange(const FString& PropName, con
 				case EPropertyType::Color4:         Size = sizeof(float) * 4; break;
 				case EPropertyType::String:
 				case EPropertyType::SceneComponentRef:
-				case EPropertyType::StaticMeshRef:  *static_cast<FString*>(DstValuePtr) = *static_cast<FString*>(SrcValuePtr); break;
-				case EPropertyType::SkeletalMeshRef: *static_cast<FString*>(DstValuePtr) = *static_cast<FString*>(SrcValuePtr); break;
+				case EPropertyType::SoftObject:     *static_cast<FString*>(DstValuePtr) = *static_cast<FString*>(SrcValuePtr); break;
 				case EPropertyType::Name:           *static_cast<FName*>(DstValuePtr) = *static_cast<FName*>(SrcValuePtr); break;
 				case EPropertyType::MaterialSlot:   *static_cast<FMaterialSlot*>(DstValuePtr) = *static_cast<FMaterialSlot*>(SrcValuePtr); break;
 				case EPropertyType::Enum:
@@ -1287,169 +1287,169 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 		}
 		break;
 	}
-	case EPropertyType::StaticMeshRef:
+	case EPropertyType::SoftObject:
 	{
+		const FSoftObjectProperty& SoftObjectProp = static_cast<const FSoftObjectProperty&>(Prop);
 		FString* Val = static_cast<FString*>(ValuePtr);
 
-		FString Preview = Val->empty() ? "None" : GetStemFromPath(*Val);
-		if (*Val == "None") Preview = "None";
-
-		float ButtonWidth = ImGui::CalcTextSize("Import").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-		float Spacing = ImGui::GetStyle().ItemSpacing.x;
-		ImGui::SetNextItemWidth(-(ButtonWidth + Spacing));
-
-		if (ImGui::BeginCombo("##Mesh", Preview.c_str()))
+		if (SoftObjectProp.PropertyClass == UStaticMesh::StaticClass())
 		{
-			bool bSelectedNone = (*Val == "None");
-			if (ImGui::Selectable("None", bSelectedNone))
-			{
-				*Val = "None";
-				bChanged = true;
-			}
-			if (bSelectedNone)
-				ImGui::SetItemDefaultFocus();
+			FString Preview = Val->empty() ? "None" : GetStemFromPath(*Val);
+			if (*Val == "None") Preview = "None";
 
-			const TArray<FMeshAssetListItem>& MeshFiles = FMeshManager::GetAvailableStaticMeshFiles();
-			for (const FMeshAssetListItem& Item : MeshFiles)
+			float ButtonWidth = ImGui::CalcTextSize("Import").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+			float Spacing = ImGui::GetStyle().ItemSpacing.x;
+			ImGui::SetNextItemWidth(-(ButtonWidth + Spacing));
+
+			if (ImGui::BeginCombo("##Mesh", Preview.c_str()))
 			{
-				bool bSelected = (*Val == Item.FullPath);
-				if (ImGui::Selectable(Item.DisplayName.c_str(), bSelected))
+				bool bSelectedNone = (*Val == "None");
+				if (ImGui::Selectable("None", bSelectedNone))
 				{
-					*Val = Item.FullPath;
+					*Val = "None";
 					bChanged = true;
 				}
-				if (bSelected)
+				if (bSelectedNone)
 					ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-		}
 
-		// .obj/.fbx static mesh 임포트 버튼
-		ImGui::SameLine();
-
-		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - ButtonWidth);
-		if (ImGui::Button("Import"))
-		{
-			FString MeshPath = OpenStaticMeshFileDialog();
-			if (!MeshPath.empty())
-			{
-				if (IsFbxFilePath(MeshPath))
+				const TArray<FMeshAssetListItem>& MeshFiles = FMeshManager::GetAvailableStaticMeshFiles();
+				for (const FMeshAssetListItem& Item : MeshFiles)
 				{
-					PendingStaticMeshImportPath = MeshPath;
-					PendingStaticMeshImportTarget = Val;
-					PendingStaticFbxSkinnedMeshPolicy =
-						FImportOptions::Default().StaticFbxSkinnedMeshPolicy == EStaticFbxSkinnedMeshPolicy::ImportBindPoseAsStatic ? 1 : 0;
-					ImGui::OpenPopup("Static FBX Import Options");
-				}
-				else
-				{
-					ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-					UStaticMesh* Loaded = nullptr;
-					FEditorObjImportService::ImportStaticMeshFromObj(MeshPath, Device, Loaded);
-					if (Loaded)
+					bool bSelected = (*Val == Item.FullPath);
+					if (ImGui::Selectable(Item.DisplayName.c_str(), bSelected))
 					{
-						// Component에는 바로 로드할 .uasset 경로를 저장한다.
-						// Scene을 다시 열 때 원본 import를 반복하지 않기 위해서다.
-						*Val = Loaded->GetAssetPathFileName();
+						*Val = Item.FullPath;
 						bChanged = true;
+					}
+					if (bSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			// .obj/.fbx static mesh 임포트 버튼
+			ImGui::SameLine();
+
+			ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - ButtonWidth);
+			if (ImGui::Button("Import"))
+			{
+				FString MeshPath = OpenStaticMeshFileDialog();
+				if (!MeshPath.empty())
+				{
+					if (IsFbxFilePath(MeshPath))
+					{
+						PendingStaticMeshImportPath = MeshPath;
+						PendingStaticMeshImportTarget = Val;
+						PendingStaticFbxSkinnedMeshPolicy =
+							FImportOptions::Default().StaticFbxSkinnedMeshPolicy == EStaticFbxSkinnedMeshPolicy::ImportBindPoseAsStatic ? 1 : 0;
+						ImGui::OpenPopup("Static FBX Import Options");
+					}
+					else
+					{
+						ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
+						UStaticMesh* Loaded = nullptr;
+						FEditorObjImportService::ImportStaticMeshFromObj(MeshPath, Device, Loaded);
+						if (Loaded)
+						{
+							// Component에는 바로 로드할 .uasset 경로를 저장한다.
+							// Scene을 다시 열 때 원본 import를 반복하지 않기 위해서다.
+							*Val = Loaded->GetAssetPathFileName();
+							bChanged = true;
+						}
 					}
 				}
 			}
-		}
 
-		if (ImGui::BeginPopupModal("Static FBX Import Options", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			ImGui::TextUnformatted("Skinned mesh handling");
-			ImGui::RadioButton("Skip skinned meshes", &PendingStaticFbxSkinnedMeshPolicy, 0);
-			ImGui::RadioButton("Import bind pose as static mesh", &PendingStaticFbxSkinnedMeshPolicy, 1);
-
-			if (ImGui::Button("Import"))
+			if (ImGui::BeginPopupModal("Static FBX Import Options", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 			{
-				FImportOptions Options = FImportOptions::Default();
-				Options.StaticFbxSkinnedMeshPolicy = PendingStaticFbxSkinnedMeshPolicy == 1
-					? EStaticFbxSkinnedMeshPolicy::ImportBindPoseAsStatic
-					: EStaticFbxSkinnedMeshPolicy::Skip;
+				ImGui::TextUnformatted("Skinned mesh handling");
+				ImGui::RadioButton("Skip skinned meshes", &PendingStaticFbxSkinnedMeshPolicy, 0);
+				ImGui::RadioButton("Import bind pose as static mesh", &PendingStaticFbxSkinnedMeshPolicy, 1);
 
-				ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-				UStaticMesh* Loaded = nullptr;
-				FEditorFbxImportService::ImportStaticMeshFromFbx(PendingStaticMeshImportPath, Options, Device, Loaded);
-				if (Loaded && PendingStaticMeshImportTarget)
+				if (ImGui::Button("Import"))
 				{
-					// 옵션을 적용해 만든 결과도 .uasset 경로로 남긴다.
-					*PendingStaticMeshImportTarget = Loaded->GetAssetPathFileName();
-					bChanged = true;
+					FImportOptions Options = FImportOptions::Default();
+					Options.StaticFbxSkinnedMeshPolicy = PendingStaticFbxSkinnedMeshPolicy == 1
+						? EStaticFbxSkinnedMeshPolicy::ImportBindPoseAsStatic
+						: EStaticFbxSkinnedMeshPolicy::Skip;
+
+					ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
+					UStaticMesh* Loaded = nullptr;
+					FEditorFbxImportService::ImportStaticMeshFromFbx(PendingStaticMeshImportPath, Options, Device, Loaded);
+					if (Loaded && PendingStaticMeshImportTarget)
+					{
+						// 옵션을 적용해 만든 결과도 .uasset 경로로 남긴다.
+						*PendingStaticMeshImportTarget = Loaded->GetAssetPathFileName();
+						bChanged = true;
+					}
+
+					PendingStaticMeshImportPath.clear();
+					PendingStaticMeshImportTarget = nullptr;
+					ImGui::CloseCurrentPopup();
 				}
 
-				PendingStaticMeshImportPath.clear();
-				PendingStaticMeshImportTarget = nullptr;
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel"))
-			{
-				PendingStaticMeshImportPath.clear();
-				PendingStaticMeshImportTarget = nullptr;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-		break;
-	}
-	// TODO: implement
-	case EPropertyType::SkeletalMeshRef:
-	{
-		FString* Val = static_cast<FString*>(ValuePtr);
-
-		FString Preview = Val->empty() ? "None" : GetStemFromPath(*Val);
-		if (*Val == "None") Preview = "None";
-
-		float ButtonWidth = ImGui::CalcTextSize("Import FBX").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-		float Spacing = ImGui::GetStyle().ItemSpacing.x;
-		ImGui::SetNextItemWidth(-(ButtonWidth + Spacing));
-		if (ImGui::BeginCombo("##SkeletalMesh", Preview.c_str()))
-		{
-			bool bSelectedNone = (*Val == "None");
-			if (ImGui::Selectable("None", bSelectedNone))
-			{
-				*Val = "None";
-				bChanged = true;
-			}
-			if (bSelectedNone)
-				ImGui::SetItemDefaultFocus();
-			const TArray<FMeshAssetListItem>& MeshFiles = FMeshManager::GetAvailableSkeletalMeshFiles();
-			for (const FMeshAssetListItem& Item : MeshFiles)
-			{
-				bool bSelected = (*Val == Item.FullPath);
-				if (ImGui::Selectable(Item.DisplayName.c_str(), bSelected))
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel"))
 				{
-					*Val = Item.FullPath;
+					PendingStaticMeshImportPath.clear();
+					PendingStaticMeshImportTarget = nullptr;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+		}
+		else if (SoftObjectProp.PropertyClass == USkeletalMesh::StaticClass())
+		{
+			FString Preview = Val->empty() ? "None" : GetStemFromPath(*Val);
+			if (*Val == "None") Preview = "None";
+
+			float ButtonWidth = ImGui::CalcTextSize("Import FBX").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+			float Spacing = ImGui::GetStyle().ItemSpacing.x;
+			ImGui::SetNextItemWidth(-(ButtonWidth + Spacing));
+			if (ImGui::BeginCombo("##SkeletalMesh", Preview.c_str()))
+			{
+				bool bSelectedNone = (*Val == "None");
+				if (ImGui::Selectable("None", bSelectedNone))
+				{
+					*Val = "None";
 					bChanged = true;
 				}
-				if (bSelected)
+				if (bSelectedNone)
 					ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-		}
-
-		// .fbx 임포트 버튼
-		ImGui::SameLine();
-
-		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - ButtonWidth);
-		if (ImGui::Button("Import FBX"))
-		{
-			FString FbxPath = OpenFbxFileDialog();
-			if (!FbxPath.empty())
-			{
-				ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-				USkeletalMesh* Loaded = nullptr;
-				FEditorFbxImportService::ImportSkeletalMeshFromFbx(FbxPath, Device, Loaded);
-				if (Loaded)
+				const TArray<FMeshAssetListItem>& MeshFiles = FMeshManager::GetAvailableSkeletalMeshFiles();
+				for (const FMeshAssetListItem& Item : MeshFiles)
 				{
-					// Component에는 바로 로드할 .uasset 경로를 저장한다.
-					// 원본 FBX 경로는 Binary 안의 PathFileName에만 남긴다.
-					*Val = Loaded->GetAssetPathFileName();
-					bChanged = true;
+					bool bSelected = (*Val == Item.FullPath);
+					if (ImGui::Selectable(Item.DisplayName.c_str(), bSelected))
+					{
+						*Val = Item.FullPath;
+						bChanged = true;
+					}
+					if (bSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			// .fbx 임포트 버튼
+			ImGui::SameLine();
+
+			ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - ButtonWidth);
+			if (ImGui::Button("Import FBX"))
+			{
+				FString FbxPath = OpenFbxFileDialog();
+				if (!FbxPath.empty())
+				{
+					ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
+					USkeletalMesh* Loaded = nullptr;
+					FEditorFbxImportService::ImportSkeletalMeshFromFbx(FbxPath, Device, Loaded);
+					if (Loaded)
+					{
+						// Component에는 바로 로드할 .uasset 경로를 저장한다.
+						// 원본 FBX 경로는 Binary 안의 PathFileName에만 남긴다.
+						*Val = Loaded->GetAssetPathFileName();
+						bChanged = true;
+					}
 				}
 			}
 		}

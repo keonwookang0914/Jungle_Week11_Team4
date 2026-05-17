@@ -1,7 +1,7 @@
 ﻿#include "FSoftObjectProperty.h"
-#include "Engine/Mesh/StaticMesh.h"
-#include "Engine/Mesh/SkeletalMesh.h"
-#include "Engine/Mesh/MeshManager.h"
+#include "Mesh/StaticMesh.h"
+#include "Mesh/SkeletalMesh.h"
+#include "Mesh/MeshManager.h"
 
 UObject* FSoftObjectProperty::GetObjectPropertyValue(void* Addr) const
 {

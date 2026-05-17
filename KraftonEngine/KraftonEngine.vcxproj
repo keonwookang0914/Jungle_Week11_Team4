@@ -750,8 +750,6 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Property\FRotatorProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FSceneComponentRefProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FScriptProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FSkeletalMeshRefProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FStaticMeshRefProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FStringProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FStructProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FVec3Property.h" />

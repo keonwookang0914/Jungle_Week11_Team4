@@ -91,6 +91,7 @@ class PropertyInfo:
     struct_func: str | None = None
     struct_type: str | None = None
     array_inner_type: str | None = None  # for TArray<T>
+    property_class: str | None = None    # for FObjectPropertyBase derivatives
 
 
 @dataclass
@@ -253,8 +254,6 @@ TYPE_MAP = {
 TYPE_MAP["uint8"] = ("EPropertyType::Int", "PROPERTY_INT")
 
 POINTER_TYPE_MAP = {
-    "UStaticMesh":     "EPropertyType::StaticMeshRef",
-    "USkeletalMesh":   "EPropertyType::SkeletalMeshRef",
     "USceneComponent": "EPropertyType::SceneComponentRef",
 }
 
@@ -464,6 +463,7 @@ def parse_property(
         struct_func=kvs.get("StructFunc"),
         struct_type=struct_type,
         array_inner_type=array_inner,
+        property_class=kvs.get("Class"),
     )
 
 
@@ -713,13 +713,12 @@ def property_ctor_name(prop_type: str) -> str:
         "EPropertyType::Name": "FNameProperty",
         "EPropertyType::SceneComponentRef": "FSceneComponentRefProperty",
         "EPropertyType::Color4": "FColor4Property",
-        "EPropertyType::StaticMeshRef": "FStaticMeshRefProperty",
-        "EPropertyType::SkeletalMeshRef": "FSkeletalMeshRefProperty",
         "EPropertyType::MaterialSlot": "FMaterialSlotProperty",
         "EPropertyType::Enum": "FEnumProperty",
         "EPropertyType::Struct": "FStructProperty",
         "EPropertyType::Script": "FScriptProperty",
         "EPropertyType::Array": "FArrayProperty",
+        "EPropertyType::SoftObject": "FSoftObjectProperty",
     }.get(prop_type) or (_ for _ in ()).throw(CodegenError(f"unknown property type {prop_type}"))
 
 
@@ -735,13 +734,12 @@ PROPERTY_HEADER_BY_TYPE = {
     "EPropertyType::Name": "Core/Property/FNameProperty.h",
     "EPropertyType::SceneComponentRef": "Core/Property/FSceneComponentRefProperty.h",
     "EPropertyType::Color4": "Core/Property/FColor4Property.h",
-    "EPropertyType::StaticMeshRef": "Core/Property/FStaticMeshRefProperty.h",
-    "EPropertyType::SkeletalMeshRef": "Core/Property/FSkeletalMeshRefProperty.h",
     "EPropertyType::MaterialSlot": "Core/Property/FMaterialSlotProperty.h",
     "EPropertyType::Enum": "Core/Property/FEnumProperty.h",
     "EPropertyType::Struct": "Core/Property/FStructProperty.h",
     "EPropertyType::Script": "Core/Property/FScriptProperty.h",
     "EPropertyType::Array": "Core/Property/FArrayProperty.h",
+    "EPropertyType::SoftObject": "Core/Property/FObjectPropertyBase/FSoftObjectProperty.h",
 }
 
 
@@ -796,6 +794,12 @@ def emit_property_constructor_args(
         raise CodegenError(
             f"struct {error_context} {p.name}: v1 requires generated USTRUCT or StructFunc="
         )
+    if p.prop_type == "EPropertyType::SoftObject":
+        if not p.property_class:
+            raise CodegenError(
+                f"soft object {error_context} {p.name}: v1 requires Class="
+            )
+        return [f"{p.property_class}::StaticClass()"]
     return []
 
 

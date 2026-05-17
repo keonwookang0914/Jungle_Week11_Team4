@@ -47,8 +47,6 @@ enum class EPropertyType : uint8_t
 	Name,
 	SceneComponentRef,
 	Color4,
-	StaticMeshRef,
-	SkeletalMeshRef,
 	MaterialSlot,
 	Enum,
 	Struct,
