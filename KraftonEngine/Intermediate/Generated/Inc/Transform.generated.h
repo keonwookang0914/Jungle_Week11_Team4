@@ -2,5 +2,5 @@
 #pragma once
 
 #define KE_GENERATED_BODY_FTransform() \
-    static void DescribeProperties(void* Ptr, std::vector<FProperty>& OutProps);
+    static const std::vector<FProperty*>& GetSchema();
 

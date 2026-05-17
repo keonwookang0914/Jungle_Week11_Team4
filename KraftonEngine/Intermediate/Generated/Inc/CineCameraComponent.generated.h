@@ -10,5 +10,5 @@
     friend struct UCineCameraComponent_PropertyRegistrar;
 
 #define KE_GENERATED_BODY_FCineLetterboxSettings() \
-    static void DescribeProperties(void* Ptr, std::vector<FProperty>& OutProps);
+    static const std::vector<FProperty*>& GetSchema();
 

@@ -541,7 +541,7 @@ CLASS_MACRO_TEMPLATE = """\
 
 STRUCT_MACRO_TEMPLATE = """\
 #define KE_GENERATED_BODY_{struct_name}() \\
-    static void DescribeProperties(void* Ptr, std::vector<FProperty>& OutProps);
+    static const std::vector<FProperty*>& GetSchema();
 """
 
 def emit_generated_header(
@@ -581,12 +581,16 @@ def emit_gen_cpp(
         f'#include "{source_header_include}"',
         '#include "Object/ObjectFactory.h"',
     ]
+    out.extend(
+        f'#include "{header}"'
+        for header in collect_property_headers(classes, structs, known_enums, known_structs)
+    )
     if has_lua:
         out.append('#include "Object/LuaClassRegistry.h"')
         out.append("#include <sol/sol.hpp>")
     out.append("")
     for s in structs:
-        out.append(emit_struct_describe_properties(s, known_enums, known_structs))
+        out.append(emit_struct_schema(s, known_enums, known_structs))
     for c in classes:
         out.append(emit_class_static(c))
         out.append(emit_property_registrar(c, known_enums, known_structs))
@@ -614,56 +618,70 @@ def emit_enum_names_table(enum: EnumInfo) -> str:
     )
 
 
-def emit_struct_describe_properties(
+def emit_struct_schema(
     s: StructInfo,
     known_enums: dict[str, EnumInfo],
     known_structs: dict[str, StructInfo],
 ) -> str:
     lines = [
-        f"void {s.name}::DescribeProperties(void* Ptr, std::vector<FProperty>& OutProps)",
+        f"const std::vector<FProperty*>& {s.name}::GetSchema()",
         "{",
-        f"    auto* Struct = static_cast<{s.name}*>(Ptr);",
+        "    static const std::vector<FProperty*> Schema = []()",
+        "    {",
+        "        std::vector<FProperty*> Properties;",
     ]
     for p in s.properties:
-        lines.extend(emit_struct_child_property(p, known_enums, known_structs))
-    lines.append("}")
+        if p.prop_type == "EPropertyType::Array":
+            raise CodegenError(f"array struct field {p.name}: v1 struct arrays are not supported")
+        lines.append(
+            "        Properties.push_back("
+            + emit_property_constructor_expr(
+                p,
+                offset_expr=f"offsetof({s.name}, {p.name})",
+                size_expr=f"sizeof((({s.name}*)0)->{p.name})",
+                known_enums=known_enums,
+                known_structs=known_structs,
+                error_context="struct field",
+            )
+            + ");"
+        )
+    lines.extend([
+        "        return Properties;",
+        "    }();",
+        "",
+        "    return Schema;",
+        "}",
+    ])
     return "\n".join(lines) + "\n"
 
 
-def emit_struct_child_property(
+def emit_property_constructor_expr(
     p: PropertyInfo,
+    *,
+    offset_expr: str,
+    size_expr: str,
     known_enums: dict[str, EnumInfo],
     known_structs: dict[str, StructInfo],
-) -> list[str]:
+    error_context: str,
+) -> str:
     flags = " | ".join(p.flags)
     disp = p.display_name or p.name
-    lines = [
-        "    {",
-        "        FProperty Desc;",
-        f'        Desc.Name = "{disp}";',
-        f"        Desc.Type = {p.prop_type};",
-        f'        Desc.Category = "{p.category}";',
-        f"        Desc.ValuePtr = &Struct->{p.name};",
-        f"        Desc.PropertyFlag = {flags};",
+    base_args = [
+        f'"{disp}"',
+        f'"{p.category}"',
+        flags,
+        f"static_cast<uint32>({offset_expr})",
+        f"static_cast<uint32>({size_expr})",
     ]
 
-    lines.extend(emit_property_type_metadata(
+    ctor_name = property_ctor_name(p.prop_type)
+    extra_args = emit_property_constructor_args(
         p,
-        target_prefix="Desc.",
-        indent="        ",
         known_enums=known_enums,
         known_structs=known_structs,
-        error_context="struct field",
-    ))
-
-    if p.prop_type == "EPropertyType::Array":
-        raise CodegenError(f"array struct field {p.name}: v1 struct arrays are not supported")
-
-    lines.extend([
-        "        OutProps.push_back(Desc);",
-        "    }",
-    ])
-    return lines
+        error_context=error_context,
+    )
+    return f"new {ctor_name}({', '.join(base_args + extra_args)})"
 
 
 def emit_class_static(c: ClassInfo) -> str:
@@ -682,62 +700,103 @@ def emit_class_static(c: ClassInfo) -> str:
     return "\n".join(parts) + "\n"
 
 
-def emit_property_type_metadata(
+def property_ctor_name(prop_type: str) -> str:
+    return {
+        "EPropertyType::Bool": "FBoolProperty",
+        "EPropertyType::ByteBool": "FByteBoolProperty",
+        "EPropertyType::Int": "FIntProperty",
+        "EPropertyType::Float": "FFloatProperty",
+        "EPropertyType::Vec3": "FVec3Property",
+        "EPropertyType::Vec4": "FVec4Property",
+        "EPropertyType::Rotator": "FRotatorProperty",
+        "EPropertyType::String": "FStringProperty",
+        "EPropertyType::Name": "FNameProperty",
+        "EPropertyType::SceneComponentRef": "FSceneComponentRefProperty",
+        "EPropertyType::Color4": "FColor4Property",
+        "EPropertyType::StaticMeshRef": "FStaticMeshRefProperty",
+        "EPropertyType::SkeletalMeshRef": "FSkeletalMeshRefProperty",
+        "EPropertyType::MaterialSlot": "FMaterialSlotProperty",
+        "EPropertyType::Enum": "FEnumProperty",
+        "EPropertyType::Struct": "FStructProperty",
+        "EPropertyType::Script": "FScriptProperty",
+        "EPropertyType::Array": "FArrayProperty",
+    }.get(prop_type) or (_ for _ in ()).throw(CodegenError(f"unknown property type {prop_type}"))
+
+
+PROPERTY_HEADER_BY_TYPE = {
+    "EPropertyType::Bool": "Core/Property/FBoolProperty.h",
+    "EPropertyType::ByteBool": "Core/Property/FByteBoolProperty.h",
+    "EPropertyType::Int": "Core/Property/FNumericProperty/FIntProperty.h",
+    "EPropertyType::Float": "Core/Property/FNumericProperty/FFloatProperty.h",
+    "EPropertyType::Vec3": "Core/Property/FVec3Property.h",
+    "EPropertyType::Vec4": "Core/Property/FVec4Property.h",
+    "EPropertyType::Rotator": "Core/Property/FRotatorProperty.h",
+    "EPropertyType::String": "Core/Property/FStringProperty.h",
+    "EPropertyType::Name": "Core/Property/FNameProperty.h",
+    "EPropertyType::SceneComponentRef": "Core/Property/FSceneComponentRefProperty.h",
+    "EPropertyType::Color4": "Core/Property/FColor4Property.h",
+    "EPropertyType::StaticMeshRef": "Core/Property/FStaticMeshRefProperty.h",
+    "EPropertyType::SkeletalMeshRef": "Core/Property/FSkeletalMeshRefProperty.h",
+    "EPropertyType::MaterialSlot": "Core/Property/FMaterialSlotProperty.h",
+    "EPropertyType::Enum": "Core/Property/FEnumProperty.h",
+    "EPropertyType::Struct": "Core/Property/FStructProperty.h",
+    "EPropertyType::Script": "Core/Property/FScriptProperty.h",
+    "EPropertyType::Array": "Core/Property/FArrayProperty.h",
+}
+
+
+def collect_property_headers(
+    classes: list[ClassInfo],
+    structs: list[StructInfo],
+    known_enums: dict[str, EnumInfo],
+    known_structs: dict[str, StructInfo],
+) -> list[str]:
+    prop_types: set[str] = set()
+
+    for p in [prop for c in classes for prop in c.properties] + [prop for s in structs for prop in s.properties]:
+        prop_types.add(p.prop_type)
+        if p.prop_type == "EPropertyType::Array":
+            if not p.array_inner_type:
+                raise CodegenError(f"TArray property {p.name} has no inner type")
+            inner_et, _, _ = classify_type(p.array_inner_type, known_enums, known_structs)
+            prop_types.add(inner_et)
+
+    headers = {PROPERTY_HEADER_BY_TYPE[prop_type] for prop_type in prop_types}
+    return sorted(headers)
+
+
+def emit_property_constructor_args(
     p: PropertyInfo,
     *,
-    target_prefix: str,
-    indent: str,
     known_enums: dict[str, EnumInfo],
     known_structs: dict[str, StructInfo],
     error_context: str,
 ) -> list[str]:
-    """Emit metadata shared by class and struct property descriptors.
-
-    Descriptor ownership and address binding differ between the two callers,
-    but float/enum/struct metadata rules should stay identical.
-    """
-    lines: list[str] = []
-
-    if p.prop_type == "EPropertyType::Float":
-        lines.extend([
-            f'{indent}{target_prefix}Min = {p.min or "0.0f"};',
-            f'{indent}{target_prefix}Max = {p.max or "0.0f"};',
-            f'{indent}{target_prefix}Speed = {p.speed or "0.1f"};',
-        ])
-    elif p.prop_type == "EPropertyType::Enum":
+    if p.prop_type in ("EPropertyType::Int", "EPropertyType::Float"):
+        return [p.min or "0.0f", p.max or "0.0f", p.speed or "0.1f"]
+    if p.prop_type == "EPropertyType::Enum":
         if p.enum_type:
             enum = known_enums.get(p.enum_type)
             if not enum:
                 raise CodegenError(f"unknown generated enum type {p.enum_type}")
-            lines.extend([
-                f"{indent}{target_prefix}EnumNames = {enum_names_symbol(enum.name)};",
-                f"{indent}{target_prefix}EnumCount = {len(enum.entries)};",
-                f"{indent}{target_prefix}EnumSize = sizeof({enum.name});",
-            ])
-        elif p.enum_names and p.enum_count and p.enum_size:
-            lines.extend([
-                f"{indent}{target_prefix}EnumNames = {p.enum_names};",
-                f"{indent}{target_prefix}EnumCount = {p.enum_count};",
-                f"{indent}{target_prefix}EnumSize = {p.enum_size};",
-            ])
-        else:
-            raise CodegenError(
-                f"enum {error_context} {p.name}: v1 requires generated UENUM or EnumNames=/EnumCount=/EnumSize="
-            )
-    elif p.prop_type == "EPropertyType::Struct":
+            return [enum_names_symbol(enum.name), str(len(enum.entries)), f"sizeof({enum.name})"]
+        if p.enum_names and p.enum_count and p.enum_size:
+            return [p.enum_names, p.enum_count, p.enum_size]
+        raise CodegenError(
+            f"enum {error_context} {p.name}: v1 requires generated UENUM or EnumNames=/EnumCount=/EnumSize="
+        )
+    if p.prop_type == "EPropertyType::Struct":
         if p.struct_type:
             struct = known_structs.get(p.struct_type)
             if not struct:
                 raise CodegenError(f"unknown generated struct type {p.struct_type}")
-            lines.append(f"{indent}{target_prefix}StructFunc = &{struct.name}::DescribeProperties;")
-        elif p.struct_func:
-            lines.append(f"{indent}{target_prefix}StructFunc = {p.struct_func};")
-        else:
-            raise CodegenError(
-                f"struct {error_context} {p.name}: v1 requires generated USTRUCT or StructFunc="
-            )
-
-    return lines
+            return [f"&{struct.name}::GetSchema"]
+        if p.struct_func:
+            return [p.struct_func]
+        raise CodegenError(
+            f"struct {error_context} {p.name}: v1 requires generated USTRUCT or StructFunc="
+        )
+    return []
 
 
 def emit_property_registrar(
@@ -776,47 +835,57 @@ def emit_property_registration(
     known_enums: dict[str, EnumInfo],
     known_structs: dict[str, StructInfo],
 ) -> str:
-    flags = " | ".join(p.flags)
-    disp = p.display_name or p.name  # PostEditProperty/editor keys off display name
-    lines = [
-        "{",
-        "    FProperty* P = new FProperty();",
-        f'    P->Name = "{disp}";',
-        f"    P->Type = {p.prop_type};",
-        f'    P->Category = "{p.category}";',
-        f"    P->PropertyFlag = {flags};",
-        f"    P->Offset_Internal = static_cast<uint32>(offsetof(ThisClass, {p.name}));",
-        f"    P->ElementSize = static_cast<uint32>(sizeof(((ThisClass*)0)->{p.name}));",
-    ]
-
-    lines.extend(emit_property_type_metadata(
-        p,
-        target_prefix="P->",
-        indent="    ",
-        known_enums=known_enums,
-        known_structs=known_structs,
-        error_context="property",
-    ))
-
     if p.prop_type == "EPropertyType::Array":
         if not p.array_inner_type:
             raise CodegenError(f"TArray property {p.name} has no inner type")
         inner_et, _, _ = classify_type(p.array_inner_type, known_enums, known_structs)
-        lines.extend([
-            f"    P->Accessor = GetTArrayAccessor<{p.array_inner_type}>();",
-            "    FProperty* Inner = new FProperty();",
-            '    Inner->Name = "Element";',
-            f"    Inner->Type = {inner_et};",
-            f'    Inner->Category = "{p.category}";',
-            f"    Inner->ElementSize = static_cast<uint32>(sizeof({p.array_inner_type}));",
-            "    P->Inner = Inner;",
+        inner_info = PropertyInfo(
+            name="Element",
+            cpp_type=p.array_inner_type,
+            prop_type=inner_et,
+            category=p.category,
+            display_name="Element",
+            flags=["CPF_None"],
+            enum_type=p.array_inner_type if p.array_inner_type in known_enums else None,
+            struct_type=p.array_inner_type if p.array_inner_type in known_structs else None,
+        )
+        expr = emit_property_constructor_expr(
+            p,
+            offset_expr=f"offsetof(ThisClass, {p.name})",
+            size_expr=f"sizeof(((ThisClass*)0)->{p.name})",
+            known_enums=known_enums,
+            known_structs=known_structs,
+            error_context="property",
+        )
+        inner_expr = emit_property_constructor_expr(
+            inner_info,
+            offset_expr="0",
+            size_expr=f"sizeof({p.array_inner_type})",
+            known_enums=known_enums,
+            known_structs=known_structs,
+            error_context="array inner",
+        )
+        return "\n".join([
+            "{",
+            f"    Cls->AddProperty({expr[:-1]},",
+            f"        std::unique_ptr<FProperty>({inner_expr}),",
+            f"        GetTArrayAccessor<{p.array_inner_type}>()));",
+            "}",
         ])
 
-    lines.extend([
-        "    Cls->AddProperty(P);",
+    expr = emit_property_constructor_expr(
+        p,
+        offset_expr=f"offsetof(ThisClass, {p.name})",
+        size_expr=f"sizeof(((ThisClass*)0)->{p.name})",
+        known_enums=known_enums,
+        known_structs=known_structs,
+        error_context="property",
+    )
+    return "\n".join([
+        "{",
+        f"    Cls->AddProperty({expr});",
         "}",
     ])
-    return "\n".join(lines)
 
 
 _LUA_PREFIX_STRIP = re.compile(r"^[UAF][A-Z]")
