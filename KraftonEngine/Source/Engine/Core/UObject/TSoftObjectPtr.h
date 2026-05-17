@@ -13,10 +13,22 @@ public:
 	void Reset() { Path.Reset(); CachedObject = nullptr; }
 
 	const FSoftObjectPath& GetPath() const { return Path; }
+	FSoftObjectPath& GetMutablePath() { return Path; }
 	void SetPath(const FSoftObjectPath& InPath) { CachedObject = nullptr; Path = InPath; }
+	void SetPath(const FString& InPath) { SetPath(FSoftObjectPath(InPath)); }
 
 	T* Get() const { return CachedObject; }
 	void Set(T* InObject) { CachedObject = InObject; } // Later: derive Path from object through a generic asset-path API
+
+	TSoftObjectPtr& operator=(T* InObject)
+	{
+		Set(InObject);
+		return *this;
+	}
+
+	explicit operator bool() const { return CachedObject != nullptr; }
+	T* operator->() const { return CachedObject; }
+	operator T*() const { return CachedObject; }
 
 private:
 	FSoftObjectPath Path;
