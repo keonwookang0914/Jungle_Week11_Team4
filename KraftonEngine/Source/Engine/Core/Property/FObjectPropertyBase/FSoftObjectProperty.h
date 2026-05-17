@@ -16,10 +16,7 @@ public:
 		uint32 InFlag, uint32 InOffset, uint32 InSize,  
 		UClass* InPropertyClass)  
 		: FObjectPropertyBase(InName, InCategory, InFlag, InOffset, InSize, InPropertyClass) 
-	{  
-		Name = InName; Category = InCategory; PropertyFlag = InFlag;  
-		Offset_Internal = InOffset; ElementSize = InSize;  
-		PropertyClass = InPropertyClass;  
+	{   
 	}  
 
 	EPropertyType GetType() const override { return EPropertyType::SoftObject; }  
