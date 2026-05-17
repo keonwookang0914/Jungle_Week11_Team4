@@ -16,5 +16,12 @@ public:
 	virtual void SetObjectPropertyValue(void* PropertyMemoryAddress, UObject* Value) const	= 0;
 
 public:
-	UClass* PropertyClass;
+	UClass* PropertyClass = nullptr;
+
+protected:
+	FObjectPropertyBase(const FString& InName, const FString& InCategory,
+		uint32 InFlag, uint32 InOffset, uint32 InSize,
+		UClass* InPropertyClass) : FProperty(InName, InCategory, InFlag, InOffset, InSize) {}
+
+	virtual ~FObjectPropertyBase() = default;
 };

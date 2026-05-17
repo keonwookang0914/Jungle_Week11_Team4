@@ -54,6 +54,7 @@ enum class EPropertyType : uint8_t
 	Struct,
 	Script,
 	Array,
+	SoftObject,
 };
 
 enum EPropertyFlags : uint32 {
