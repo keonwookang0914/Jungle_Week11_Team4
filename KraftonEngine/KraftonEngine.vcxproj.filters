@@ -1209,6 +1209,9 @@
       <Filter>ThirdParty\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.cpp">
+      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\EditorEngine.h">
