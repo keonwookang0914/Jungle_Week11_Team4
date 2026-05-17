@@ -20,7 +20,12 @@ private:
 	void RenderDetails(AActor* PrimaryActor, const TArray<AActor*>& SelectedActors);
 	void RenderComponentProperties(AActor* Actor, const TArray<AActor*>& SelectedActors);
 	void RenderActorProperties(AActor* PrimaryActor, const TArray<AActor*>& SelectedActors);
-	bool RenderPropertyWidget(TArray<class FProperty>& Props, int32& Index, bool bNotifyPostEdit = true);
+	bool RenderPropertyWidget(
+		const TArray<const class FProperty*>& Props,
+		int32& Index,
+		void* Container,
+		bool bNotifyPostEdit = true,
+		const FString* NameOverride = nullptr);
 
 	void PropagatePropertyChange(const FString& PropName, const TArray<AActor*>& SelectedActors);
 

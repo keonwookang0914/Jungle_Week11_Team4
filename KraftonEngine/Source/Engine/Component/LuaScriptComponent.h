@@ -24,7 +24,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay() override;
 
-	void GetEditableProperties(TArray<FProperty>& OutProps) override;
+	void GetEditableProperties(TArray<const FProperty*>& OutProps) override;
 
 	void Serialize(FArchive& Ar) override;
 

@@ -3,6 +3,8 @@
 #include "Component/PrimitiveComponent.h"
 #include "Component/ActorComponent.h"
 #include "Component/Movement/MovementComponent.h"
+#include "Core/Property/FBoolProperty.h"
+#include "Core/Property/FStringProperty.h"
 #include "Math/Rotator.h"
 #include "GameFramework/Level.h"
 #include "GameFramework/World.h"
@@ -435,16 +437,28 @@ UObject* AActor::Duplicate(UObject* NewOuter) const
 	return Dup;
 }
 
-void AActor::GetEditableProperties(TArray<FProperty>& OutProps)
+void AActor::GetEditableProperties(TArray<const FProperty*>& OutProps)
 {
 	UObject::GetEditableProperties(OutProps);
 
 	PendingActorVisible = bVisible;
-	OutProps.push_back({ "Visible", EPropertyType::Bool, "Actor", &PendingActorVisible });
+	static const FBoolProperty VisibleProperty(
+		"Visible",
+		"Actor",
+		CPF_Edit,
+		offsetof(AActor, PendingActorVisible),
+		sizeof(((AActor*)0)->PendingActorVisible));
+	OutProps.push_back(&VisibleProperty);
 
 	// Tags — 콤마 구분 단일 문자열로 편집. PostEditProperty 가 다시 split 해서 Tags 갱신.
 	PendingTagsString = JoinTagsCommaSep(Tags);
-	OutProps.push_back({ "Tags", EPropertyType::String, "Actor", &PendingTagsString });
+	static const FStringProperty TagsProperty(
+		"Tags",
+		"Actor",
+		CPF_Edit,
+		offsetof(AActor, PendingTagsString),
+		sizeof(((AActor*)0)->PendingTagsString));
+	OutProps.push_back(&TagsProperty);
 }
 
 void AActor::PostEditProperty(const char* PropertyName)

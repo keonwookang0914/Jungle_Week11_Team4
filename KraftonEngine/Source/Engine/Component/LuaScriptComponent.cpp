@@ -326,7 +326,7 @@ void ULuaScriptComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	}
 }
 
-void ULuaScriptComponent::GetEditableProperties(TArray<FProperty>& OutProps)
+void ULuaScriptComponent::GetEditableProperties(TArray<const FProperty*>& OutProps)
 {
 	EnsureDefaultScriptFile();
 	UActorComponent::GetEditableProperties(OutProps);
