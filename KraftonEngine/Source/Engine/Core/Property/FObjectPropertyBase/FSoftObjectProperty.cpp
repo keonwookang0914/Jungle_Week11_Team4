@@ -6,12 +6,12 @@
 
 UObject* FSoftObjectProperty::GetObjectPropertyValue(void* Addr) const
 {
-	const FString& Path = *static_cast<const FString*>(Addr);
-	if (Path.empty() || Path == "None") return nullptr;
+	const FSoftObjectPath& Path = *static_cast<const FSoftObjectPath*>(Addr);
+	if (Path.IsNull()) return nullptr;
 	if (PropertyClass == UStaticMesh::StaticClass())
-		return FMeshManager::FindStaticMesh(Path);
+		return FMeshManager::FindStaticMesh(Path.ToString());
 	if (PropertyClass == USkeletalMesh::StaticClass())
-		return FMeshManager::FindSkeletalMesh(Path);
+		return FMeshManager::FindSkeletalMesh(Path.ToString());
 	return nullptr;
 }
 

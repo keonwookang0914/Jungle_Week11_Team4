@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "MeshComponent.h"
 
-#include "Core/UObject/FSoftObjectPath.h"
+#include "Core/UObject/TSoftObjectPtr.h"
 #include "Math/Rotator.h"
 #include "Math/Transform.h"
 #include "Mesh/SkeletalMesh.h"
@@ -42,7 +42,7 @@ public:
 	void PostEditProperty(const char* PropertyName) override;
 	bool LineTraceComponent(const FRay& Ray, FHitResult& OutHitResult) override;
 
-	const FString& GetSkeletalMeshPath() const { return SkeletalMeshPath.ToString(); }
+	const FString& GetSkeletalMeshPath() const { return SkeletalMesh.GetPath().ToString(); }
 
 	// Bone edit 섹션: bone getter/setter는 edit pose를 만들고 CPU skinning/cache revision까지 갱신해야 한다.
 	void EnsureBoneEditPose();
@@ -78,9 +78,8 @@ protected:
 
 protected:
 	// Mesh/material state는 SetSkeletalMesh와 PostEditProperty가 같은 경로를 쓰도록 여기서 소유한다.
-	USkeletalMesh* SkeletalMesh = nullptr;
 	UPROPERTY(Edit, Category="Mesh", DisplayName="Skeletal Mesh", Type=SoftObject, Class=USkeletalMesh)
-	FSoftObjectPath SkeletalMeshPath;
+	TSoftObjectPtr<USkeletalMesh> SkeletalMesh;
 	TArray<UMaterial*> OverrideMaterials;
 	UPROPERTY(Edit, FixedSize, Category="Materials", DisplayName="Materials")
 	TArray<FMaterialSlot> MaterialSlots;
