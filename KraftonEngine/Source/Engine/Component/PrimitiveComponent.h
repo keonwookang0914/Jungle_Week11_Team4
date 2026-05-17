@@ -251,18 +251,17 @@ protected:
 	          EnumSize=sizeof(ECollisionEnabled))
 	ECollisionEnabled CollisionEnabled = ECollisionEnabled::NoCollision;
 
-	// ECollisionChannel has ActiveCount/MAX sentinels — names array is 16 entries
-	// but dropdown only exposes the first ActiveCount(=5).
+	// Names array is 16 entries, but the dropdown only exposes active channels.
 	UPROPERTY(Edit, Category="Collision", DisplayName="Object Type",
 	          Type=Enum,
 	          EnumNames=GCollisionChannelNames,
-	          EnumCount=(uint32)ECollisionChannel::ActiveCount,
+	          EnumCount=(uint32)NumActiveCollisionChannels,
 	          EnumSize=sizeof(ECollisionChannel))
 	ECollisionChannel ObjectType = ECollisionChannel::WorldStatic;
 
 	UPROPERTY(Edit, Category="Collision", DisplayName="Response Container",
 	          Type=Struct,
-	          StructFunc=&FCollisionResponseContainer::DescribeProperties)
+	          StructFunc=&FCollisionResponseContainer::GetSchema)
 	FCollisionResponseContainer ResponseContainer; // 기본: 전 채널 Block
 	FPrimitiveSceneProxy* SceneProxy = nullptr;
 
