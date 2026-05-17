@@ -21,9 +21,10 @@ UObject* FSoftObjectPath::ResolveObject() const
 	if (IsNull()) return nullptr;
 
 	// Iterate through the GUObjectArray (Unreal does this)
-	for (const UObject* Object : GUObjectArray)
+	for (UObject* Object : GUObjectArray)
 	{
-		
+		if (!Object) continue;
+		if (Object->GetAssetPathFileName() == AssetPathName) return Object;
 	}
 
 	return nullptr;
