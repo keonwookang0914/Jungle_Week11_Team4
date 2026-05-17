@@ -37,3 +37,11 @@ public:
 };
 
 FArchive& operator<<(FArchive& Ar, FSoftObjectPath& Path);
+
+
+template <typename T>
+class TSoftObjectPtr
+{
+	FSoftObjectPath Path;
+	mutable T* CachedObject = nullptr;
+};
