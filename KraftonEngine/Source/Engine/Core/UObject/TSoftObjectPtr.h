@@ -1,57 +1,56 @@
 ﻿#pragma once
 #include "FSoftObjectPtr.h"
-#include "FSoftObjectPath.h"
-#include "Serialization/Archive.h"
-
+#include "Object/Object.h"
 
 template <typename T>
 class TSoftObjectPtr : public FSoftObjectPtr
 {
+	static_assert(std::is_base_of_v<UObject, T>, "TSoftObjectPtr<T>: T must derive from UObject");
+
 public:
 	TSoftObjectPtr() = default;
-	TSoftObjectPtr(const FSoftObjectPath& InPath) : Path(InPath) { CachedObject = Path.ResolveObject(); }
+	explicit TSoftObjectPtr(const FSoftObjectPath& InPath) : FSoftObjectPtr(InPath) {}
 
-	bool IsNull() const { return Path.IsNull(); }
-	void Reset() { Path.Reset(); CachedObject = nullptr; }
-
-	const FSoftObjectPath& GetPath() const { return Path; }
-	FSoftObjectPath& GetMutablePath() { return Path; }
-	void SetPath(const FSoftObjectPath& InPath) 
-	{ 
-		Path = InPath;
-		CachedObject = Path.ResolveObject();
+	TSoftObjectPtr(T* InObject)
+	{
+		AssignObject(InObject);
 	}
-	void SetPath(const FString& InPath) { SetPath(FSoftObjectPath(InPath)); }
 
-	T* Get() const { return CachedObject; }
-	//void Set(T* InObject) { CachedObject = InObject; } // Later: derive Path from object through a generic asset-path API
+	// Typed accessor — narrows the base's UObject* through an IsA check.
+	// Returns nullptr (not a bad pointer) if the resolved object isn't a T.
+	T* Get() const
+	{
+		UObject* Resolved = FSoftObjectPtr::Get();
+		return (Resolved && Resolved->IsA<T>()) ? static_cast<T*>(Resolved) : nullptr;
+	}
 
 	TSoftObjectPtr& operator=(T* InObject)
 	{
-		Set(InObject);
+		AssignObject(InObject);
 		return *this;
 	}
 
-	explicit operator bool() const { return CachedObject != nullptr; }
-	T* operator->() const { return CachedObject; }
-	operator T*() const { return CachedObject; }
+	explicit operator bool() const { return Get() != nullptr; }
+	T* operator->() const { return Get(); }
+	operator T* () const { return Get(); }
 
 private:
-	FSoftObjectPath Path;
-	mutable T* CachedObject = nullptr;
+	void AssignObject(T* InObject)
+	{
+		if (!InObject) { Reset(); return; }
+		SetPath(InObject->GetAssetPathFileName());
+		SetCache(InObject);
+	}
 };
 
+// Zero-data guarantee. If this fires, someone added a field to TSoftObjectPtr<T>
+// and broke the FSoftObjectProperty type-erasure contract.
+static_assert(sizeof(TSoftObjectPtr<UObject>) == sizeof(FSoftObjectPtr),
+	"TSoftObjectPtr<T> must add no data members beyond FSoftObjectPtr");
+
+// Serialization forwards to the base
 template <typename T>
 FArchive& operator<<(FArchive& Ar, TSoftObjectPtr<T>& Ptr)
 {
-	const auto& Path = Ptr.GetPath();
-	FString SerializedPath = Ar.IsSaving() ? Path.ToString() : FString();
-	Ar << SerializedPath;
-
-	if (Ar.IsLoading())
-	{
-		Ptr.SetPath(SerializedPath);
-	}
-
-	return Ar;
+	return Ar << static_cast<FSoftObjectPtr&>(Ptr);
 }
