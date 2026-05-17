@@ -3850,9 +3850,6 @@
       <Filter>ThirdParty\sol2\include\sol\utility</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Core\UObject\TSoftObjectPtr.h" />
-    <ClInclude Include="Source\Engine\Core\UObject\SoftObjectPathRegistry.h">
-      <Filter>Source\Engine\Core\UObject</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="KraftonEngine.rc" />

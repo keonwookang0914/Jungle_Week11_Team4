@@ -34,6 +34,8 @@ public:
 	{
 		AssetPathName = InPath.empty() ? "None" : InPath;
 	}
+
+	UObject* ResolveObject();
 };
 
 FArchive& operator<<(FArchive& Ar, FSoftObjectPath& Path);
