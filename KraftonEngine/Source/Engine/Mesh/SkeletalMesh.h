@@ -18,7 +18,7 @@ public:
 
 	void Serialize(FArchive& Ar);
 
-	const FString& GetAssetPathFileName() const { return AssetPathFileName; }
+	const FString& GetAssetPathFileName() const override { return AssetPathFileName; }
 	void SetAssetPathFileName(const FString& InPathFileName) { AssetPathFileName = InPathFileName; }
 
 	void SetSkeletalMeshAsset(FSkeletalMesh* InMesh);

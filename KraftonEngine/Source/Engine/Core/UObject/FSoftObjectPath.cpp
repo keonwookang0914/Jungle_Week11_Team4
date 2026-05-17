@@ -1,5 +1,6 @@
 ﻿#include "Core/UObject/FSoftObjectPath.h"
 
+#include "Object/Object.h"
 #include "Serialization/Archive.h"
 
 FArchive& operator<<(FArchive& Ar, FSoftObjectPath& Path)
@@ -20,7 +21,10 @@ UObject* FSoftObjectPath::ResolveObject() const
 	if (IsNull()) return nullptr;
 
 	// Iterate through the GUObjectArray (Unreal does this)
-
+	for (const UObject* Object : GUObjectArray)
+	{
+		
+	}
 
 	return nullptr;
 }

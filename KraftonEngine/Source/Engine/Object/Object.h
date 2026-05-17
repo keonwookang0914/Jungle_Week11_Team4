@@ -138,6 +138,8 @@ public:
 	virtual void PostEditProperty(const char* PropertyName);
 	virtual void GetNonTransientProperties(TArray<const FProperty*>& OutProps);
 
+	virtual const FString& GetAssetPathFileName() const { return "None"; }
+
 	static void* operator new(size_t Size)
 	{
 		void* Ptr = std::malloc(Size);

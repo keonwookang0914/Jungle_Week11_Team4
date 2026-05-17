@@ -150,7 +150,7 @@ public:
 
 	const FString& GetTexturePathFileName(const FString& TextureName)const;
 
-	const FString& GetAssetPathFileName() const { return PathFileName; }
+	const FString& GetAssetPathFileName() const override { return PathFileName; }
 	void SetAssetPathFileName(const FString& InPath) { PathFileName = InPath; }
 	void Serialize(FArchive& Ar);//>>>>>Manager가 위임
 

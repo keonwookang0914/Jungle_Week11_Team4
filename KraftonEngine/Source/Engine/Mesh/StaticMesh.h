@@ -32,7 +32,7 @@ public:
 	void Serialize(FArchive& Ar);
 
 	void SetAssetPathFileName(const FString& InPathFileName) { AssetPathFileName = InPathFileName; }
-	const FString& GetAssetPathFileName() const { return AssetPathFileName; }
+	const FString& GetAssetPathFileName() const override { return AssetPathFileName; }
 
 	void SetStaticMeshAsset(FStaticMesh* InMesh);
 	FStaticMesh* GetStaticMeshAsset() const;
