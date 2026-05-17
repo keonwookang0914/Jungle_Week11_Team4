@@ -448,7 +448,6 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Component\SpringArmComponent.cpp" />
     <ClCompile Include="Source\Engine\Component\StaticMeshComponent.cpp" />
     <ClCompile Include="Source\Engine\Component\SubUVComponent.cpp" />
-    <ClCompile Include="Source\Engine\Component\TemporaryBoneAnimatorComponent.cpp" />
     <ClCompile Include="Source\Engine\Component\TextRenderComponent.cpp" />
     <ClCompile Include="Source\Engine\Component\Light\AmbientLightComponent.cpp" />
     <ClCompile Include="Source\Engine\Component\Light\DirectionalLightComponent.cpp" />
@@ -730,7 +729,6 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Component\SpringArmComponent.h" />
     <ClInclude Include="Source\Engine\Component\StaticMeshComponent.h" />
     <ClInclude Include="Source\Engine\Component\SubUVComponent.h" />
-    <ClInclude Include="Source\Engine\Component\TemporaryBoneAnimatorComponent.h" />
     <ClInclude Include="Source\Engine\Component\TextRenderComponent.h" />
     <ClInclude Include="Source\Engine\Component\Light\AmbientLightComponent.h" />
     <ClInclude Include="Source\Engine\Component\Light\DirectionalLightComponent.h" />
@@ -753,6 +751,10 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Log.h" />
     <ClInclude Include="Source\Engine\Core\Notification.h" />
     <ClInclude Include="Source\Engine\Core\ProjectSettings.h" />
+    <ClInclude Include="Source\Engine\Core\RayTypes.h" />
+    <ClInclude Include="Source\Engine\Core\ResourceTypes.h" />
+    <ClInclude Include="Source\Engine\Core\Singleton.h" />
+    <ClInclude Include="Source\Engine\Core\TickFunction.h" />
     <ClInclude Include="Source\Engine\Core\Property\FArrayProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FBoolProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FByteBoolProperty.h" />
@@ -760,12 +762,6 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Property\FEnumProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FMaterialSlotProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FNameProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FDoubleProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FFloatProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FIntProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FNumericProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FClassProperty.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FRotatorProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FSceneComponentRefProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FScriptProperty.h" />
@@ -775,11 +771,13 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Property\FStructProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FVec3Property.h" />
     <ClInclude Include="Source\Engine\Core\Property\FVec4Property.h" />
-    <ClInclude Include="Source\Engine\Core\RayTypes.h" />
-    <ClInclude Include="Source\Engine\Core\ResourceTypes.h" />
-    <ClInclude Include="Source\Engine\Core\Singleton.h" />
-    <ClInclude Include="Source\Engine\Core\TickFunction.h" />
     <ClInclude Include="Source\Engine\Core\Property\PropertyTypes.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FDoubleProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FFloatProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FIntProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FNumericProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FClassProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectProperty.h" />
     <ClInclude Include="Source\Engine\Debug\DebugDrawQueue.h" />
     <ClInclude Include="Source\Engine\Debug\DrawDebugHelpers.h" />
     <ClInclude Include="Source\Engine\FloatCurve\FloatCurveAsset.h" />

@@ -91,6 +91,12 @@
     <Filter Include="Source\Engine\Core\Property">
       <UniqueIdentifier>{25647ff2-6251-d6c8-4f33-105c96cacd0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Core\Property\FNumericProperty">
+      <UniqueIdentifier>{b393b69b-db7f-4901-af5e-da4d2f50681a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Core\Property\FObjectPropertyBase">
+      <UniqueIdentifier>{f4f90532-5b42-ed0a-10b7-a0fe8f04391a}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Debug">
       <UniqueIdentifier>{94a820a1-1cf9-b142-f9b6-735eff25a3ee}</UniqueIdentifier>
     </Filter>
@@ -360,12 +366,6 @@
     </Filter>
     <Filter Include="ThirdParty\sol2\include\sol\utility">
       <UniqueIdentifier>{9665cc4b-2b87-76ba-7eb3-a148e4c5a694}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Core\Property\FNumericProperty">
-      <UniqueIdentifier>{9764323c-5701-42aa-b9f6-d43e252fbdf4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Core\Property\FObjectPropertyBase">
-      <UniqueIdentifier>{d99c7084-5e2c-482e-9718-a34b84089efb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -729,9 +729,6 @@
       <Filter>Source\Engine\Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Component\SubUVComponent.cpp">
-      <Filter>Source\Engine\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Component\TemporaryBoneAnimatorComponent.cpp">
       <Filter>Source\Engine\Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Component\TextRenderComponent.cpp">
@@ -1571,9 +1568,6 @@
     <ClInclude Include="Source\Engine\Component\SubUVComponent.h">
       <Filter>Source\Engine\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Component\TemporaryBoneAnimatorComponent.h">
-      <Filter>Source\Engine\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Component\TextRenderComponent.h">
       <Filter>Source\Engine\Component</Filter>
     </ClInclude>
@@ -1652,8 +1646,74 @@
     <ClInclude Include="Source\Engine\Core\TickFunction.h">
       <Filter>Source\Engine\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FArrayProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FBoolProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FByteBoolProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FColor4Property.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FEnumProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FMaterialSlotProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FNameProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FRotatorProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FSceneComponentRefProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FScriptProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FSkeletalMeshRefProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FStaticMeshRefProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FStringProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FStructProperty.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FVec3Property.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FVec4Property.h">
+      <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Core\Property\PropertyTypes.h">
       <Filter>Source\Engine\Core\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FDoubleProperty.h">
+      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FFloatProperty.h">
+      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FIntProperty.h">
+      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FNumericProperty.h">
+      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FClassProperty.h">
+      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectProperty.h">
+      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Debug\DebugDrawQueue.h">
       <Filter>Source\Engine\Debug</Filter>
@@ -3910,72 +3970,6 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\sol2\include\sol\utility\to_string.hpp">
       <Filter>ThirdParty\sol2\include\sol\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FBoolProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FByteBoolProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FStringProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FNumericProperty.h">
-      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FIntProperty.h">
-      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FFloatProperty.h">
-      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FDoubleProperty.h">
-      <Filter>Source\Engine\Core\Property\FNumericProperty</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectProperty.h">
-      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FClassProperty.h">
-      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FArrayProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FStructProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FNameProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FVec3Property.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FVec4Property.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FRotatorProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FColor4Property.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FEnumProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FMaterialSlotProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FSceneComponentRefProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FScriptProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FSkeletalMeshRefProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FStaticMeshRefProperty.h">
-      <Filter>Source\Engine\Core\Property</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
