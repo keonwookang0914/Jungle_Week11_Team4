@@ -26,6 +26,8 @@ public:
 	json::JSON Serialize(const void* Instance) const override;        // FString path to JSON  
 	void Deserialize(void* Instance, const json::JSON& Value) const override;  
 
+	// In Unreal Engine 5.6, calling GetObjectPropertyValue on an FSoftObjectProperty returns a UObject* to the referenced asset, 
+	// but only if that asset is already loaded in memory. If the asset is not loaded, it returns nullptr.
 	UObject* GetObjectPropertyValue(void* PropertyMemoryAddress) const override;  
 	void SetObjectPropertyValue(void* PropertyMemoryAddress, UObject* Value) const override;  
 };
