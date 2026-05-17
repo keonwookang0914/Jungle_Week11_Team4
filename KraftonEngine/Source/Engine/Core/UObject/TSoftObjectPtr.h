@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "FSoftObjectPath.h"
+#include "Serialization/Archive.h"
 
 template <typename T>
 class TSoftObjectPtr
@@ -21,3 +22,18 @@ private:
 	FSoftObjectPath Path;
 	mutable T* CachedObject = nullptr;
 };
+
+template <typename T>
+FArchive& operator<<(FArchive& Ar, TSoftObjectPtr<T>& Ptr)
+{
+	const auto& Path = Ptr.GetPath();
+	FString SerializedPath = Ar.IsSaving() ? Path.ToString() : FString();
+	Ar << SerializedPath;
+
+	if (Ar.IsLoading())
+	{
+		Ptr.SetPath(SerializedPath);
+	}
+
+	return Ar;
+}
