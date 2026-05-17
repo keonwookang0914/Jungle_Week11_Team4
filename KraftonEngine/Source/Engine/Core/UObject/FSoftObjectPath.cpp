@@ -15,10 +15,12 @@ FArchive& operator<<(FArchive& Ar, FSoftObjectPath& Path)
 	return Ar;
 }
 
-UObject* FSoftObjectPath::ResolveObject()
+UObject* FSoftObjectPath::ResolveObject() const
 {
 	if (IsNull()) return nullptr;
 
 	// Iterate through the GUObjectArray (Unreal does this)
+
+
 	return nullptr;
 }
