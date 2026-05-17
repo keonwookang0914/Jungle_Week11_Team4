@@ -465,10 +465,10 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Core\Log.cpp" />
     <ClCompile Include="Source\Engine\Core\Notification.cpp" />
     <ClCompile Include="Source\Engine\Core\ProjectSettings.cpp" />
-    <ClCompile Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.cpp" />
-    <ClCompile Include="Source\Engine\Core\UObject\FSoftObjectPath.cpp" />
     <ClCompile Include="Source\Engine\Core\TickFunction.cpp" />
     <ClCompile Include="Source\Engine\Core\Property\PropertyTypes.cpp" />
+    <ClCompile Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.cpp" />
+    <ClCompile Include="Source\Engine\Core\UObject\FSoftObjectPath.cpp" />
     <ClCompile Include="Source\Engine\Core\UObject\TSoftObjectPtr.cpp" />
     <ClCompile Include="Source\Engine\Debug\DebugDrawQueue.cpp" />
     <ClCompile Include="Source\Engine\Debug\DrawDebugHelpers.cpp" />
@@ -736,8 +736,6 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Log.h" />
     <ClInclude Include="Source\Engine\Core\Notification.h" />
     <ClInclude Include="Source\Engine\Core\ProjectSettings.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectPropertyBase.h" />
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.h" />
     <ClInclude Include="Source\Engine\Core\RayTypes.h" />
     <ClInclude Include="Source\Engine\Core\ResourceTypes.h" />
     <ClInclude Include="Source\Engine\Core\Singleton.h" />
@@ -763,7 +761,10 @@ xcopy /Y "$(ProjectDir)ThirdParty\lua\bin\lua51.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Core\Property\FNumericProperty\FNumericProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FClassProperty.h" />
     <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectProperty.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectPropertyBase.h" />
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.h" />
     <ClInclude Include="Source\Engine\Core\UObject\FSoftObjectPath.h" />
+    <ClInclude Include="Source\Engine\Core\UObject\FSoftObjectPtr.h" />
     <ClInclude Include="Source\Engine\Core\UObject\TSoftObjectPtr.h" />
     <ClInclude Include="Source\Engine\Debug\DebugDrawQueue.h" />
     <ClInclude Include="Source\Engine\Debug\DrawDebugHelpers.h" />

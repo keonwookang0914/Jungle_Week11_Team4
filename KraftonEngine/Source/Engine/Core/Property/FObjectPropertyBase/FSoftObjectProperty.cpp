@@ -35,6 +35,7 @@ namespace
 
 UObject* FSoftObjectProperty::GetObjectPropertyValue(void* Addr) const
 {
+	//TSoftObjectPtr<T> &static_cast<const TSoftObjectPtr<UStaticMesh>*>(Addr)->GetPath();
 	const FSoftObjectPath* Path = GetSoftObjectPath(Addr, PropertyClass);
 	if (!Path || Path->IsNull()) return nullptr;
 	if (PropertyClass == UStaticMesh::StaticClass())
@@ -70,7 +71,6 @@ void FSoftObjectProperty::SetObjectPropertyValue(void* Addr, UObject* Value) con
 		auto* Ptr = static_cast<TSoftObjectPtr<UStaticMesh>*>(Addr);
 		auto* Mesh = static_cast<UStaticMesh*>(Value);
 		Ptr->SetPath(Mesh->GetAssetPathFileName());
-		Ptr->Set(Mesh);
 		return;
 	}
 
@@ -79,7 +79,6 @@ void FSoftObjectProperty::SetObjectPropertyValue(void* Addr, UObject* Value) con
 		auto* Ptr = static_cast<TSoftObjectPtr<USkeletalMesh>*>(Addr);
 		auto* Mesh = static_cast<USkeletalMesh*>(Value);
 		Ptr->SetPath(Mesh->GetAssetPathFileName());
-		Ptr->Set(Mesh);
 		return;
 	}
 }

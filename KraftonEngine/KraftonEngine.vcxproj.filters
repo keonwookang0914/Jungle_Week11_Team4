@@ -770,6 +770,9 @@
     <ClCompile Include="Source\Engine\Core\UObject\FSoftObjectPath.cpp">
       <Filter>Source\Engine\Core\UObject</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Core\UObject\TSoftObjectPtr.cpp">
+      <Filter>Source\Engine\Core\UObject</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Debug\DebugDrawQueue.cpp">
       <Filter>Source\Engine\Debug</Filter>
     </ClCompile>
@@ -1218,7 +1221,6 @@
       <Filter>ThirdParty\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Source\Engine\Core\UObject\TSoftObjectPtr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\EditorEngine.h">
@@ -1645,6 +1647,9 @@
       <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Core\UObject\FSoftObjectPath.h">
+      <Filter>Source\Engine\Core\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\UObject\TSoftObjectPtr.h">
       <Filter>Source\Engine\Core\UObject</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Debug\DebugDrawQueue.h">
@@ -3849,7 +3854,9 @@
     <ClInclude Include="ThirdParty\sol2\include\sol\utility\to_string.hpp">
       <Filter>ThirdParty\sol2\include\sol\utility</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Core\UObject\TSoftObjectPtr.h" />
+    <ClInclude Include="Source\Engine\Core\UObject\FSoftObjectPtr.h">
+      <Filter>Source\Engine\Core\UObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="KraftonEngine.rc" />
