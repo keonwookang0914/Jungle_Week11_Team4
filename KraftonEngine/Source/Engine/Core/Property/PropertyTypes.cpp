@@ -1,224 +1,340 @@
-﻿#include "Core/Property/PropertyTypes.h"
+#include "Core/Property/PropertyTypes.h"
 
 #include <cstring>
-#include "SimpleJSON/json.hpp"
-#include "Core/CoreTypes.h"
-#include "Math/Vector.h"
+
+#include "Core/Property/FArrayProperty.h"
+#include "Core/Property/FBoolProperty.h"
+#include "Core/Property/FByteBoolProperty.h"
+#include "Core/Property/FColor4Property.h"
+#include "Core/Property/FEnumProperty.h"
+#include "Core/Property/FMaterialSlotProperty.h"
+#include "Core/Property/FNameProperty.h"
+#include "Core/Property/FNumericProperty/FFloatProperty.h"
+#include "Core/Property/FNumericProperty/FIntProperty.h"
+#include "Core/Property/FRotatorProperty.h"
+#include "Core/Property/FSceneComponentRefProperty.h"
+#include "Core/Property/FScriptProperty.h"
+#include "Core/Property/FSkeletalMeshRefProperty.h"
+#include "Core/Property/FStaticMeshRefProperty.h"
+#include "Core/Property/FStringProperty.h"
+#include "Core/Property/FStructProperty.h"
+#include "Core/Property/FVec3Property.h"
+#include "Core/Property/FVec4Property.h"
 #include "Object/FName.h"
+#include "SimpleJSON/json.hpp"
 
-json::JSON FProperty::Serialize() const
+namespace
 {
-	using namespace json;
-
-	switch (Type)
+	json::JSON SerializeFloatArray(const float* Values, uint32 Count)
 	{
-	case EPropertyType::Bool:
-		return JSON(*static_cast<bool*>(ValuePtr));
-
-	case EPropertyType::Int:
-		return JSON(*static_cast<int32*>(ValuePtr));
-
-	case EPropertyType::Float:
-		return JSON(static_cast<double>(*static_cast<float*>(ValuePtr)));
-
-	case EPropertyType::Vec3:
-	case EPropertyType::Rotator:
-	{
-		float* v = static_cast<float*>(ValuePtr);
-		JSON arr = json::Array();
-		arr.append(static_cast<double>(v[0]));
-		arr.append(static_cast<double>(v[1]));
-		arr.append(static_cast<double>(v[2]));
-		return arr;
-	}
-	case EPropertyType::Vec4:
-	case EPropertyType::Color4:
-	{
-		float* v = static_cast<float*>(ValuePtr);
-		JSON arr = json::Array();
-		arr.append(static_cast<double>(v[0]));
-		arr.append(static_cast<double>(v[1]));
-		arr.append(static_cast<double>(v[2]));
-		arr.append(static_cast<double>(v[3]));
-		return arr;
-	}
-	case EPropertyType::String:
-	case EPropertyType::Script:
-	case EPropertyType::SceneComponentRef:
-	case EPropertyType::StaticMeshRef:
-		return JSON(*static_cast<FString*>(ValuePtr));
-	case EPropertyType::SkeletalMeshRef:
-		return JSON(*static_cast<FString*>(ValuePtr));
-	case EPropertyType::MaterialSlot:
-	{
-		const FMaterialSlot* Slot = static_cast<const FMaterialSlot*>(ValuePtr);
-		JSON obj = json::Object();
-		obj["Path"] = JSON(Slot->Path);
-		return obj;
-	}
-
-	case EPropertyType::ByteBool:
-		return JSON(static_cast<bool>(*static_cast<uint8_t*>(ValuePtr) != 0));
-
-	case EPropertyType::Name:
-		return JSON(static_cast<FName*>(ValuePtr)->ToString());
-
-	case EPropertyType::Enum:
-	{
-		int32 Val = 0;
-		std::memcpy(&Val, ValuePtr, EnumSize);
-		return JSON(Val);
-	}
-
-	// Vec3Array Squashed to Array
-	case EPropertyType::Array:
-	{
-		if (!Accessor || !Inner || !ValuePtr) return JSON();
-		JSON arr = json::Array();
-		const uint32 N = Accessor->Num(ValuePtr);
-		for (uint32 i = 0; i < N; ++i) {
-			FProperty Child = *Inner;                          // copy schema
-			Child.ValuePtr = Accessor->GetAt(ValuePtr, i);     // bind to live element
-			arr.append(Child.Serialize());
-		}
-		return arr;
-	}
-
-	case EPropertyType::Struct:
-	{
-		if (!StructFunc || !ValuePtr) return JSON();
-		TArray<FProperty> Children;
-		StructFunc(ValuePtr, Children);
-		JSON obj = json::Object();
-		for (const auto& Child : Children)
+		json::JSON Array = json::Array();
+		for (uint32 Index = 0; Index < Count; ++Index)
 		{
-			obj[Child.Name] = Child.Serialize();
+			Array.append(static_cast<double>(Values[Index]));
 		}
-		return obj;
+		return Array;
 	}
 
-	default:
-		return JSON();
-	}
-}
-
-void FProperty::Deserialize(json::JSON& Value)
-{
-	switch (Type)
+	void DeserializeFloatArray(float* Values, uint32 Count, const json::JSON& Value)
 	{
-	case EPropertyType::Bool:
-		*static_cast<bool*>(ValuePtr) = Value.ToBool();
-		break;
-
-	case EPropertyType::ByteBool:
-		*static_cast<uint8_t*>(ValuePtr) = Value.ToBool() ? 1 : 0;
-		break;
-
-	case EPropertyType::Int:
-		*static_cast<int32*>(ValuePtr) = Value.ToInt();
-		break;
-
-	case EPropertyType::Float:
-		*static_cast<float*>(ValuePtr) = static_cast<float>(Value.ToFloat());
-		break;
-
-	case EPropertyType::Vec3:
-	case EPropertyType::Rotator:
-	{
-		float* v = static_cast<float*>(ValuePtr);
-		int i = 0;
-		for (auto& elem : Value.ArrayRange())
-		{
-			if (i < 3) v[i] = static_cast<float>(elem.ToFloat());
-			++i;
-		}
-		break;
-	}
-	case EPropertyType::Vec4:
-	case EPropertyType::Color4:
-	{
-		float* v = static_cast<float*>(ValuePtr);
-		int i = 0;
-		for (auto& elem : Value.ArrayRange())
-		{
-			if (i < 4) v[i] = static_cast<float>(elem.ToFloat());
-			++i;
-		}
-		break;
-	}
-	case EPropertyType::String:
-	case EPropertyType::Script:
-	case EPropertyType::SceneComponentRef:
-	case EPropertyType::StaticMeshRef:
-		*static_cast<FString*>(ValuePtr) = Value.ToString();
-		break;
-	case EPropertyType::SkeletalMeshRef:
-		*static_cast<FString*>(ValuePtr) = Value.ToString();
-		break;
-
-	case EPropertyType::MaterialSlot:
-	{
-		FMaterialSlot* Slot = static_cast<FMaterialSlot*>(ValuePtr);
-		if (Value.hasKey("Path")) Slot->Path = Value["Path"].ToString();
-		break;
-	}
-
-	case EPropertyType::Name:
-		*static_cast<FName*>(ValuePtr) = FName(Value.ToString());
-		break;
-
-	case EPropertyType::Enum:
-	{
-		int32 Val = Value.ToInt();
-		std::memcpy(ValuePtr, &Val, EnumSize);
-		break;
-	}
-
-	// Vec3Array Squashed to Array
-	case EPropertyType::Array:
-	{
-		if (!Accessor || !Inner || !ValuePtr) break;
-		const bool bFixedSize = (PropertyFlag & CPF_FixedSize) != 0;
-		if (!bFixedSize)
-		{
-			Accessor->Clear(ValuePtr);
-		}
-
 		uint32 Index = 0;
-		for (auto& Elem : Value.ArrayRange()) {
-			if (!bFixedSize)
+		for (const auto& Element : Value.ArrayRange())
+		{
+			if (Index < Count)
 			{
-				Accessor->AddDefault(ValuePtr);
+				Values[Index] = static_cast<float>(Element.ToFloat());
 			}
-			else if (Index >= Accessor->Num(ValuePtr))
-			{
-				break;
-			}
-
-			FProperty Child = *Inner;
-			Child.ValuePtr = Accessor->GetAt(ValuePtr, bFixedSize ? Index : Accessor->Num(ValuePtr) - 1);
-			Child.Deserialize(Elem);
 			++Index;
 		}
-		break;
-	}
-
-	case EPropertyType::Struct:
-	{
-		if (!StructFunc || !ValuePtr) break;
-		TArray<FProperty> Children;
-		StructFunc(ValuePtr, Children);
-		for (auto& Child : Children)
-		{
-			if (!Value.hasKey(Child.Name.c_str())) continue;
-			json::JSON& ChildVal = Value[Child.Name.c_str()];
-			Child.Deserialize(ChildVal);
-		}
-		break;
-	}
-
-	default:
-		break;
 	}
 }
 
+json::JSON FBoolProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const bool*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(*Value);
+}
+
+void FBoolProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<bool*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToBool();
+}
+
+json::JSON FByteBoolProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const uint8_t*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(static_cast<bool>(*Value != 0));
+}
+
+void FByteBoolProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<uint8_t*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToBool() ? 1 : 0;
+}
+
+json::JSON FIntProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const int32*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(*Value);
+}
+
+void FIntProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<int32*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToInt();
+}
+
+json::JSON FFloatProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const float*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(static_cast<double>(*Value));
+}
+
+void FFloatProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<float*>(ContainerPtrToValuePtr(Instance));
+	*Target = static_cast<float>(Value.ToFloat());
+}
+
+json::JSON FVec3Property::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const float*>(ContainerPtrToValuePtr(Instance));
+	return SerializeFloatArray(Value, 3);
+}
+
+void FVec3Property::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<float*>(ContainerPtrToValuePtr(Instance));
+	DeserializeFloatArray(Target, 3, Value);
+}
+
+json::JSON FRotatorProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const float*>(ContainerPtrToValuePtr(Instance));
+	return SerializeFloatArray(Value, 3);
+}
+
+void FRotatorProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<float*>(ContainerPtrToValuePtr(Instance));
+	DeserializeFloatArray(Target, 3, Value);
+}
+
+json::JSON FVec4Property::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const float*>(ContainerPtrToValuePtr(Instance));
+	return SerializeFloatArray(Value, 4);
+}
+
+void FVec4Property::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<float*>(ContainerPtrToValuePtr(Instance));
+	DeserializeFloatArray(Target, 4, Value);
+}
+
+json::JSON FColor4Property::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const float*>(ContainerPtrToValuePtr(Instance));
+	return SerializeFloatArray(Value, 4);
+}
+
+void FColor4Property::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<float*>(ContainerPtrToValuePtr(Instance));
+	DeserializeFloatArray(Target, 4, Value);
+}
+
+json::JSON FStringProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(*Value);
+}
+
+void FStringProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToString();
+}
+
+json::JSON FScriptProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(*Value);
+}
+
+void FScriptProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToString();
+}
+
+json::JSON FSceneComponentRefProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(*Value);
+}
+
+void FSceneComponentRefProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToString();
+}
+
+json::JSON FStaticMeshRefProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(*Value);
+}
+
+void FStaticMeshRefProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToString();
+}
+
+json::JSON FSkeletalMeshRefProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(*Value);
+}
+
+void FSkeletalMeshRefProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
+	*Target = Value.ToString();
+}
+
+json::JSON FMaterialSlotProperty::Serialize(const void* Instance) const
+{
+	const auto* Slot = static_cast<const FMaterialSlot*>(ContainerPtrToValuePtr(Instance));
+	json::JSON Object = json::Object();
+	Object["Path"] = json::JSON(Slot->Path);
+	return Object;
+}
+
+void FMaterialSlotProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Slot = static_cast<FMaterialSlot*>(ContainerPtrToValuePtr(Instance));
+	if (Value.hasKey("Path"))
+	{
+		Slot->Path = Value.at("Path").ToString();
+	}
+}
+
+json::JSON FNameProperty::Serialize(const void* Instance) const
+{
+	const auto* Value = static_cast<const FName*>(ContainerPtrToValuePtr(Instance));
+	return json::JSON(Value->ToString());
+}
+
+void FNameProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Target = static_cast<FName*>(ContainerPtrToValuePtr(Instance));
+	*Target = FName(Value.ToString());
+}
+
+json::JSON FEnumProperty::Serialize(const void* Instance) const
+{
+	const void* ValuePtr = ContainerPtrToValuePtr(Instance);
+	int32 Value = 0;
+	std::memcpy(&Value, ValuePtr, EnumSize);
+	return json::JSON(Value);
+}
+
+void FEnumProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	void* Target = ContainerPtrToValuePtr(Instance);
+	int32 StoredValue = Value.ToInt();
+	std::memcpy(Target, &StoredValue, EnumSize);
+}
+
+json::JSON FArrayProperty::Serialize(const void* Instance) const
+{
+	const void* ArrayInstance = ContainerPtrToValuePtr(Instance);
+	if (!Accessor || !Inner || !ArrayInstance)
+	{
+		return json::JSON();
+	}
+
+	json::JSON Array = json::Array();
+	const uint32 Count = Accessor->Num(ArrayInstance);
+	for (uint32 Index = 0; Index < Count; ++Index)
+	{
+		void* ElementInstance = Accessor->GetAt(const_cast<void*>(ArrayInstance), Index);
+		Array.append(Inner->Serialize(ElementInstance));
+	}
+	return Array;
+}
+
+void FArrayProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	void* ArrayInstance = ContainerPtrToValuePtr(Instance);
+	if (!Accessor || !Inner || !ArrayInstance)
+	{
+		return;
+	}
+
+	const bool bFixedSize = (PropertyFlag & CPF_FixedSize) != 0;
+	if (!bFixedSize)
+	{
+		Accessor->Clear(ArrayInstance);
+	}
+
+	uint32 Index = 0;
+	for (const auto& Element : Value.ArrayRange())
+	{
+		if (!bFixedSize)
+		{
+			Accessor->AddDefault(ArrayInstance);
+		}
+		else if (Index >= Accessor->Num(ArrayInstance))
+		{
+			break;
+		}
+
+		const uint32 TargetIndex = bFixedSize ? Index : Accessor->Num(ArrayInstance) - 1;
+		void* ElementInstance = Accessor->GetAt(ArrayInstance, TargetIndex);
+		Inner->Deserialize(ElementInstance, Element);
+		++Index;
+	}
+}
+
+json::JSON FStructProperty::Serialize(const void* Instance) const
+{
+	const void* StructInstance = ContainerPtrToValuePtr(Instance);
+	if (!SchemaFn || !StructInstance)
+	{
+		return json::JSON();
+	}
+
+	json::JSON Object = json::Object();
+	for (const FProperty* Child : SchemaFn())
+	{
+		if (Child)
+		{
+			Object[Child->Name] = Child->Serialize(StructInstance);
+		}
+	}
+	return Object;
+}
+
+void FStructProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	void* StructInstance = ContainerPtrToValuePtr(Instance);
+	if (!SchemaFn || !StructInstance)
+	{
+		return;
+	}
+
+	for (const FProperty* Child : SchemaFn())
+	{
+		if (!Child || !Value.hasKey(Child->Name.c_str()))
+		{
+			continue;
+		}
+
+		const json::JSON& ChildValue = Value.at(Child->Name.c_str());
+		Child->Deserialize(StructInstance, ChildValue);
+	}
+}
