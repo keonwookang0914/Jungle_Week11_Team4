@@ -97,6 +97,9 @@
     <Filter Include="Source\Engine\Core\Property\FObjectPropertyBase">
       <UniqueIdentifier>{f4f90532-5b42-ed0a-10b7-a0fe8f04391a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Core\UObject">
+      <UniqueIdentifier>{f50e0f97-fca0-9bde-d2e1-3675b9e5cc50}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Debug">
       <UniqueIdentifier>{94a820a1-1cf9-b142-f9b6-735eff25a3ee}</UniqueIdentifier>
     </Filter>
@@ -761,6 +764,9 @@
     <ClCompile Include="Source\Engine\Core\Property\PropertyTypes.cpp">
       <Filter>Source\Engine\Core\Property</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.cpp">
+      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Debug\DebugDrawQueue.cpp">
       <Filter>Source\Engine\Debug</Filter>
     </ClCompile>
@@ -1209,9 +1215,6 @@
       <Filter>ThirdParty\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.cpp">
-      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\EditorEngine.h">
@@ -1630,6 +1633,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectProperty.h">
       <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectPropertyBase.h">
+      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.h">
+      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\UObject\FSoftObjectPath.h">
+      <Filter>Source\Engine\Core\UObject</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Debug\DebugDrawQueue.h">
       <Filter>Source\Engine\Debug</Filter>
@@ -3832,12 +3844,6 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\sol2\include\sol\utility\to_string.hpp">
       <Filter>ThirdParty\sol2\include\sol\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FSoftObjectProperty.h">
-      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Core\Property\FObjectPropertyBase\FObjectPropertyBase.h">
-      <Filter>Source\Engine\Core\Property\FObjectPropertyBase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
