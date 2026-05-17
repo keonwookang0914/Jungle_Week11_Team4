@@ -17,7 +17,7 @@ struct USkinnedMeshComponent_PropertyRegistrar {
         UClass* Cls = USkinnedMeshComponent::StaticClass();
         (void)Cls;
         {
-            Cls->AddProperty(new FSoftObjectProperty("Skeletal Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, SkeletalMeshPath)), static_cast<uint32>(sizeof(((ThisClass*)0)->SkeletalMeshPath)), USkeletalMesh::StaticClass()));
+            Cls->AddProperty(new FSoftObjectProperty("Skeletal Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, SkeletalMesh)), static_cast<uint32>(sizeof(((ThisClass*)0)->SkeletalMesh)), USkeletalMesh::StaticClass()));
         }
         {
             Cls->AddProperty(new FArrayProperty("Materials", "Materials", CPF_Edit | CPF_FixedSize, static_cast<uint32>(offsetof(ThisClass, MaterialSlots)), static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlots)),

@@ -2,7 +2,7 @@
 
 #include "Component/MeshComponent.h"
 #include "Core/Property/PropertyTypes.h"
-#include "Core/UObject/FSoftObjectPath.h"
+#include "Core/UObject/TSoftObjectPtr.h"
 #include "Mesh/MeshManager.h"
 #include "Mesh/StaticMesh.h"
 #include "StaticMeshComponent.generated.h"
@@ -43,15 +43,13 @@ public:
 	// Property Editor 지원
 	void PostEditProperty(const char* PropertyName) override;
 
-	const FString& GetStaticMeshPath() const { return StaticMeshPath.ToString(); }
+	const FString& GetStaticMeshPath() const { return StaticMesh.GetPath().ToString(); }
 
 private:
 	void CacheLocalBounds();
 
-	UStaticMesh* StaticMesh = nullptr;
-
 	UPROPERTY(Edit, Category = "Mesh", DisplayName = "Static Mesh", Type = SoftObject, Class = UStaticMesh)
-	FSoftObjectPath StaticMeshPath;
+	TSoftObjectPtr<UStaticMesh> StaticMesh;
 	TArray<UMaterial*> OverrideMaterials;
 
 	UPROPERTY(Edit, FixedSize, Category = "Materials", DisplayName = "Materials")

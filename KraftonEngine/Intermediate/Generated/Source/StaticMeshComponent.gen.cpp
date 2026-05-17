@@ -17,7 +17,7 @@ struct UStaticMeshComponent_PropertyRegistrar {
         UClass* Cls = UStaticMeshComponent::StaticClass();
         (void)Cls;
         {
-            Cls->AddProperty(new FSoftObjectProperty("Static Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, StaticMeshPath)), static_cast<uint32>(sizeof(((ThisClass*)0)->StaticMeshPath)), UStaticMesh::StaticClass()));
+            Cls->AddProperty(new FSoftObjectProperty("Static Mesh", "Mesh", CPF_Edit, static_cast<uint32>(offsetof(ThisClass, StaticMesh)), static_cast<uint32>(sizeof(((ThisClass*)0)->StaticMesh)), UStaticMesh::StaticClass()));
         }
         {
             Cls->AddProperty(new FArrayProperty("Materials", "Materials", CPF_Edit | CPF_FixedSize, static_cast<uint32>(offsetof(ThisClass, MaterialSlots)), static_cast<uint32>(sizeof(((ThisClass*)0)->MaterialSlots)),

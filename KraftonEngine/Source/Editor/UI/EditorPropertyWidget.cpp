@@ -24,6 +24,7 @@
 #include "Core/Property/FObjectPropertyBase/FSoftObjectProperty.h"
 #include "Core/Property/FStructProperty.h"
 #include "Core/Property/PropertyTypes.h"
+#include "Core/UObject/TSoftObjectPtr.h"
 #include "Core/ClassTypes.h"
 #include "Math/FloatCurve.h"
 #include "Lua/LuaScriptManager.h"
@@ -1023,7 +1024,12 @@ void FEditorPropertyWidget::PropagatePropertyChange(const FString& PropName, con
 				case EPropertyType::Color4:         Size = sizeof(float) * 4; break;
 				case EPropertyType::String:
 				case EPropertyType::SceneComponentRef:
-				case EPropertyType::SoftObject:     *static_cast<FString*>(DstValuePtr) = *static_cast<FString*>(SrcValuePtr); break;
+				case EPropertyType::SoftObject:
+				{
+					json::JSON SoftObjectValue = SrcProp->Serialize(SelectedComponent);
+					DstProp->Deserialize(Comp, SoftObjectValue);
+					break;
+				}
 				case EPropertyType::Name:           *static_cast<FName*>(DstValuePtr) = *static_cast<FName*>(SrcValuePtr); break;
 				case EPropertyType::MaterialSlot:   *static_cast<FMaterialSlot*>(DstValuePtr) = *static_cast<FMaterialSlot*>(SrcValuePtr); break;
 				case EPropertyType::Enum:
@@ -1290,12 +1296,13 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 	case EPropertyType::SoftObject:
 	{
 		const FSoftObjectProperty& SoftObjectProp = static_cast<const FSoftObjectProperty&>(Prop);
-		FString* Val = static_cast<FString*>(ValuePtr);
 
 		if (SoftObjectProp.PropertyClass == UStaticMesh::StaticClass())
 		{
-			FString Preview = Val->empty() ? "None" : GetStemFromPath(*Val);
-			if (*Val == "None") Preview = "None";
+			auto* Val = static_cast<TSoftObjectPtr<UStaticMesh>*>(ValuePtr);
+			const FString& CurrentPath = Val->GetPath().ToString();
+			FString Preview = CurrentPath.empty() ? "None" : GetStemFromPath(CurrentPath);
+			if (CurrentPath == "None") Preview = "None";
 
 			float ButtonWidth = ImGui::CalcTextSize("Import").x + ImGui::GetStyle().FramePadding.x * 2.0f;
 			float Spacing = ImGui::GetStyle().ItemSpacing.x;
@@ -1303,10 +1310,10 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 
 			if (ImGui::BeginCombo("##Mesh", Preview.c_str()))
 			{
-				bool bSelectedNone = (*Val == "None");
+				bool bSelectedNone = (CurrentPath == "None");
 				if (ImGui::Selectable("None", bSelectedNone))
 				{
-					*Val = "None";
+					Val->Reset();
 					bChanged = true;
 				}
 				if (bSelectedNone)
@@ -1315,10 +1322,10 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 				const TArray<FMeshAssetListItem>& MeshFiles = FMeshManager::GetAvailableStaticMeshFiles();
 				for (const FMeshAssetListItem& Item : MeshFiles)
 				{
-					bool bSelected = (*Val == Item.FullPath);
+					bool bSelected = (CurrentPath == Item.FullPath);
 					if (ImGui::Selectable(Item.DisplayName.c_str(), bSelected))
 					{
-						*Val = Item.FullPath;
+						Val->SetPath(Item.FullPath);
 						bChanged = true;
 					}
 					if (bSelected)
@@ -1339,7 +1346,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 					if (IsFbxFilePath(MeshPath))
 					{
 						PendingStaticMeshImportPath = MeshPath;
-						PendingStaticMeshImportTarget = Val;
+						PendingStaticMeshImportTarget = &Val->GetMutablePath();
 						PendingStaticFbxSkinnedMeshPolicy =
 							FImportOptions::Default().StaticFbxSkinnedMeshPolicy == EStaticFbxSkinnedMeshPolicy::ImportBindPoseAsStatic ? 1 : 0;
 						ImGui::OpenPopup("Static FBX Import Options");
@@ -1353,7 +1360,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 						{
 							// Component에는 바로 로드할 .uasset 경로를 저장한다.
 							// Scene을 다시 열 때 원본 import를 반복하지 않기 위해서다.
-							*Val = Loaded->GetAssetPathFileName();
+							Val->SetPath(Loaded->GetAssetPathFileName());
 							bChanged = true;
 						}
 					}
@@ -1379,7 +1386,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 					if (Loaded && PendingStaticMeshImportTarget)
 					{
 						// 옵션을 적용해 만든 결과도 .uasset 경로로 남긴다.
-						*PendingStaticMeshImportTarget = Loaded->GetAssetPathFileName();
+						PendingStaticMeshImportTarget->SetPath(Loaded->GetAssetPathFileName());
 						bChanged = true;
 					}
 
@@ -1400,18 +1407,20 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 		}
 		else if (SoftObjectProp.PropertyClass == USkeletalMesh::StaticClass())
 		{
-			FString Preview = Val->empty() ? "None" : GetStemFromPath(*Val);
-			if (*Val == "None") Preview = "None";
+			auto* Val = static_cast<TSoftObjectPtr<USkeletalMesh>*>(ValuePtr);
+			const FString& CurrentPath = Val->GetPath().ToString();
+			FString Preview = CurrentPath.empty() ? "None" : GetStemFromPath(CurrentPath);
+			if (CurrentPath == "None") Preview = "None";
 
 			float ButtonWidth = ImGui::CalcTextSize("Import FBX").x + ImGui::GetStyle().FramePadding.x * 2.0f;
 			float Spacing = ImGui::GetStyle().ItemSpacing.x;
 			ImGui::SetNextItemWidth(-(ButtonWidth + Spacing));
 			if (ImGui::BeginCombo("##SkeletalMesh", Preview.c_str()))
 			{
-				bool bSelectedNone = (*Val == "None");
+				bool bSelectedNone = (CurrentPath == "None");
 				if (ImGui::Selectable("None", bSelectedNone))
 				{
-					*Val = "None";
+					Val->Reset();
 					bChanged = true;
 				}
 				if (bSelectedNone)
@@ -1419,10 +1428,10 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 				const TArray<FMeshAssetListItem>& MeshFiles = FMeshManager::GetAvailableSkeletalMeshFiles();
 				for (const FMeshAssetListItem& Item : MeshFiles)
 				{
-					bool bSelected = (*Val == Item.FullPath);
+					bool bSelected = (CurrentPath == Item.FullPath);
 					if (ImGui::Selectable(Item.DisplayName.c_str(), bSelected))
 					{
-						*Val = Item.FullPath;
+						Val->SetPath(Item.FullPath);
 						bChanged = true;
 					}
 					if (bSelected)
@@ -1447,7 +1456,7 @@ bool FEditorPropertyWidget::RenderPropertyWidget(
 					{
 						// Component에는 바로 로드할 .uasset 경로를 저장한다.
 						// 원본 FBX 경로는 Binary 안의 PathFileName에만 남긴다.
-						*Val = Loaded->GetAssetPathFileName();
+						Val->SetPath(Loaded->GetAssetPathFileName());
 						bChanged = true;
 					}
 				}

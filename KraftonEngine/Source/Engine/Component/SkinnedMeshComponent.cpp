@@ -80,7 +80,7 @@ void USkinnedMeshComponent::SetSkeletalMesh(USkeletalMesh* InMesh)
 
 	if (InMesh)
 	{
-		SkeletalMeshPath = InMesh->GetAssetPathFileName();
+		SkeletalMesh.SetPath(InMesh->GetAssetPathFileName());
 		const TArray<FSkeletalMaterial>& DefaultMaterials = SkeletalMesh->GetSkeletalMaterials();
 
 		OverrideMaterials.resize(DefaultMaterials.size());
@@ -98,7 +98,7 @@ void USkinnedMeshComponent::SetSkeletalMesh(USkeletalMesh* InMesh)
 	}
 	else
 	{
-		SkeletalMeshPath.Reset();
+		SkeletalMesh.Reset();
 		OverrideMaterials.clear();
 		MaterialSlots.clear();
 	}
@@ -659,7 +659,7 @@ void USkinnedMeshComponent::Serialize(FArchive& Ar)
 {
 	UMeshComponent::Serialize(Ar);
 	// asset pointer는 session마다 달라질 수 있어 path와 slot path만 직렬화한다.
-	Ar << SkeletalMeshPath;
+	Ar << SkeletalMesh;
 	Ar << MaterialSlots;
 }
 
@@ -668,10 +668,10 @@ void USkinnedMeshComponent::PostDuplicate()
 {
 	UMeshComponent::PostDuplicate();
 
-	if (!SkeletalMeshPath.IsNull())
+	if (!SkeletalMesh.IsNull())
 	{
 		ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-		USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMeshPath.ToString(), Device);
+		USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMesh.GetPath().ToString(), Device);
 		if (Loaded)
 		{
 			TArray<FMaterialSlot> SavedSlots = MaterialSlots;
@@ -709,10 +709,10 @@ void USkinnedMeshComponent::PostEditProperty(const char* PropertyName)
 	if (strcmp(PropertyName, "Skeletal Mesh") == 0)
 	{
 		// mesh path 변경도 코드 경로와 같은 SetSkeletalMesh를 통과시켜 skinning과 dirty 처리를 통일한다.
-		if (!SkeletalMeshPath.IsNull())
+		if (!SkeletalMesh.IsNull())
 		{
 			ID3D11Device* Device = GEngine->GetRenderer().GetFD3DDevice().GetDevice();
-			USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMeshPath.ToString(), Device);
+			USkeletalMesh* Loaded = FMeshManager::LoadSkeletalMesh(SkeletalMesh.GetPath().ToString(), Device);
 
 			SetSkeletalMesh(Loaded);
 		}

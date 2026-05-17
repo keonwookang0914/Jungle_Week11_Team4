@@ -5,6 +5,7 @@
 
 class UActorComponent;
 class AActor;
+struct FSoftObjectPath;
 
 class FEditorPropertyWidget : public FEditorWidget
 {
@@ -43,6 +44,6 @@ private:
 	char RenameBuffer[256] = {};
 	bool bShowDuplicateWarning = false;
 	FString PendingStaticMeshImportPath;
-	FString* PendingStaticMeshImportTarget = nullptr;
+	FSoftObjectPath* PendingStaticMeshImportTarget = nullptr;
 	int32 PendingStaticFbxSkinnedMeshPolicy = 0;
 };
