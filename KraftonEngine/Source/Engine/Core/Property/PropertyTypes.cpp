@@ -313,15 +313,3 @@ void FStructProperty::Deserialize(void* Instance, const json::JSON& Value) const
 		Child->Deserialize(StructInstance, ChildValue);
 	}
 }
-
-json::JSON FSoftObjectProperty::Serialize(const void* Instance) const
-{
-	const auto* Path = static_cast<const FString*>(ContainerPtrToValuePtr(Instance));
-	return json::JSON(*Path);
-}
-
-void FSoftObjectProperty::Deserialize(void* Instance, const json::JSON& Value) const
-{
-	auto* Path = static_cast<FString*>(ContainerPtrToValuePtr(Instance));
-	*Path = Value.ToString();
-}

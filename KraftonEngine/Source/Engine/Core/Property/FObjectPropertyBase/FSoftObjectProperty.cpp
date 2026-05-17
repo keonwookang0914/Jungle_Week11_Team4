@@ -2,6 +2,7 @@
 #include "Mesh/StaticMesh.h"
 #include "Mesh/SkeletalMesh.h"
 #include "Mesh/MeshManager.h"
+#include "Core/UObject/FSoftObjectPath.h"
 
 UObject* FSoftObjectProperty::GetObjectPropertyValue(void* Addr) const
 {
@@ -37,4 +38,18 @@ void FSoftObjectProperty::SetObjectPropertyValue(void* Addr, UObject* Value) con
 	}
 
 	*Path = "None";
+}
+
+json::JSON FSoftObjectProperty::Serialize(const void* Instance) const
+{
+	const auto* Path = static_cast<const FSoftObjectPath*>(
+		ContainerPtrToValuePtr(Instance));
+	return json::JSON(Path->ToString());
+}
+
+void FSoftObjectProperty::Deserialize(void* Instance, const json::JSON& Value) const
+{
+	auto* Path = static_cast<FSoftObjectPath*>(
+		ContainerPtrToValuePtr(Instance));
+	Path->SetPath(Value.ToString());
 }

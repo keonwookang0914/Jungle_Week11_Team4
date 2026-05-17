@@ -245,6 +245,7 @@ TYPE_MAP = {
     "FRotator":        ("EPropertyType::Rotator",  None),
     "FString":         ("EPropertyType::String",   "PROPERTY_STRING"),
     "std::string":     ("EPropertyType::String",   "PROPERTY_STRING"),
+    "FSoftObjectPath": ("EPropertyType::SoftObject", None),
     "FName":           ("EPropertyType::Name",     None),
     "FMaterialSlot":   ("EPropertyType::MaterialSlot", None),
 }
