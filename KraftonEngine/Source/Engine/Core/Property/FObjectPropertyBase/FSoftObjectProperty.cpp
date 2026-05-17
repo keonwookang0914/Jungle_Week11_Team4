@@ -17,5 +17,24 @@ UObject* FSoftObjectProperty::GetObjectPropertyValue(void* Addr) const
 void FSoftObjectProperty::SetObjectPropertyValue(void* Addr, UObject* Value) const
 {
 	auto* Path = static_cast<FString*>(Addr);
-	*Path = Value ? Value->GetAssetPathFileName() : FString();
+
+	if (!Value)
+	{
+		*Path = "None";
+		return;
+	}
+
+	if (PropertyClass == UStaticMesh::StaticClass())
+	{
+		*Path = static_cast<UStaticMesh*>(Value)->GetAssetPathFileName();
+		return;
+	}
+
+	if (PropertyClass == USkeletalMesh::StaticClass())
+	{
+		*Path = static_cast<USkeletalMesh*>(Value)->GetAssetPathFileName();
+		return;
+	}
+
+	*Path = "None";
 }
